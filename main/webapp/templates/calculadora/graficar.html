@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generador de Gráficos</title>
+    <style>
+      body {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      input {
+        padding: 8px;
+        margin-top: 4px;
+      }
+      button {
+        padding: 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .graph-container {
+        text-align: center;
+      }
+      .graph-container img {
+        max-width: 100%;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Generador de Gráficos</h1>
+
+    <form method="POST">
+      {% csrf_token %}
+      <div>
+        <label for="x_values">Valores de X (separados por comas):</label>
+        <input
+          type="text"
+          id="x_values"
+          name="x_values"
+          required
+          placeholder="Ejemplo: 1, 2, 3, 4, 5"
+        />
+      </div>
+
+      <div>
+        <label for="y_values">Valores de Y (separados por comas):</label>
+        <input
+          type="text"
+          id="y_values"
+          name="y_values"
+          required
+          placeholder="Ejemplo: 2, 4, 6, 8, 10"
+        />
+      </div>
+
+      <button type="submit">Generar Gráfico</button>
+    </form>
+
+    {% if plot_url %}
+    <div class="graph-container">
+      <h2>Gráfico Generado:</h2>
+      <img src="data:image/png;base64,{{ plot_url }}" alt="Gráfico generado" />
+    </div>
+    {% endif %}
+  </body>
+</html>
