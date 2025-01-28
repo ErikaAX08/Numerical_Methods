@@ -73,11 +73,11 @@ Meet the team behind this project:
 
 - **Erika Amastal**
   - Role: Team Lead and Developer
-  - [GitHub](https://github.com/erikaamastal) | [LinkedIn](https://www.linkedin.com/in/erikaamastal)
+  - [GitHub](https://github.com/ErikaAX08/) | [LinkedIn](https://www.linkedin.com/in/erikaax/)
 
 - **Guillermo Campos Salas**
   - Role: Developer
-  - [GitHub](#) | [LinkedIn](#)
+  - [GitHub](https://github.com/Meitos24) | [LinkedIn](#)
 
 - **Ivan Luna Martínez**
   - Role: Developer
