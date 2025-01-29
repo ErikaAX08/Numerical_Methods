@@ -1,0 +1,141 @@
+{% extends 'base.html' %} {% block title %}Inicio - Numerical Methods{% endblock %} {% block content %}
+<!-- Hero Section -->
+<section class="bg-dark text-light text-center py-5">
+  <div class="container">
+    <h1 class="display-4">Numerical Methods</h1>
+    <p class="lead">
+      Herramientas y calculadoras para resolver problemas matemáticos utilizando métodos numéricos.
+    </p>
+    <a href="#calculadoras" class="btn btn-primary btn-lg">Explorar Calculadoras</a>
+  </div>
+</section>
+
+<!-- Acerca del Proyecto -->
+<section class="py-5">
+  <div class="container">
+    <h2 class="text-center mb-4">🚀 Acerca del Proyecto</h2>
+    <p class="text-center">
+      Este proyecto fue desarrollado por estudiantes de la BUAP como parte del curso de Métodos Numéricos.
+      Incluye calculadoras interactivas, gráficas y documentación teórica para resolver problemas matemáticos
+      utilizando métodos numéricos.
+    </p>
+    <div class="row mt-4">
+      <div class="col-md-4 text-center">
+        <h3>Django</h3>
+        <p>Backend robusto y escalable.</p>
+      </div>
+      <div class="col-md-4 text-center">
+        <h3>Matplotlib</h3>
+        <p>Visualización de datos y gráficas.</p>
+      </div>
+      <div class="col-md-4 text-center">
+        <h3>Bootstrap</h3>
+        <p>Diseño responsive y moderno.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Calculadoras y Herramientas -->
+<section id="calculadoras" class="py-5">
+  <div class="container">
+    <h2 class="text-center mb-4">📝 Calculadoras y Herramientas</h2>
+    <div class="row">
+      <!-- Tarjeta 1 -->
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title">Métodos de Búsqueda de Raíces</h5>
+            <p class="card-text">Bisección, Newton-Raphson, Secante.</p>
+            <a href="#" class="btn btn-primary">Explorar</a>
+          </div>
+        </div>
+      </div>
+      <!-- Tarjeta 2 -->
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title">Sistemas de Ecuaciones Lineales</h5>
+            <p class="card-text">Eliminación Gaussiana, Descomposición LU.</p>
+            <a href="#" class="btn btn-primary">Explorar</a>
+          </div>
+        </div>
+      </div>
+      <!-- Tarjeta 3 -->
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title">Integración Numérica</h5>
+            <p class="card-text">Regla del Trapecio, Regla de Simpson.</p>
+            <a href="#" class="btn btn-primary">Explorar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Gráficas y Visualización -->
+<section class="py-5">
+  <div class="container">
+    <h2 class="text-center mb-4">📊 Gráficas y Visualización</h2>
+    <div class="row">
+      <div class="col-md-6">
+        <img src="https://via.placeholder.com/600x400" alt="Gráfica 1" class="img-fluid rounded" />
+      </div>
+      <div class="col-md-6">
+        <img src="https://via.placeholder.com/600x400" alt="Gráfica 2" class="img-fluid rounded" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Equipo -->
+<section class="py-5">
+  <div class="container">
+    <h2 class="text-center mb-4">👩‍💻 Equipo</h2>
+    <div class="row">
+      <!-- Miembro 1 -->
+      <div class="col-md-3 mb-4">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <h5 class="card-title">Erika Amastal</h5>
+            <p class="card-text">Team Lead y Desarrolladora</p>
+            <a href="https://github.com/erikaamastal" class="btn btn-primary">GitHub</a>
+          </div>
+        </div>
+      </div>
+      <!-- Miembro 2 -->
+      <div class="col-md-3 mb-4">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <h5 class="card-title">[Nombre]</h5>
+            <p class="card-text">Desarrollador</p>
+            <a href="#" class="btn btn-primary">GitHub</a>
+          </div>
+        </div>
+      </div>
+      <!-- Miembro 3 -->
+      <div class="col-md-3 mb-4">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <h5 class="card-title">[Nombre]</h5>
+            <p class="card-text">Documentación y Diseño</p>
+            <a href="#" class="btn btn-primary">GitHub</a>
+          </div>
+        </div>
+      </div>
+      <!-- Miembro 4 -->
+      <div class="col-md-3 mb-4">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <h5 class="card-title">[Nombre]</h5>
+            <p class="card-text">Matplotlib y Backend</p>
+            <a href="#" class="btn btn-primary">GitHub</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

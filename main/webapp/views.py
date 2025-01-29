@@ -7,6 +7,11 @@ import io
 import urllib
 import base64
 
+
+def index(request):
+    return render(request, "index.html")
+
+
 def graficar(request):
     grafico = None
 
