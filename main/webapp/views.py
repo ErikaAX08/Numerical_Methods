@@ -1,7 +1,7 @@
 from django.shortcuts import render
 import matplotlib
 
-matplotlib.use("Agg")  # Para que Matplotlib no requiera una interfaz gráfica
+matplotlib.use("Agg")  # FOR USE WITHOUT DISPLAY
 import matplotlib.pyplot as plt
 import io
 import numpy as np
@@ -11,6 +11,7 @@ import base64
 
 def index(request):
     return render(request, "index.html")
+
 
 x = symbols("x")
 
@@ -56,20 +57,20 @@ def taylor_approximation(func, x_val, degree):
 # Generate the graph
 def generate_graph(func, a, b, pt_num, degrees, plane_size=10):
     try:
-        # Crear los valores de x en el rango [a, b]
+        # Create the x values in the range [a, b]
         x_values = np.linspace(a, b, pt_num)
         print(f"x_values: {x_values}")  # Debug
 
-        # Crear los valores de y para la función original en el rango [a, b]
+        # Create the y values for the original function in the range [a, b]
         original_function = lambdify(x, func, "numpy")
         original_x_values = np.linspace(a, b, 1000)
         original_y_values = original_function(original_x_values)
         print(f"y_values: {original_y_values}")  # Debug
 
-        # Crear el gráfico
+        # Create the graph
         plt.figure()
 
-        # Graficar la función original en el rango [a, b]
+        # Graph the original function in the range [a, b]
         plt.plot(
             original_x_values,
             original_y_values,
@@ -77,24 +78,24 @@ def generate_graph(func, a, b, pt_num, degrees, plane_size=10):
             color="black",
         )
 
-        # Graficar la serie de Taylor para cada grado en el rango [a, b]
+        # Graph the Taylor series for each degree in the range [a, b]
         for degree in degrees:
             taylor_values = [taylor_approximation(func, x, degree) for x in x_values]
             print(f"Degree {degree}: {taylor_values}")  # Debug
             plt.plot(x_values, taylor_values, label=f"Degree {degree}")
 
-        # Añadir etiquetas y título
+        # Add labels and title
         plt.xlabel("X")
         plt.ylabel("f(x)")
         plt.title(f"Taylor approximation for {func}")
         plt.legend()
         plt.grid(True)
 
-        # Fijar los límites de los ejes para que el plano siempre esté en [-10, 10]
+        # Fix the axis limits so that the plane is always in [-10, 10]
         plt.xlim(-plane_size, plane_size)
         plt.ylim(-plane_size, plane_size)
 
-        # Guardar el gráfico en un buffer
+        # Save the graph in a buffer
         buffer = io.BytesIO()
         plt.savefig(buffer, format="png", dpi=300)
         plt.close()
@@ -104,6 +105,7 @@ def generate_graph(func, a, b, pt_num, degrees, plane_size=10):
     except Exception as e:
         print(f"Error en generate_graph: {str(e)}")  # Debug
         raise e
+
 
 # View to calculate and display the Taylor approximation
 def calculate_taylor(request):
@@ -140,14 +142,14 @@ def calculate_taylor(request):
             # Generate graph
             graph_buffer = generate_graph(sym_func, a, b, pt_num, degrees, plane_size)
 
-            # Crear los valores de x en el rango [a, b]
+            # Create the x values in the range [a, b]
             x_values = np.linspace(a, b, pt_num)
 
-            # Calcular los valores de la función original
+            # Calculate the values of the original function
             original_function = lambdify(x, sym_func, "numpy")
             original_y_values = original_function(x_values)
 
-            # Calcular las aproximaciones de Taylor para cada grado
+            # Calculate the Taylor approximations for each degree
             taylor_data = {}
             for degree in degrees:
                 taylor_values = [
@@ -157,9 +159,9 @@ def calculate_taylor(request):
 
             image_base64 = base64.b64encode(graph_buffer.getvalue()).decode("utf-8")
 
-            # Devolver la imagen y los datos tabulados
+            # Return the image and the tabulated data
             response = {
-                "image": image_base64,  # Convertir la imagen a formato hexadecimal
+                "image": image_base64, 
                 "x_values": x_values.tolist(),
                 "original_y_values": original_y_values.tolist(),
                 "taylor_data": taylor_data,
