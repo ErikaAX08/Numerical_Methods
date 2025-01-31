@@ -1,5 +1,6 @@
 :root {
   --bs-primary: #0a395e;
+  --bs-secondary: #0188aa;
 }
 
 .bg-primary {
@@ -9,4 +10,13 @@
 .btn-primary {
   background-color: var(--bs-primary) !important;
   border-color: var(--bs-primary) !important;
+}
+
+.btn-secondary {
+  background-color: var(--bs-secondary) !important;
+  border-color: var(--bs-secondary) !important;
+}
+
+.MJX-TEX {
+  white-space: wrap;
 }
