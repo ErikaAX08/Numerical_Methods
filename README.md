@@ -92,27 +92,40 @@ Meet the team behind this project:
 ## 📥 Installation
 To run this project locally, follow these steps:
 
+- _Python version >= [3.10](https://www.python.org/downloads/release/python-3100/) required_
+
 1. Clone the repository:
 ```bash
-  git clone https://github.com/your-repo/numerical-methods.git
+  git clone https://github.com/ErikaAX08/Numerical_Methods.git
 ```
 
 2. Navigate to the project directory:
 ```bash
-  cd numerical-methods
+  cd Numerical_Methods
 ```
 
-3. Install the required dependencies:
+3. Create a new virtual environment:
+```bash
+  python3 -m venv myenv
+```
+
+4. Active virtual environment:
+```bash
+  source myenv/bin/activate
+```
+
+5. Install the required dependencies:
 ```bash
   pip install -r requirements.txt
 ```
 
-4. Run the development server:
+6. Run the development server:
 ```bash
-  python manage.py runserver
+  cd main
+  python3 manage.py runserver
 ```
 
-5. Access the application at `http://127.0.0.1:8000/`.
+7. Access the application at `http://127.0.0.1:8000/`.
 
 ## 🛠 Future Enhancements
 - Add more numerical methods and calculators.
