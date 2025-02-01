@@ -1,199 +1,208 @@
-{% extends 'base.html' %} 
-{% block title %}Taylor Series - Numerical Methods{% endblock %} 
+{% extends 'base.html' %}
+{% block title %}Taylor Series - Numerical Methods{% endblock %}
 {% block content %}
-{% load static %} 
+    {% load static %}
 
-<div class="container-sm py-5">
-  <div class="row p-4 pb-0 pe-lg-0 pt-lg-5 align-items-center rounded-3 border shadow-lg mb-5 mb-5">
-    <div class="col-lg-7 p-3 p-lg-5 pt-lg-3">
-      <h2 class="display-4 fw-bold lh-1s">Taylor and Maclaurin Series</h2>
-      <p class="lead py-5">
-        Taylor and Maclaurin series are mathematical tools used to approximate functions using polynomials. 
-        A <strong>Taylor series</strong> represents a function as an infinite sum of terms calculated from the values of its derivatives at a single point. 
-        A <strong>Maclaurin series</strong> is a special case of the Taylor series, where the function is expanded around zero. 
-        These series are widely used in calculus, physics, and engineering to approximate complex functions with simpler polynomial expressions.
-      </p>
-      <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
-        <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold" onclick="showCalculator()">Calculator</button>
-        <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">Explanation</button>
-      </div>
+    <div class="container-sm py-5">
+        <div class="row p-4 pb-0 pe-lg-0 pt-lg-5 align-items-center rounded-3 border shadow-lg mb-5 mb-5">
+            <div class="col-lg-7 p-3 p-lg-5 pt-lg-3">
+                <h2 class="display-4 fw-bold lh-1s">Taylor and Maclaurin Series</h2>
+                <p class="lead py-5">
+                    Taylor and Maclaurin series are mathematical tools used to approximate functions using polynomials.
+                    A <strong>Taylor series</strong> represents a function as an infinite sum of terms calculated from
+                    the values of its derivatives at a single point.
+                    A <strong>Maclaurin series</strong> is a special case of the Taylor series, where the function is
+                    expanded around zero.
+                    These series are widely used in calculus, physics, and engineering to approximate complex functions
+                    with simpler polynomial expressions.
+                </p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
+                    <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
+                            onclick="showCalculator()">Calculator
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">
+                        Explanation
+                    </button>
+                </div>
+            </div>
+            <div class="col-lg-4 offset-lg-1 p-0 overflow-hidden shadow-lg">
+                <img class="rounded-3" src="{% static 'images/taylor-maclaurin-1.jpg' %}" alt="Graph" width="720">
+            </div>
+        </div>
+
+        <div class="py-3"></div>
+
+        <!-- Hidden calculator section -->
+        <div id="calculator" style="display: none;" class="mt-5 p-4 bg-light rounded-3 shadow">
+            <h3 class="mb-5">Taylor Series Calculator</h3>
+            <form id="calculatorForm">
+                <div class="mb-3">
+                    <label for="functionSelect" class="form-label">Select Function:</label>
+                    <select class="form-select" id="functionSelect" required>
+                        <option value="exp(x)">e^x</option>
+                        <option value="exp(-x)">e^(-x)</option>
+                        <option value="sin(x)">sin(x)</option>
+                        <option value="cos(x)">cos(x)</option>
+                        <option value="sinh(x)">sinh(x)</option>
+                        <option value="cosh(x)">cosh(x)</option>
+                        <option value="ln(1+x)">ln(1+x)</option>
+                    </select>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <label for="intervalA" class="form-label">Interval Start:</label>
+                        <input type="number" class="form-control" id="intervalA" step="any" value="-3.1416" required>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <label for="intervalB" class="form-label">Interval End:</label>
+                        <input type="number" class="form-control" id="intervalB" step="any" value="6.1416" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <label for="pointNum" class="form-label">Number of Points:</label>
+                        <input type="number" class="form-control" id="pointNum" min="2" value="20" required>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <label for="degrees" class="form-label">Degrees of Polynomials:</label>
+                        <input type="text" class="form-control" id="degrees" value="3,5,8" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-2">Calculate and Graph</button>
+            </form>
+
+            <div id="graph" class="mt-5 row justify-content-center" style="display: none;">
+                <img id="plotImage" src="" alt="Plot" class="img-fluid w-75 rounded-4">
+            </div>
+
+            <!-- Container for the results table -->
+            <div id="resultsTable" class="mt-5" style="display: none;">
+                <h4 class="mb-3">Results table</h4>
+                <table id="dataTable" class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th>x</th>
+                        <th>Original Function</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Hidden extensive explanation section -->
+        <div id="explanation" class="mt-4 p-4 bg-light rounded-3 shadow">
+            <h3 class="pb-3">Explanation of Taylor and Maclaurin Series</h3>
+            <p>
+                The <strong>Taylor series</strong> of a function \( f(x) \) around a point \( a \) is given by:
+                \[
+                f(x) = f(a) + f'(a)(x - a) + \frac{f''(a)}{2!}(x - a)^2 + \frac{f'''(a)}{3!}(x - a)^3 + \cdots
+                \]
+                The <strong>Maclaurin series</strong> is a Taylor series centered at \( a = 0 \):
+                \[
+                f(x) = f(0) + f'(0)x + \frac{f''(0)}{2!}x^2 + \frac{f'''(0)}{3!}x^3 + \cdots
+                \]
+                These series are particularly useful for approximating functions that are difficult to compute directly.
+                For example, the exponential function \( e^x \) can be approximated using its Maclaurin series:
+                \[
+                e^x = 1 + x + \frac{x^2}{2!} + \frac{x^3}{3!} + \cdots
+                \]
+                The accuracy of the approximation depends on the number of terms used in the series.
+            </p>
+        </div>
+
+        <script>
+            function showCalculator() {
+                document.getElementById('explanation').style.display = 'none';
+                document.getElementById('calculator').style.display = 'block';
+            }
+
+            function showExplanation() {
+                document.getElementById('calculator').style.display = 'none';
+                document.getElementById('explanation').style.display = 'block';
+            }
+
+            document.getElementById("calculatorForm").addEventListener("submit", function (event) {
+                event.preventDefault();
+                calculateAndGraph();
+            });
+
+            function calculateAndGraph() {
+                const func = document.getElementById("functionSelect").value;
+                const a = document.getElementById("intervalA").value;
+                const b = document.getElementById("intervalB").value;
+                const ptNum = document.getElementById("pointNum").value;
+                const degrees = document.getElementById("degrees").value;
+
+                // Build url with query parameters
+                const url = `/calculate-taylor/?func=${func}&a=${a}&b=${b}&pt_num=${ptNum}&degrees=${degrees}`;
+
+                // Fetch the data from the server
+                fetch(url)
+                    .then((response) => response.json())
+                    .then((data) => {
+
+                        if (data.error) {
+                            alert("Error: " + data.error);
+                            console.log(data.error)
+                            return;
+                        }
+
+                        if (data.error) {
+                            alert(data.error);
+                            return;
+                        }
+
+                        // Show the graph with the plot image
+                        const plotImage = document.getElementById("plotImage");
+                        plotImage.src = `data:image/png;base64,${data.image}`;
+                        document.getElementById("graph").style.display = "flex";
+
+                        // Generate the results table
+                        generateTable(data.x_values, data.original_y_values, data.taylor_data, degrees.split(","));
+                    })
+                    .catch((error) => {
+                        console.error("Error:", error);
+                    });
+            }
+
+            function generateTable(xValues, originalYValues, taylorData, degrees) {
+                const table = document.getElementById("dataTable");
+                const thead = table.querySelector("thead");
+                const tbody = table.querySelector("tbody");
+
+                // Clear the table
+                thead.innerHTML = "";
+                tbody.innerHTML = "";
+
+                // Create the header row
+                const headerRow = document.createElement("tr");
+                headerRow.innerHTML = `
+                  <th>x</th>
+                  <th>Original Function</th>
+                  ${degrees.map((degree) => `<th>Degree ${degree}</th>`).join("")}
+                `;
+                thead.appendChild(headerRow);
+
+                // Create the data rows
+                xValues.forEach((x, index) => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${x.toFixed(4)}</td>
+                        <td>${originalYValues[index].toFixed(4)}</td>
+                        ${degrees.map((degree) => `<td>${taylorData[`Grado ${degree}`][index].toFixed(4)}</td>`).join("")}
+                      `;
+                    tbody.appendChild(row);
+                });
+
+                document.getElementById("resultsTable").style.display = "block";
+            }
+        </script>
+
     </div>
-    <div class="col-lg-4 offset-lg-1 p-0 overflow-hidden shadow-lg">
-        <img class="rounded-3" src="{% static 'images/taylor-maclaurin-1.jpg' %}" alt="Graph" width="720">
-    </div>
-</div>
-
-<div class="py-3" ></div>
-
-<!-- Hidden calculator section -->
-<div id="calculator" style="display: none;" class="mt-5 p-4 bg-light rounded-3 shadow">
-  <h3 class="mb-5">Taylor Series Calculator</h3>
-  <form id="calculatorForm">
-    <div class="mb-3">
-      <label for="functionSelect" class="form-label">Select Function:</label>
-      <select class="form-select" id="functionSelect" required>
-        <option value="exp(x)">e^x</option>
-        <option value="exp(-x)">e^(-x)</option>
-        <option value="sin(x)">sin(x)</option>
-        <option value="cos(x)">cos(x)</option>
-        <option value="sinh(x)">sinh(x)</option>
-        <option value="cosh(x)">cosh(x)</option>
-        <option value="ln(1+x)">ln(1+x)</option>
-      </select>
-    </div>
-    
-    <div class="row">
-      <div class="col-sm-6 mb-3">
-        <label for="intervalA" class="form-label">Interval Start:</label>
-        <input type="number" class="form-control" id="intervalA" step="0.01" value="-3.1416" required>
-      </div>
-      <div class="col-sm-6 mb-3">
-        <label for="intervalB" class="form-label">Interval End:</label>
-        <input type="number" class="form-control" id="intervalB" step="0.01" value="6.34" required>
-      </div>
-    </div>
-    
-    <div class="row">
-      <div class="col-sm-4 mb-3">
-        <label for="pointNum" class="form-label">Number of Points:</label>
-        <input type="number" class="form-control" id="pointNum" min="2" value="20" required>
-      </div>
-      <div class="col-sm-4 mb-3">
-        <label for="degrees" class="form-label">Degrees of Polynomials:</label>
-        <input type="text" class="form-control" id="degrees" value="3,5,8" required>
-      </div>
-      <div class="col-sm-4 mb-3">
-        <label for="degrees" class="form-label">Plane size:</label>
-        <input type="number" class="form-control" id="plane_size" min="10" value="10" required>
-      </div>
-    </div>
-    
-    <button type="submit" class="btn btn-primary mt-2">Calculate and Graph</button>
-  </form>
-  
-  <div id="graph" class="mt-5 row justify-content-center" style="display: none;">
-    <img id="plotImage" src="" alt="Plot" class="img-fluid w-75 rounded-4">
-  </div>
-  
-  <!-- Container for the results table -->
-  <div id="resultsTable" class="mt-5" style="display: none;">
-    <h4 class="mb-3">Results table</h4>
-    <table id="dataTable" class="table table-bordered">
-      <thead>
-        <tr>
-          <th>x</th>
-          <th>Original Function</th>
-        </tr>
-      </thead>
-      <tbody>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- Hidden extensive explanation section -->
-<div id="explanation" class="mt-4 p-4 bg-light rounded-3 shadow">
-  <h3 class="pb-3">Explanation of Taylor and Maclaurin Series</h3>
-  <p>
-    The <strong>Taylor series</strong> of a function \( f(x) \) around a point \( a \) is given by:
-    \[
-    f(x) = f(a) + f'(a)(x - a) + \frac{f''(a)}{2!}(x - a)^2 + \frac{f'''(a)}{3!}(x - a)^3 + \cdots
-    \]
-    The <strong>Maclaurin series</strong> is a Taylor series centered at \( a = 0 \):
-    \[
-    f(x) = f(0) + f'(0)x + \frac{f''(0)}{2!}x^2 + \frac{f'''(0)}{3!}x^3 + \cdots
-    \]
-    These series are particularly useful for approximating functions that are difficult to compute directly. 
-    For example, the exponential function \( e^x \) can be approximated using its Maclaurin series:
-    \[
-    e^x = 1 + x + \frac{x^2}{2!} + \frac{x^3}{3!} + \cdots
-    \]
-    The accuracy of the approximation depends on the number of terms used in the series.
-  </p>
-</div>
-
-<script>
-  function showCalculator() {
-    document.getElementById('explanation').style.display = 'none';
-    document.getElementById('calculator').style.display = 'block';
-  }
-
-  function showExplanation() {
-    document.getElementById('calculator').style.display = 'none';
-    document.getElementById('explanation').style.display = 'block';
-  }
-  
-  document.getElementById("calculatorForm").addEventListener("submit", function (event) {
-    event.preventDefault();
-    calculateAndGraph();
-  });
-
-  function calculateAndGraph() {
-  const func = document.getElementById("functionSelect").value;
-  const a = document.getElementById("intervalA").value;
-  const b = document.getElementById("intervalB").value;
-  const ptNum = document.getElementById("pointNum").value;
-  const degrees = document.getElementById("degrees").value;
-  const plane_size = document.getElementById("plane_size").value;
-
-  // Build url with query parameters
-  const url = `/calculate-taylor/?func=${func}&a=${a}&b=${b}&pt_num=${ptNum}&degrees=${degrees}&plane_size=${plane_size}`;
-
-  // Fetch the data from the server
-  fetch(url)
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.error) {
-        alert(data.error);
-        return;
-      }
-
-      // Show the graph with the plot image
-      const plotImage = document.getElementById("plotImage");
-      plotImage.src = `data:image/png;base64,${data.image}`;
-      document.getElementById("graph").style.display = "flex";
-
-      // Generate the results table
-      generateTable(data.x_values, data.original_y_values, data.taylor_data, degrees.split(","));
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
-  }
-
-  function generateTable(xValues, originalYValues, taylorData, degrees) {
-    const table = document.getElementById("dataTable");
-    const thead = table.querySelector("thead");
-    const tbody = table.querySelector("tbody");
-  
-    // Clear the table
-    thead.innerHTML = "";
-    tbody.innerHTML = "";
-  
-    // Create the header row
-    const headerRow = document.createElement("tr");
-    headerRow.innerHTML = `
-      <th>x</th>
-      <th>Original Function</th>
-      ${degrees.map((degree) => `<th>Degree ${degree}</th>`).join("")}
-    `;
-    thead.appendChild(headerRow);
-  
-    // Create the data rows
-    xValues.forEach((x, index) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${x.toFixed(4)}</td>
-        <td>${originalYValues[index].toFixed(4)}</td>
-        ${degrees.map((degree) => `<td>${taylorData[`Grado ${degree}`][index].toFixed(4)}</td>`).join("")}
-      `;
-      tbody.appendChild(row);
-    });
-    
-    document.getElementById("resultsTable").style.display = "block";
-  }
-</script>
-
-</div>
 
 {% endblock %}

@@ -9,14 +9,16 @@ from django.http import JsonResponse
 from sympy import symbols, exp, sin, cos, sinh, cosh, log, series, lambdify
 import base64
 
+
 def index(request):
     return render(request, "index.html")
 
 
 x = symbols("x")
 
-# Predefinied functions
-# We use this funcions to compare the results of the taylor series
+
+# Predefined functions
+# We use this functions to compare the results of the taylor series
 def functions(func, x_val):
     if func == "exp(x)":
         return float(exp(x).subs(x, x_val))
@@ -40,7 +42,7 @@ def derivative(func, x, n, h=0.0001):
         return functions(func, x)
     else:
         return (derivative(func, x + h, n - 1) - derivative(func, x - h, n - 1)) / (
-            2 * h
+                2 * h
         )
 
 
@@ -55,7 +57,7 @@ def taylor_approximation(func, x_val, degree):
 
 
 # Generate the graph
-def generate_graph(func, a, b, pt_num, degrees, plane_size=10):
+def generate_graph(func, a, b, pt_num, degrees):
     try:
         # Create the x values in the range [a, b]
         x_values = np.linspace(a, b, pt_num)
@@ -79,9 +81,11 @@ def generate_graph(func, a, b, pt_num, degrees, plane_size=10):
         )
 
         # Graph the Taylor series for each degree in the range [a, b]
+        all_taylor_values = []
         for degree in degrees:
             taylor_values = [taylor_approximation(func, x, degree) for x in x_values]
             print(f"Degree {degree}: {taylor_values}")  # Debug
+            all_taylor_values.append(taylor_values)
             plt.plot(x_values, taylor_values, label=f"Degree {degree}")
 
         # Add labels and title
@@ -91,9 +95,19 @@ def generate_graph(func, a, b, pt_num, degrees, plane_size=10):
         plt.legend()
         plt.grid(True)
 
-        # Fix the axis limits so that the plane is always in [-10, 10]
-        plt.xlim(-plane_size, plane_size)
-        plt.ylim(-plane_size, plane_size)
+        # Add limits to y-axis by func
+        plt.xlim(a, b)
+        if str(func) in ["sin(x)", "cos(x)"]:
+            plt.ylim(-1.1, 1.1)
+        else:
+            plt.ylim(original_y_values.min() - 0.1, original_y_values.max() + 0.1)
+
+        x_center = (a + b) / 2
+        y_center = (np.min(original_y_values) + np.max(original_y_values)) / 2
+
+        # Show axis
+        plt.axvline(x=x_center, color='dodgerblue')
+        plt.axhline(y=y_center, color='red')
 
         # Save the graph in a buffer
         buffer = io.BytesIO()
@@ -117,11 +131,21 @@ def calculate_taylor(request):
             b = float(request.GET.get("b"))
             pt_num = int(request.GET.get("pt_num"))
             degrees = list(map(int, request.GET.get("degrees").split(",")))
-            plane_size = int(request.GET.get("plane_size"))
 
             print(
                 f"Func: {func}, a: {a}, b: {b}, pt_num: {pt_num}, degrees: {degrees}"
             )  # Debug
+
+            if func == "ln(1+x)":
+                response = {
+                    "image": "",
+                    "x_values": [],
+                    "original_y_values": [],
+                    "taylor_data": {},
+                    "error": "Cannot calculate Taylor series for ln(1+x)",
+                    "message": "The function ln(1+x) does not have a valid Taylor series."
+                }
+                return JsonResponse(response)
 
             # Define the symbolic function
             if func == "exp(x)":
@@ -140,7 +164,7 @@ def calculate_taylor(request):
                 sym_func = log(1 + x)
 
             # Generate graph
-            graph_buffer = generate_graph(sym_func, a, b, pt_num, degrees, plane_size)
+            graph_buffer = generate_graph(sym_func, a, b, pt_num, degrees)
 
             # Create the x values in the range [a, b]
             x_values = np.linspace(a, b, pt_num)
@@ -161,7 +185,7 @@ def calculate_taylor(request):
 
             # Return the image and the tabulated data
             response = {
-                "image": image_base64, 
+                "image": image_base64,
                 "x_values": x_values.tolist(),
                 "original_y_values": original_y_values.tolist(),
                 "taylor_data": taylor_data,
