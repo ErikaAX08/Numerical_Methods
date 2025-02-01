@@ -17,33 +17,40 @@ This project was developed by students of BUAP under the guidance of José Andr�
 ## 📝 Table of Contents
 The web project includes the following calculators and tools:
 
-1. **Root-Finding Methods**
+1. **Taylor and Maclaurin Series**
+   - Function Plotting (original and approximations)
+   - Taylor Series Expansion at a Given Point
+   - Degree Selection for Tailored Approximations
+   - Interval Customization for Visualization
+   - [Theoretical Document](#)
+
+2. **Root-Finding Methods**
    - Bisection Method
    - Newton-Raphson Method
    - Secant Method
    - [Theoretical Document](#)
 
-2. **Systems of Linear Equations**
+3. **Systems of Linear Equations**
    - Gaussian Elimination
    - LU Decomposition
    - [Theoretical Document](#)
 
-3. **Interpolation and Approximation**
+4. **Interpolation and Approximation**
    - Lagrange Interpolation
    - Newton's Divided Differences
    - [Theoretical Document](#)
 
-4. **Numerical Integration**
+5. **Numerical Integration**
    - Trapezoidal Rule
    - Simpson's Rule
    - [Theoretical Document](#)
 
-5. **Differential Equations**
+6. **Differential Equations**
    - Euler’s Method
    - Runge-Kutta Method
    - [Theoretical Document](#)
 
-6. **Data Visualization**
+7. **Data Visualization**
    - Graphing Functions
    - Visualizing Numerical Results
    - [Theoretical Document](#)
@@ -58,6 +65,9 @@ The website offers the following features:
 
 ### Example Graphs and Calculators
 Below are some screenshots showcasing the project:
+
+- **Taylor and Maclaurin Series Calculator**
+  ![Bisection Method Graph](public/taylor.png)
 
 - **Root-Finding Methods Graphs**
   ![Bisection Method Graph](#)
@@ -81,7 +91,7 @@ Meet the team behind this project:
 
 - **Ivan Luna Martínez**
   - Role: Developer
-  - [GitHub](#) | [LinkedIn](#)
+  - [GitHub](https://github.com/N0x370z) | [LinkedIn](#)
 
 ## 🎓 About the Class
 - **University**: Benemérita Universidad Autónoma de Puebla (BUAP)
