@@ -36,12 +36,12 @@ def functions(func, x_val):
         return float(log(1 + x).subs(x, x_val))
 
 
-# Function to calculate the derivate of a function
-def derivative(func, x, n, h=0.0001):
+# Function to calculate the derivative of a function
+def derivative(func, x_func, n, h=0.0001):
     if n == 0:
-        return functions(func, x)
+        return functions(func, x_func)
     else:
-        return (derivative(func, x + h, n - 1) - derivative(func, x - h, n - 1)) / (
+        return (derivative(func, x_func + h, n - 1) - derivative(func, x_func - h, n - 1)) / (
                 2 * h
         )
 
@@ -49,8 +49,8 @@ def derivative(func, x, n, h=0.0001):
 # Calculate the Taylor approximation of a function
 def taylor_approximation(func, x_val, degree):
     try:
-        taylor_series = series(func, x, 0, degree + 1).removeO()
-        return float(taylor_series.subs(x, x_val))
+        taylor = series(func, x, 0, degree + 1).removeO()
+        return float(taylor.subs(x, x_val))
     except Exception as e:
         print(f"Error en taylor_approximation: {str(e)}")  # Debug
         raise e
@@ -83,7 +83,7 @@ def generate_graph(func, a, b, pt_num, degrees):
         # Graph the Taylor series for each degree in the range [a, b]
         all_taylor_values = []
         for degree in degrees:
-            taylor_values = [taylor_approximation(func, x, degree) for x in x_values]
+            taylor_values = [taylor_approximation(func, i, degree) for i in x_values]
             print(f"Degree {degree}: {taylor_values}")  # Debug
             all_taylor_values.append(taylor_values)
             plt.plot(x_values, taylor_values, label=f"Degree {degree}")
@@ -123,6 +123,8 @@ def generate_graph(func, a, b, pt_num, degrees):
 
 # View to calculate and display the Taylor approximation
 def calculate_taylor(request):
+    global x
+    sym_func = None
     if request.method == "GET":
         try:
             # Get the values from the form
