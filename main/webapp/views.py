@@ -203,3 +203,6 @@ def calculate_taylor(request):
 # templates
 def taylor_series(request):
     return render(request, "taylor-series.html")
+
+def regula_falsi(request):
+    return render(request, "regula-falsi.html")
