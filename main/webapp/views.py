@@ -6,6 +6,10 @@ import matplotlib
 
 matplotlib.use("Agg")  # FOR USE WITHOUT DISPLAY
 import matplotlib.pyplot as plt
+
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
 import io
 import numpy as np
 from sympy import symbols, exp, sin, cos, sinh, cosh, log, series, lambdify
@@ -123,6 +127,110 @@ def generate_graph(func, a, b, pt_num, degrees):
         raise e
 
 
+def generate_interactive_graph(func, a, b, pt_num, degrees):
+    try:
+        # Create the x values in the range [a, b]
+        x_values = np.linspace(a, b, pt_num)
+
+        # Create figure
+        fig = go.Figure()
+
+        # Add original function
+        original_function = lambdify(x, func, "numpy")
+        original_x_values = np.linspace(a, b, 1000)
+        original_y_values = original_function(original_x_values)
+
+        fig.add_trace(
+            go.Scatter(
+                x=original_x_values,
+                y=original_y_values,
+                name=f"Original: {func}",
+                line=dict(color='black', width=2)
+            )
+        )
+
+        # Add Taylor series for each degree
+        colors = ['rgb(31, 119, 180)', 'rgb(255, 127, 14)',
+                  'rgb(44, 160, 44)', 'rgb(214, 39, 40)',
+                  'rgb(148, 103, 189)']
+
+        for i, degree in enumerate(degrees):
+            taylor_values = [taylor_approximation(func, i, degree) for i in x_values]
+
+            fig.add_trace(
+                go.Scatter(
+                    x=x_values,
+                    y=taylor_values,
+                    name=f"Degree {degree}",
+                    line=dict(color=colors[i % len(colors)]),
+                    visible=True
+                )
+            )
+
+        # Update layout
+        fig.update_layout(
+            title=f"Taylor Series Approximation for {func}",
+            xaxis_title="x",
+            yaxis_title="f(x)",
+            hovermode='x unified',
+            showlegend=True,
+            # Add slider for animation
+            sliders=[{
+                'currentvalue': {"prefix": "Degree: "},
+                'steps': [
+                    {
+                        'method': 'update',
+                        'label': str(degree),
+                        'args': [{'visible': [True] + [i <= j for j, d in enumerate(degrees)]},
+                                 {'title': f'Taylor Series up to Degree {degree}'}],
+                    } for i, degree in enumerate(degrees)
+                ]
+            }],
+            # Add buttons for interactivity
+            updatemenus=[{
+                'type': 'buttons',
+                'showactive': False,
+                'buttons': [
+                    {
+                        'label': 'Play',
+                        'method': 'animate',
+                        'args': [None, {'frame': {'duration': 1000, 'redraw': True},
+                                        'fromcurrent': True}]
+                    },
+                    {
+                        'label': 'Pause',
+                        'method': 'animate',
+                        'args': [[None], {'frame': {'duration': 0, 'redraw': False},
+                                          'mode': 'immediate'}]
+                    }
+                ]
+            }]
+        )
+
+        # Set axes limits
+        if str(func) in ["sin(x)", "cos(x)"]:
+            fig.update_layout(yaxis_range=[-1.1, 1.1])
+        else:
+            fig.update_layout(
+                yaxis_range=[
+                    original_y_values.min() - 0.1,
+                    original_y_values.max() + 0.1
+                ]
+            )
+
+        fig.update_layout(xaxis_range=[a, b])
+
+        # Add grid
+        fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='LightGray')
+        fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='LightGray')
+
+        return fig.to_json()
+
+    except Exception as e:
+        print(f"Error in generate_interactive_graph: {str(e)}")
+        raise e
+
+
 # View to calculate and display the Taylor approximation
 def calculate_taylor(request):
     global x
@@ -169,6 +277,7 @@ def calculate_taylor(request):
 
             # Generate graph
             graph_buffer = generate_graph(sym_func, a, b, pt_num, degrees)
+            plot_json = generate_interactive_graph(sym_func, a, b, pt_num, degrees)
 
             # Create the x values in the range [a, b]
             x_values = np.linspace(a, b, pt_num)
@@ -190,6 +299,7 @@ def calculate_taylor(request):
             # Return the image and the tabulated data
             response = {
                 "image": image_base64,
+                "plot_json": plot_json,
                 "x_values": x_values.tolist(),
                 "original_y_values": original_y_values.tolist(),
                 "taylor_data": taylor_data,
@@ -205,6 +315,7 @@ def calculate_taylor(request):
 # templates
 def taylor_series(request):
     return render(request, "taylor-series.html")
+
 
 def regula_falsi(request):
     return render(request, "regula-falsi.html")

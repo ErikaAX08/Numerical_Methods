@@ -19,6 +19,9 @@
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-3.0.0.min.js" charset="utf-8"></script>
+
     <!-- Custom -->
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
 </head>
@@ -26,7 +29,7 @@
 <!-- Navbar -->
 <nav class="navbar bg-primary navbar-expand-lg py-4" data-bs-theme="dark">
     <div class="container">
-        <a class="navbar-brand" href="{% url 'index' %}">{% translate 'Numerical Methods'  %}</a>
+        <a class="navbar-brand" href="{% url 'index' %}">{% translate 'Numerical Methods' %}</a>
         <button
                 class="navbar-toggler"
                 type="button"
@@ -42,7 +45,7 @@
                     >Taylor and Maclaurin</a
                     >
                 </li>
-                 <li class="nav-item">
+                <li class="nav-item">
                     <a class="nav-link" href="{% url 'regula_falsi' %}"
                     >{% translate 'Regula falsi' %}</a
                     >

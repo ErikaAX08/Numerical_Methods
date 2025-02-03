@@ -4,9 +4,9 @@
 {% block content %}
     {% load static %}
 
-    <div class="container-sm py-5">
-        <div class="row p-4 pb-0 pe-lg-0 pt-lg-5 align-items-center rounded-3 border shadow-lg mb-5 mb-5">
-            <div class="col-lg-7 p-3 p-lg-5 pt-lg-3">
+    <div class="container-sm p-5">
+        <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
+            <div class="col-lg-7">
                 <h2 class="display-4 fw-bold lh-1s">{% translate 'Taylor and Maclaurin Series' %}</h2>
                 <p class="lead py-5">
                     {% translate 'Taylor and Maclaurin series are mathematical tools used to approximate functions using polynomials. A Taylor series represents a function as an infinite sum of terms calculated from the values of its derivatives at a single point. A Maclaurin series is a special case of the Taylor series, where the function is expanded around zero. These series are widely used in calculus, physics, and engineering to approximate complex functions with simpler polynomial expressions.' %}
@@ -71,6 +71,10 @@
 
             <div id="graph" class="mt-5 row justify-content-center" style="display: none;">
                 <img id="plotImage" src="" alt="Plot" class="img-fluid w-75 rounded-4">
+            </div>
+
+            <div id="plot-container" style="height: 500px;">
+                <!-- Plotly chart will be rendered here -->
             </div>
 
             <!-- Container for the results table -->
@@ -157,6 +161,13 @@
                         const plotImage = document.getElementById("plotImage");
                         plotImage.src = `data:image/png;base64,${data.image}`;
                         document.getElementById("graph").style.display = "flex";
+
+                        // Render Plotly chart
+                        const plotData = JSON.parse(data.plot_json);
+                        Plotly.newPlot('plot-container', plotData.data, plotData.layout, {
+                            responsive: true,
+                            displayModeBar: true
+                        });
 
                         // Generate the results table
                         generateTable(data.x_values, data.original_y_values, data.taylor_data, degrees.split(","));
