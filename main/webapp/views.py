@@ -1,11 +1,13 @@
 from django.shortcuts import render
+from django.http import JsonResponse
+from django.utils.translation import gettext as _
+
 import matplotlib
 
 matplotlib.use("Agg")  # FOR USE WITHOUT DISPLAY
 import matplotlib.pyplot as plt
 import io
 import numpy as np
-from django.http import JsonResponse
 from sympy import symbols, exp, sin, cos, sinh, cosh, log, series, lambdify
 import base64
 
@@ -86,12 +88,12 @@ def generate_graph(func, a, b, pt_num, degrees):
             taylor_values = [taylor_approximation(func, i, degree) for i in x_values]
             print(f"Degree {degree}: {taylor_values}")  # Debug
             all_taylor_values.append(taylor_values)
-            plt.plot(x_values, taylor_values, label=f"Degree {degree}")
+            plt.plot(x_values, taylor_values, label=_("Degree {degree}").format(degree=degree))
 
         # Add labels and title
         plt.xlabel("X")
         plt.ylabel("f(x)")
-        plt.title(f"Taylor approximation for {func}")
+        plt.title(_("Taylor approximation for {func}").format(func=func))
         plt.legend()
         plt.grid(True)
 

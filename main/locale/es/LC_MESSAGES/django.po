@@ -1,0 +1,143 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-03 14:44-0600\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? "
+"1 : 2;\n"
+# Base
+
+# Navbar
+msgid "Numerical Methods"
+msgstr "Métodos Numéricos"
+
+msgid "Regula falsi"
+msgstr "Método de la regla falsa"
+
+msgid "Function Roots"
+msgstr "Raíces de una función"
+
+msgid "Interpolation"
+msgstr "Interpolación"
+
+msgid "Linear Equations"
+msgstr "Ecuaciones Lineales"
+
+msgid "Integration"
+msgstr "Integración"
+
+msgid "Languages"
+msgstr "Lenguaje"
+
+msgid "English"
+msgstr "Inglés"
+
+msgid "Spanish"
+msgstr "Español"
+
+# Footer
+
+msgid "All rights reserved"
+msgstr "Todos los derechos resevados"
+
+# Home Page
+msgid "Home"
+msgstr "Inicio"
+
+msgid "Taylor and Maclaurin Series"
+msgstr "Series de Taylor and Maclaurin"
+
+msgid "We provide you with a calculator and detailed explanation of the Taylor and Maclaurin series."
+msgstr "Te proporcionamos una calculadora y una explicación detallada de las series de Taylor y Maclaurin."
+
+msgid "Learn"
+msgstr "Aprender"
+
+msgid "About the project"
+msgstr "Sobre el proyecto"
+
+msgid "This project was developed by students from BUAP as part of the Numerical Methods course. It includes interactive calculators, graphs, and theoretical documentation to solve mathematical problems using numerical methods. The goal is to provide an intuitive and educational platform for students and professionals to explore and apply numerical techniques in real-world scenarios."
+msgstr "Este proyecto fue desarrollado por estudiantes de la BUAP como parte del curso de Métodos Numéricos. Incluye calculadoras interactivas, gráficos y documentación teórica para resolver problemas matemáticos utilizando métodos numéricos. El objetivo es proporcionar una plataforma intuitiva y educativa para que estudiantes y profesionales exploren y apliquen técnicas numéricas en escenarios del mundo real."
+
+msgid "Calculators and Tools"
+msgstr "Calculadoras y Herramientas"
+
+# Taylor Series
+
+msgid "Taylor Series"
+msgstr "Serie Taylor"
+
+msgid "Taylor Series Calculator"
+msgstr "Calculadora de series de Taylor"
+
+msgid "Select Function"
+msgstr "Selecciona una función"
+
+msgid "Interval Start"
+msgstr "Intervalo Inicial"
+
+msgid "Interval End"
+msgstr "Intervalo Final"
+
+msgid "Number of Points"
+msgstr "Número de Puntos"
+
+msgid "Degrees of Polynomials"
+msgstr "Grados de polinomios"
+
+msgid "Calculate and Graph"
+msgstr "Calcular y Graficar"
+
+msgid "Results table"
+msgstr "Tabla de resultados"
+
+msgid "Original Function"
+msgstr "Función Original"
+
+msgid "Taylor and Maclaurin series are mathematical tools used to approximate functions using polynomials. A Taylor series represents a function as an infinite sum of terms calculated from the values of its derivatives at a single point. A Maclaurin series is a special case of the Taylor series, where the function is expanded around zero. These series are widely used in calculus, physics, and engineering to approximate complex functions with simpler polynomial expressions."
+msgstr "Las series de Taylor y Maclaurin son herramientas matemáticas que se utilizan para aproximar funciones mediante polinomios. Una serie de Taylor representa una función como una suma infinita de términos calculados a partir de los valores de sus derivadas en un solo punto. Una serie de Maclaurin es un caso especial de la serie de Taylor, donde la función es expandido alrededor de cero. Estas series se utilizan ampliamente en cálculo, física e ingeniería para aproximar funciones complejas. con expresiones polinómicas más simples."
+
+msgid "Explanation of Taylor and Maclaurin Series"
+msgstr "Explicación de las series de Taylor y Maclaurin"
+
+msgid "The <strong>Taylor series</strong> of a function \\( f(x) \\) around a point \\( a \\) is given by:"
+msgstr "La <strong>serie de Taylor</strong> de una función \\( f(x) \\) alrededor de un punto \\( a \\) está dada por:"
+
+msgid "The <strong>Maclaurin series</strong> is a Taylor series centered at \\( a = 0 \\):"
+msgstr "La <strong>serie de Maclaurin</strong> es una serie de Taylor centrada en \\( a = 0 \\):"
+
+msgid "These series are particularly useful for approximating functions that are difficult to compute directly."
+msgstr "Estas series son particularmente útiles para aproximar funciones que son difíciles de calcular directamente."
+
+msgid "For example, the exponential function \\( e^x \\) can be approximated using its Maclaurin series:"
+msgstr "Por ejemplo, la función exponencial \\( e^x \\) se puede aproximar utilizando su serie de Maclaurin:"
+
+msgid "The accuracy of the approximation depends on the number of terms used in the series."
+msgstr "La precisión de la aproximación depende del número de términos utilizados en la serie."
+
+msgid "Taylor approximation for {func}"
+msgstr "Aproximación de Taylor para {func}"
+
+msgid "Degree {degree}"
+msgstr "Grado {degree}"
+
+# Calculators
+
+msgid "Calculator"
+msgstr "Calculadora"
+
+msgid "Explanation"
+msgstr "Explicación"

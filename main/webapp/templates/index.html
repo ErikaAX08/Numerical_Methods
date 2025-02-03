@@ -1,5 +1,6 @@
-{% extends 'base.html' %} 
-{% block title %}Home - Numerical Methods{% endblock %} {% block content %}
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% translate 'Home' %} - {% translate 'Numerical Methods' %}{% endblock %} {% block content %}
 {% load static %} 
 
 <div id="myCarousel" class="carousel slide mb-6" data-bs-ride="carousel">
@@ -13,9 +14,9 @@
       <img src="{% static 'images/carousel/taylor.jpg' %}" class="d-block w-100 img-fluid" alt="Descripción de la imagen 1">
       <div class="container">
         <div class="carousel-caption text-start">
-          <h1>Taylor and Maclaurin Series</h1>
-          <p class="opacity-75">We provide you with a calculator and detailed explanation of the Taylor and Maclaurin series.</p>
-          <p><a class="btn btn-lg btn-secondary" href="{% url 'taylor_series' %}">Learn</a></p>
+          <h1>{% translate 'Taylor and Maclaurin Series' %}</h1>
+          <p class="opacity-75">{% translate 'We provide you with a calculator and detailed explanation of the Taylor and Maclaurin series.' %}</p>
+          <p><a class="btn btn-lg btn-secondary" href="{% url 'taylor_series' %}">{% translate 'Learn' %}</a></p>
         </div>
       </div>
     </div>
@@ -52,8 +53,8 @@
 
 <!-- Acerca del Proyecto -->
 <div class="container px-4 py-5 mt-5" id="hanging-icons">
-  <h2 class="pb-2 border-bottom">🚀 About the project</h2>
-  <p class="py-3">This project was developed by students from BUAP as part of the Numerical Methods course. It includes interactive calculators, graphs, and theoretical documentation to solve mathematical problems using numerical methods. The goal is to provide an intuitive and educational platform for students and professionals to explore and apply numerical techniques in real-world scenarios.</p>
+  <h2 class="pb-2 border-bottom">🚀 {% translate 'About the project' %}</h2>
+  <p class="py-3">{% translate 'This project was developed by students from BUAP as part of the Numerical Methods course. It includes interactive calculators, graphs, and theoretical documentation to solve mathematical problems using numerical methods. The goal is to provide an intuitive and educational platform for students and professionals to explore and apply numerical techniques in real-world scenarios.' %}</p>
   <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
     <div class="col d-flex align-items-start">
       <div class="icon-square text-body-emphasis p-4 rounded-3 bg-body-secondary d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
@@ -103,14 +104,14 @@
 <!-- Calculadoras y Herramientas -->
 <section id="calculadoras" class="py-5">
   <div class="container ">
-    <h2 class="mb-4 border-bottom pb-3">📝 Calculators and Tools</h2>
+    <h2 class="mb-4 border-bottom pb-3">📝 {% translate 'Calculators and Tools' %}</h2>
     <div class="row">
       <!-- Tarjeta 1 -->
       <div class="col-md-4 mb-4">
         <div class="card shadow-sm">
           <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"></rect><text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text></svg>
           <div class="card-body">
-            <h5 class="card-title">Taylor and Maclaurin Series</h5>
+            <h5 class="card-title">{% translate 'Taylor and Maclaurin Series' %}</h5>
             <p class="card-text">Bisección, Newton-Raphson, Secante.</p>
             <a href="#" class="btn btn-primary">Explorar</a>
           </div>

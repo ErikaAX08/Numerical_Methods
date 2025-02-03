@@ -1,27 +1,22 @@
 {% extends 'base.html' %}
-{% block title %}Taylor Series - Numerical Methods{% endblock %}
+{% load i18n %}
+{% block title %}{% translate 'Taylor Series' %} - {% translate 'Numerical Methods' %}{% endblock %}
 {% block content %}
     {% load static %}
 
     <div class="container-sm py-5">
         <div class="row p-4 pb-0 pe-lg-0 pt-lg-5 align-items-center rounded-3 border shadow-lg mb-5 mb-5">
             <div class="col-lg-7 p-3 p-lg-5 pt-lg-3">
-                <h2 class="display-4 fw-bold lh-1s">Taylor and Maclaurin Series</h2>
+                <h2 class="display-4 fw-bold lh-1s">{% translate 'Taylor and Maclaurin Series' %}</h2>
                 <p class="lead py-5">
-                    Taylor and Maclaurin series are mathematical tools used to approximate functions using polynomials.
-                    A <strong>Taylor series</strong> represents a function as an infinite sum of terms calculated from
-                    the values of its derivatives at a single point.
-                    A <strong>Maclaurin series</strong> is a special case of the Taylor series, where the function is
-                    expanded around zero.
-                    These series are widely used in calculus, physics, and engineering to approximate complex functions
-                    with simpler polynomial expressions.
+                    {% translate 'Taylor and Maclaurin series are mathematical tools used to approximate functions using polynomials. A Taylor series represents a function as an infinite sum of terms calculated from the values of its derivatives at a single point. A Maclaurin series is a special case of the Taylor series, where the function is expanded around zero. These series are widely used in calculus, physics, and engineering to approximate complex functions with simpler polynomial expressions.' %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
-                            onclick="showCalculator()">Calculator
+                            onclick="showCalculator()">{% translate 'Calculator' %}
                     </button>
                     <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">
-                        Explanation
+                        {% translate 'Explanation' %}
                     </button>
                 </div>
             </div>
@@ -34,10 +29,10 @@
 
         <!-- Hidden calculator section -->
         <div id="calculator" style="display: none;" class="mt-5 p-4 bg-light rounded-3 shadow">
-            <h3 class="mb-5">Taylor Series Calculator</h3>
+            <h3 class="mb-5">{% translate 'Taylor Series Calculator' %}</h3>
             <form id="calculatorForm">
                 <div class="mb-3">
-                    <label for="functionSelect" class="form-label">Select Function:</label>
+                    <label for="functionSelect" class="form-label">{% translate 'Select Function' %}:</label>
                     <select class="form-select" id="functionSelect" required>
                         <option value="exp(x)">e^x</option>
                         <option value="exp(-x)">e^(-x)</option>
@@ -51,27 +46,27 @@
 
                 <div class="row">
                     <div class="col-sm-6 mb-3">
-                        <label for="intervalA" class="form-label">Interval Start:</label>
+                        <label for="intervalA" class="form-label">{% translate 'Interval Start' %}:</label>
                         <input type="number" class="form-control" id="intervalA" step="any" value="-3.1416" required>
                     </div>
                     <div class="col-sm-6 mb-3">
-                        <label for="intervalB" class="form-label">Interval End:</label>
+                        <label for="intervalB" class="form-label">{% translate 'Interval End' %}:</label>
                         <input type="number" class="form-control" id="intervalB" step="any" value="6.1416" required>
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-sm-6 mb-3">
-                        <label for="pointNum" class="form-label">Number of Points:</label>
+                        <label for="pointNum" class="form-label">{% translate 'Number of Points' %}:</label>
                         <input type="number" class="form-control" id="pointNum" min="2" value="20" required>
                     </div>
                     <div class="col-sm-6 mb-3">
-                        <label for="degrees" class="form-label">Degrees of Polynomials:</label>
+                        <label for="degrees" class="form-label">{% translate 'Degrees of Polynomials' %}:</label>
                         <input type="text" class="form-control" id="degrees" value="3,5,8" required>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary mt-2">Calculate and Graph</button>
+                <button type="submit" class="btn btn-primary mt-2">{% translate 'Calculate and Graph' %}</button>
             </form>
 
             <div id="graph" class="mt-5 row justify-content-center" style="display: none;">
@@ -80,12 +75,12 @@
 
             <!-- Container for the results table -->
             <div id="resultsTable" class="mt-5" style="display: none;">
-                <h4 class="mb-3">Results table</h4>
+                <h4 class="mb-3">{% translate 'Results table' %}</h4>
                 <table id="dataTable" class="table table-bordered">
                     <thead>
                     <tr>
                         <th>x</th>
-                        <th>Original Function</th>
+                        <th>{% translate 'Original Function' %}</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -96,24 +91,25 @@
 
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 p-4 bg-light rounded-3 shadow">
-            <h3 class="pb-3">Explanation of Taylor and Maclaurin Series</h3>
+            <h3 class="pb-3">{% translate "Explanation of Taylor and Maclaurin Series" %}</h3>
             <p>
-                The <strong>Taylor series</strong> of a function \( f(x) \) around a point \( a \) is given by:
+                {% translate "The <strong>Taylor series</strong> of a function \( f(x) \) around a point \( a \) is given by:" %}
                 \[
                 f(x) = f(a) + f'(a)(x - a) + \frac{f''(a)}{2!}(x - a)^2 + \frac{f'''(a)}{3!}(x - a)^3 + \cdots
                 \]
-                The <strong>Maclaurin series</strong> is a Taylor series centered at \( a = 0 \):
+                {% translate "The <strong>Maclaurin series</strong> is a Taylor series centered at \( a = 0 \):" %}
                 \[
                 f(x) = f(0) + f'(0)x + \frac{f''(0)}{2!}x^2 + \frac{f'''(0)}{3!}x^3 + \cdots
                 \]
-                These series are particularly useful for approximating functions that are difficult to compute directly.
-                For example, the exponential function \( e^x \) can be approximated using its Maclaurin series:
+                {% translate "These series are particularly useful for approximating functions that are difficult to compute directly." %}
+                {% translate "For example, the exponential function \( e^x \) can be approximated using its Maclaurin series:" %}
                 \[
                 e^x = 1 + x + \frac{x^2}{2!} + \frac{x^3}{3!} + \cdots
                 \]
-                The accuracy of the approximation depends on the number of terms used in the series.
+                {% translate "The accuracy of the approximation depends on the number of terms used in the series." %}
             </p>
         </div>
+
 
         <script>
             function showCalculator() {
