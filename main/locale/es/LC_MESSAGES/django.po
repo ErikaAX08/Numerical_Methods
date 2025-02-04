@@ -139,5 +139,8 @@ msgstr "Grado {degree}"
 msgid "Calculator"
 msgstr "Calculadora"
 
+msgid "Graphing Calculator"
+msgstr "Calculadora Gráfica"
+
 msgid "Explanation"
 msgstr "Explicación"
