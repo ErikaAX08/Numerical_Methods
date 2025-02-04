@@ -6,31 +6,28 @@
 
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
-            <div class="col-lg-7">
+            <div class="col-lg-12">
                 <h2 class="display-4 fw-bold lh-1s">{% translate 'Taylor and Maclaurin Series' %}</h2>
                 <p class="lead py-5">
                     {% translate 'Taylor and Maclaurin series are mathematical tools used to approximate functions using polynomials. A Taylor series represents a function as an infinite sum of terms calculated from the values of its derivatives at a single point. A Maclaurin series is a special case of the Taylor series, where the function is expanded around zero. These series are widely used in calculus, physics, and engineering to approximate complex functions with simpler polynomial expressions.' %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
-                            onclick="showCalculator()">{% translate 'Calculator' %}
+                            onclick="showCalculator()">{% translate 'Graphing Calculator' %}
                     </button>
                     <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">
                         {% translate 'Explanation' %}
                     </button>
                 </div>
             </div>
-            <div class="col-lg-4 offset-lg-1 p-0 overflow-hidden shadow-lg">
-                <img class="rounded-3" src="{% static 'images/taylor-maclaurin-1.jpg' %}" alt="Graph" width="720">
-            </div>
         </div>
 
         <div class="py-3"></div>
 
         <!-- Hidden calculator section -->
-        <div id="calculator" style="display: none;" class="mt-5 p-4 bg-light rounded-3 shadow">
+        <div id="calculator" style="display: none;" class="mt-5">
             <h3 class="mb-5">{% translate 'Taylor Series Calculator' %}</h3>
-            <form id="calculatorForm">
+            <form class="mb-5 p-4 bg-light rounded-3 shadow" id="calculatorForm">
                 <div class="mb-3">
                     <label for="functionSelect" class="form-label">{% translate 'Select Function' %}:</label>
                     <select class="form-select" id="functionSelect" required>
@@ -66,21 +63,23 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary mt-2">{% translate 'Calculate and Graph' %}</button>
+                <button type="submit" class="btn btn-lg btn-primary mt-2">{% translate 'Calculate and Graph' %}</button>
             </form>
 
-            <div id="graph" class="mt-5 row justify-content-center" style="display: none;">
-                <img id="plotImage" src="" alt="Plot" class="img-fluid w-75 rounded-4">
-            </div>
+            <div id="graphs-container" class="mt-5 p-4 bg-light rounded-3 shadow" style="display: none;">
+                <div id="graph" class="mb-5 row justify-content-center">
+                    <img id="plotImage" src="" alt="Plot" class="img-fluid w-75 rounded-4">
+                </div>
 
-            <div id="plot-container" style="height: 500px;">
-                <!-- Plotly chart will be rendered here -->
+                <div class="rounded-5" id="plot-container" style="height: 500px;">
+                    <!-- Plotly chart will be rendered here -->
+                </div>
             </div>
 
             <!-- Container for the results table -->
             <div id="resultsTable" class="mt-5" style="display: none;">
                 <h4 class="mb-3">{% translate 'Results table' %}</h4>
-                <table id="dataTable" class="table table-bordered">
+                <table id="dataTable" class="table table-bordered rounded-5 table-striped">
                     <thead>
                     <tr>
                         <th>x</th>
@@ -94,7 +93,7 @@
         </div>
 
         <!-- Hidden extensive explanation section -->
-        <div id="explanation" class="mt-4 p-4 bg-light rounded-3 shadow">
+        <div id="explanation" class="mt-4 rounded-3">
             <h3 class="pb-3">{% translate "Explanation of Taylor and Maclaurin Series" %}</h3>
             <p>
                 {% translate "The <strong>Taylor series</strong> of a function \( f(x) \) around a point \( a \) is given by:" %}
@@ -160,6 +159,7 @@
                         // Show the graph with the plot image
                         const plotImage = document.getElementById("plotImage");
                         plotImage.src = `data:image/png;base64,${data.image}`;
+                        document.getElementById("graphs-container").style.display = "block";
                         document.getElementById("graph").style.display = "flex";
 
                         // Render Plotly chart
@@ -189,6 +189,7 @@
                 // Create the header row
                 const headerRow = document.createElement("tr");
                 headerRow.innerHTML = `
+                  <th>i</th>
                   <th>x</th>
                   <th>Original Function</th>
                   ${degrees.map((degree) => `<th>Degree ${degree}</th>`).join("")}
@@ -199,6 +200,7 @@
                 xValues.forEach((x, index) => {
                     const row = document.createElement("tr");
                     row.innerHTML = `
+                        <td class="fw-bold">${index + 1}</td>
                         <td>${x.toFixed(4)}</td>
                         <td>${originalYValues[index].toFixed(4)}</td>
                         ${degrees.map((degree) => `<td>${taylorData[`Grado ${degree}`][index].toFixed(4)}</td>`).join("")}
