@@ -120,8 +120,13 @@ To run this project locally, follow these steps:
 ```
 
 4. Active virtual environment:
+- MacOS/Linux:
 ```bash
   source myenv/bin/activate
+```
+- Windows:
+```cmd
+  myenv\Scripts\activate
 ```
 
 5. Install the required dependencies:
