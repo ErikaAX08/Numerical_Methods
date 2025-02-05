@@ -63,7 +63,11 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-lg btn-primary mt-2">{% translate 'Calculate and Graph' %}</button>
+                <button type="submit" class="btn btn-lg btn-primary mt-2" id="calculateButton">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;"
+                          id="loadingSpinner"></span>
+                    <span id="buttonText">{% translate 'Calculate and Graph' %}</span>
+                </button>
             </form>
 
             <div id="graphs-container" class="mt-5 p-4 bg-light rounded-3 shadow" style="display: none;">
@@ -130,12 +134,25 @@
                 calculateAndGraph();
             });
 
+            function setLoadingState(isLoading) {
+                const button = document.getElementById("calculateButton");
+                const spinner = document.getElementById("loadingSpinner");
+                const buttonText = document.getElementById("buttonText");
+
+                button.disabled = isLoading;
+                spinner.style.display = isLoading ? "inline-block" : "none";
+                buttonText.textContent = isLoading ? "{% translate 'Calculating...' %}" : "{% translate 'Calculate and Graph' %}";
+            }
+
             function calculateAndGraph() {
                 const func = document.getElementById("functionSelect").value;
                 const a = document.getElementById("intervalA").value;
                 const b = document.getElementById("intervalB").value;
                 const ptNum = document.getElementById("pointNum").value;
                 const degrees = document.getElementById("degrees").value;
+
+                // show loading state
+                setLoadingState(true);
 
                 // Build url with query parameters
                 const url = `/calculate-taylor/?func=${func}&a=${a}&b=${b}&pt_num=${ptNum}&degrees=${degrees}`;
@@ -174,7 +191,9 @@
                     })
                     .catch((error) => {
                         console.error("Error:", error);
-                    });
+                    }).finally(() => {
+                    setLoadingState(false);
+                });
             }
 
             function generateTable(xValues, originalYValues, taylorData, degrees) {
