@@ -24,8 +24,20 @@ msgstr ""
 msgid "Numerical Methods"
 msgstr "Métodos Numéricos"
 
+msgid "Nonlinear equations"
+msgstr "Ecuaciones no lineales"
+
+msgid "Bisection Method"
+msgstr "Método de Bisección"
+
+msgid "Newton Raphson Method"
+msgstr "Método de Newton Raphson"
+
+msgid "Secant Method"
+msgstr "Método de la Secante"
+
 msgid "Regula falsi"
-msgstr "Método de la regla falsa"
+msgstr "Método de la Regla Falsa"
 
 msgid "Function Roots"
 msgstr "Raíces de una función"
