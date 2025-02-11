@@ -192,3 +192,6 @@ msgstr "Resultados"
 
 msgid "Root found"
 msgstr "Raíz Encontrada"
+
+msgid "Iteration"
+msgstr "Iteración"

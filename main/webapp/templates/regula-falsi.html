@@ -88,6 +88,9 @@
 
             <div id="results" class="mt-5 p-4 bg-light rounded-3 shadow" style="display: none;">
                 <h4 class="mb-3">{% translate 'Results' %}: {% translate 'Regula falsi' %}</h4>
+                <div id="messageContainer">
+
+                </div>
                 <table id="resultsTable" class="table table-bordered rounded-5 table-striped mb-5">
                     <thead>
                     <tr>
@@ -102,6 +105,9 @@
                     </tbody>
                 </table>
                 <h4 class="mb-3">{% translate 'Results' %}: {% translate 'Regula falsi Modified' %}</h4>
+                <div id="messageContainerModified">
+
+                </div>
                 <table id="resultsTableModified" class="table table-bordered rounded-5 table-striped">
                     <thead>
                     <tr>
@@ -162,6 +168,8 @@
                 const p1 = document.getElementById("p1").value;
 
                 setLoadingState(true)
+
+                const resultsDiv = document.getElementById("results");
 
                 const url = `/calculate-falsi/?equation=${encodeURIComponent(equation)}&a=${a}&b=${b}&tol=${tolerance}&maxIterations=${maxIterations}&p0=${p0}&p1=${p1}`;
 
@@ -248,12 +256,14 @@
             }
 
             // Helper function to populate a results table
-            function populateResultsTable(tableId, results, title) {
+            function populateResultsTable(tableId, messageId, results, title) {
                 const table = document.getElementById(tableId);
                 const tbody = table.querySelector("tbody");
                 tbody.innerHTML = "";
 
                 // Add status message before the table
+                const messageContainer = document.getElementById(messageId);
+                messageContainer.innerHTML = "";
                 const messageDiv = document.createElement("div");
                 if (results.converged) {
                     messageDiv.innerHTML = `
@@ -267,12 +277,7 @@
             </div>`;
                 }
 
-                // Remove any existing message before this table
-                const existingMessage = table.previousElementSibling;
-                if (existingMessage && existingMessage.classList.contains('alert')) {
-                    existingMessage.remove();
-                }
-                table.parentNode.insertBefore(messageDiv, table);
+                messageContainer.appendChild(messageDiv);
 
                 // Display all iterations
                 results.iterations.forEach(iter => {
@@ -296,6 +301,7 @@
                 // Display regular Regula Falsi results
                 populateResultsTable(
                     "resultsTable",
+                    "messageContainer",
                     data.results_regula_falsi.results,
                     "{% translate 'Regula falsi' %}"
                 );
@@ -303,6 +309,7 @@
                 // Display modified Regula Falsi results
                 populateResultsTable(
                     "resultsTableModified",
+                    "messageContainerModified",
                     data.results_regula_falsi_modified.results,
                     "{% translate 'Regula falsi Modified' %}"
                 );
