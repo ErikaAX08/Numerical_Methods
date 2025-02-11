@@ -39,6 +39,9 @@ msgstr "Método de la Secante"
 msgid "Regula falsi"
 msgstr "Método de la Regla Falsa"
 
+msgid "Regula falsi Modified"
+msgstr "Método de la Regla Falsa Modificada"
+
 msgid "Function Roots"
 msgstr "Raíces de una función"
 
@@ -63,7 +66,7 @@ msgstr "Español"
 # Footer
 
 msgid "All rights reserved"
-msgstr "Todos los derechos resevados"
+msgstr "Todos los derechos reservados"
 
 # Home Page
 msgid "Home"
@@ -183,3 +186,9 @@ msgstr "Estimación inicial p1"
 
 msgid "Calculate and Graph"
 msgstr "Calcular y Graficar"
+
+msgid "Results"
+msgstr "Resultados"
+
+msgid "Root found"
+msgstr "Raíz Encontrada"
