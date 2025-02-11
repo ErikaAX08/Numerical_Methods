@@ -216,149 +216,17 @@ def regula_falsi_modified_func(equation, tol=1e-6, max_iter=100, p0=1.0, p1=2.5)
         }
 
 
-"""""
-def generate_graph(equation, a, b, results_regula_falsi, results_regula_falsi_modified):
-    try:
-        equation = equation.replace('^', '**')
-
-        # Convert equation to numeric function
-        x = symbols('x')
-        original_function = lambdify(x, sympify(equation), "numpy")
-        original_x_values = np.linspace(a, b, 1000)
-        original_y_values = original_function(original_x_values)
-
-        fig = go.Figure()
-
-        # Add original function trace
-        fig.add_trace(
-            go.Scatter(
-                x=original_x_values,
-                y=original_y_values,
-                mode='lines',
-                name="Función original",
-                line=dict(color='black')
-            )
-        )
-
-        # Add initial points
-        fig.add_trace(
-            go.Scatter(
-                x=[results_regula_falsi['p0'], results_regula_falsi['p1']],
-                y=[original_function(results_regula_falsi['p0']), original_function(results_regula_falsi['p1'])],
-                mode='markers',
-                name="Puntos iniciales",
-                marker=dict(color='blue', size=10)
-            )
-        )
-
-        # Regula Falsi traces
-        rf_c_values_x = []
-        rf_c_values_y = []
-        rf_lines_x = []
-        rf_lines_y = []
-        for iteration in results_regula_falsi['iterations']:
-            rf_c_values_x.append(iteration['c'])
-            rf_c_values_y.append(original_function(iteration['c']))
-            rf_lines_x.extend([iteration['p0'], iteration['p1'], None])
-            rf_lines_y.extend([original_function(iteration['p0']), original_function(iteration['p1']), None])
-
-        fig.add_trace(
-            go.Scatter(
-                x=rf_c_values_x,
-                y=rf_c_values_y,
-                mode='markers+lines',
-                name="Puntos c (Regla Falsa)",
-                marker=dict(color='red', size=8),
-                line=dict(color='red', dash='dash'),
-                visible=False
-            )
-        )
-
-        fig.add_trace(
-            go.Scatter(
-                x=rf_lines_x,
-                y=rf_lines_y,
-                mode='lines',
-                name="Líneas (Regla Falsa)",
-                line=dict(color='orange', width=1),
-                visible=False
-            )
-        )
-
-        # Regula Falsi Modified traces
-        rfm_c_values_x = []
-        rfm_c_values_y = []
-        rfm_lines_x = []
-        rfm_lines_y = []
-        for iteration in results_regula_falsi_modified['iterations']:
-            rfm_c_values_x.append(iteration['c'])
-            rfm_c_values_y.append(original_function(iteration['c']))
-            rfm_lines_x.extend([iteration['p0'], iteration['p1'], None])
-            rfm_lines_y.extend([original_function(iteration['p0']), original_function(iteration['p1']), None])
-
-        fig.add_trace(
-            go.Scatter(
-                x=rfm_c_values_x,
-                y=rfm_c_values_y,
-                mode='markers+lines',
-                name="Puntos c (Regla Falsa Modificada)",
-                marker=dict(color='green', size=8),
-                line=dict(color='green', dash='dot'),
-                visible=False
-            )
-        )
-
-        fig.add_trace(
-            go.Scatter(
-                x=rfm_lines_x,
-                y=rfm_lines_y,
-                mode='lines',
-                name="Líneas (Regla Falsa Modificada)",
-                line=dict(color='purple', width=1),
-                visible=False
-            )
-        )
-
-        # Create slider steps
-        steps = []
-        max_iterations = max(len(results_regula_falsi['iterations']), len(results_regula_falsi_modified['iterations']))
-        for i in range(max_iterations + 1):  # +1 to include initial state
-            step = dict(
-                method="update",
-                args=[{"visible": [True, True] +  # Original function and initial points are always visible
-                                  [j < i for j in range(2, 4)] +  # RF: points and lines
-                                  [j < i for j in range(4, 6)]},  # RFM: points and lines
-                      {"title": f"Iteración: {i}"}],
-                label=str(i)
-            )
-            steps.append(step)
-
-        sliders = [dict(
-            active=0,
-            currentvalue={"prefix": "Iteración: "},
-            pad={"t": 50},
-            steps=steps
-        )]
-
-        fig.update_layout(
-            title="Aproximación de la raíz",
-            xaxis_title="x",
-            yaxis_title="f(x)",
-            sliders=sliders,
-            xaxis_range=[a, b],
-            margin=dict(l=20, r=20, t=50, b=50),  # Adjust margins here
-        )
-
-        return fig.to_json()
-
-    except Exception as e:
-        print(f"Error en generate_graph: {str(e)}")
-        raise e
-"""""
-
-
 def generate_graph(equation, a, b, results):
     try:
+        import numpy as np
+        from sympy import symbols, sympify, lambdify
+        import plotly.graph_objects as go
+        import random
+
+        # Function to generate random colors
+        def random_color():
+            return f'rgb({random.randint(0, 255)},{random.randint(0, 255)},{random.randint(0, 255)})'
+
         equation = equation.replace('^', '**')
 
         # Convert equation to numeric function
@@ -383,61 +251,80 @@ def generate_graph(equation, a, b, results):
         # Add initial points
         fig.add_trace(
             go.Scatter(
-                x=[results['p0'], results['p1']],
-                y=[original_function(results['p0']), original_function(results['p1'])],
+                x=[results['p0']],
+                y=[original_function(results['p0'])],
                 mode='markers',
-                name="Puntos iniciales",
-                marker=dict(color='blue', size=10)
-            )
-        )
-
-        # Regula Falsi traces
-        rf_c_values_x = []
-        rf_c_values_y = []
-        rf_lines_x = []
-        rf_lines_y = []
-        for iteration in results['iterations']:
-            rf_c_values_x.append(iteration['c'])
-            rf_c_values_y.append(original_function(iteration['c']))
-            rf_lines_x.extend([iteration['p0'], iteration['p1'], None])
-            rf_lines_y.extend([original_function(iteration['p0']), original_function(iteration['p1']), None])
-
-        fig.add_trace(
-            go.Scatter(
-                x=rf_c_values_x,
-                y=rf_c_values_y,
-                mode='markers+lines',
-                name="Puntos c (Regla Falsa)",
-                marker=dict(color='red', size=8),
-                line=dict(color='red', dash='dash'),
-                visible=False
+                name="Punto inicial p0",
+                marker=dict(color=random_color(), size=10)
             )
         )
 
         fig.add_trace(
             go.Scatter(
-                x=rf_lines_x,
-                y=rf_lines_y,
-                mode='lines',
-                name="Líneas (Regla Falsa)",
-                line=dict(color='orange', width=1),
-                visible=False
+                x=[results['p1']],
+                y=[original_function(results['p1'])],
+                mode='markers',
+                name="Punto inicial p1",
+                marker=dict(color=random_color(), size=10)
             )
         )
+
+        # Generate random colors for iterations
+        iteration_colors = [random_color() for _ in range(len(results['iterations']))]
+
+        # Add a trace for each iteration point and line
+        for i, iteration in enumerate(results['iterations']):
+            # Point c
+            fig.add_trace(
+                go.Scatter(
+                    x=[iteration['c']],
+                    y=[original_function(iteration['c'])],
+                    mode='markers',
+                    name=f"Punto c - Iteración {i + 1}",
+                    marker=dict(color=iteration_colors[i], size=8),
+                    visible=False
+                )
+            )
+
+            # Line for current iteration
+            fig.add_trace(
+                go.Scatter(
+                    x=[iteration['p0'], iteration['p1']],
+                    y=[original_function(iteration['p0']), original_function(iteration['p1'])],
+                    mode='lines',
+                    name=f"Línea - Iteración {i + 1}",
+                    line=dict(color=iteration_colors[i], width=1),
+                    visible=False
+                )
+            )
 
         # Create slider steps
         steps = []
         max_iterations = len(results['iterations'])
-        for i in range(max_iterations + 1):  # +1 to include initial state
-            step = dict(
+
+        # Initial state (only original function and initial points)
+        visible_array = [True] * 3  # Original function and two initial points
+        visible_array.extend([False] * (2 * max_iterations))  # Hide all iteration traces
+
+        steps.append(dict(
+            method="update",
+            args=[{"visible": visible_array},
+                  {"title": "Estado inicial"}],
+            label="Inicio"
+        ))
+
+        # Add steps for each iteration
+        for i in range(max_iterations):
+            visible_array = [True] * 3  # Original function and initial points always visible
+            for j in range(2 * max_iterations):  # Two traces per iteration (point and line)
+                visible_array.append(j <= (2 * i + 1))  # Show traces up to current iteration
+
+            steps.append(dict(
                 method="update",
-                args=[{"visible": [True, True] +  # Original function and initial points are always visible
-                                  [j < i for j in range(2, 4)] +  # RF: points and lines
-                                  [j < i for j in range(4, 6)]},  # RFM: points and lines
-                      {"title": f"Iteración: {i}"}],
-                label=str(i)
-            )
-            steps.append(step)
+                args=[{"visible": visible_array},
+                      {"title": f"Iteración {i + 1}"}],
+                label=str(i + 1)
+            ))
 
         sliders = [dict(
             active=0,
@@ -452,7 +339,7 @@ def generate_graph(equation, a, b, results):
             yaxis_title="f(x)",
             sliders=sliders,
             xaxis_range=[a, b],
-            margin=dict(l=20, r=20, t=50, b=50),  # Adjust margins here
+            margin=dict(l=20, r=20, t=50, b=50),
         )
 
         return fig.to_json()
