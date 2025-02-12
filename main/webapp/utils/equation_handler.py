@@ -1,6 +1,7 @@
-from sympy import symbols, sympify, lambdify
+from sympy import symbols, sympify, lambdify, parse_expr
 import logging
 from typing import Dict, Union, Callable
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -12,6 +13,7 @@ class EquationHandler:
     def prepare_equation(self, equation: str) -> Dict[str, Union[bool, str, Callable]]:
         """
         Prepares and validates a mathematical equation for computation.
+        Handles a wide variety of mathematical expressions including decimals.
 
         Args:
             equation (str): The mathematical equation to process
@@ -38,17 +40,35 @@ class EquationHandler:
                 '÷': '/',  # Division
                 '×': '*',  # Multiplication
                 '−': '-',  # Minus sign
-                '√': 'sqrt'  # Square root
+                '√': 'sqrt',  # Square root
+                ',': '.',  # Replace comma with decimal point
+                ' ': '',  # Remove spaces
             }
 
             for old, new in replacements.items():
                 equation = equation.replace(old, new)
 
-            # Try to parse the equation with sympy
-            try:
-                expr = sympify(equation)
+            # Pre-process special functions
+            special_functions = {
+                'sen': 'sin',  # Spanish trigonometric functions
+                'tg': 'tan',
+                'arctg': 'atan',
+                'arcsen': 'asin',
+                'arccos': 'acos',
+                'ln': 'log'
+            }
 
-                # Check if the equation only uses x as variable
+            for old, new in special_functions.items():
+                equation = re.sub(r'\b' + old + r'\b', new, equation)
+
+            # Asegurar que los números decimales estén bien formateados
+            equation = re.sub(r'(\d+)\.(\d+)', r'\1.\2', equation)
+
+            try:
+                # Intentar parsear la ecuación con parse_expr para mayor flexibilidad
+                expr = parse_expr(equation, evaluate=True)
+
+                # Verificar variables
                 variables = expr.free_symbols
                 if not variables.issubset({self.x}):
                     other_vars = variables - {self.x}
@@ -57,8 +77,8 @@ class EquationHandler:
                         'message': f'Equation contains invalid variables: {", ".join(str(v) for v in other_vars)}. Only "x" is allowed.'
                     }
 
-                # Create a lambda function for numerical evaluation
-                f = lambdify(self.x, expr)
+                # Crear función lambda con módulos matemáticos adicionales
+                f = lambdify(self.x, expr, modules=['numpy', 'sympy'])
 
                 return {
                     'success': True,
@@ -68,6 +88,7 @@ class EquationHandler:
                 }
 
             except Exception as e:
+                logger.error(f"Error parsing equation '{equation}': {str(e)}")
                 return {
                     'success': False,
                     'message': f'Invalid equation format: {str(e)}'
@@ -95,13 +116,17 @@ class EquationHandler:
                 - value (float, optional): The computed value
         """
         try:
-            result = float(func(float(x_value)))
+            # Convertir el valor x a float y evaluar
+            x_float = float(x_value)
+            result = float(func(x_float))
+
             return {
                 'success': True,
                 'message': 'Evaluation successful',
                 'value': result
             }
         except Exception as e:
+            logger.error(f"Error evaluating function at x={x_value}: {str(e)}")
             return {
                 'success': False,
                 'message': f'Error evaluating function at x={x_value}: {str(e)}'
