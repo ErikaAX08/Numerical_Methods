@@ -1,10 +1,9 @@
-import numpy as np
-
-import plotly.graph_objects as go
-
 from sympy import symbols, sympify, lambdify
 import logging
 
+from .equation_handler import EquationHandler
+
+eq_handler = EquationHandler()
 logger = logging.getLogger(__name__)
 x = symbols('x')
 
@@ -14,7 +13,18 @@ def regula_falsi_func(equation, tol=1e-6, max_iter=100, p0=1.0, p1=2.5):
         # Print that calculation is start
         logger.info(f"Starting calculation with equation: {equation}, p0: {p0}, p1: {p1}")
 
+        eq_result = eq_handler.prepare_equation(equation)
         equation = equation.replace('^', '**')
+
+        if not eq_result['success']:
+            return {
+                'error': True,
+                'message': eq_result['message']
+            }
+
+        f = eq_result['function']
+
+        """""
         try:
             expr = sympify(equation)
             f = lambdify(x, expr)
@@ -24,8 +34,10 @@ def regula_falsi_func(equation, tol=1e-6, max_iter=100, p0=1.0, p1=2.5):
                 'error': True,
                 'message': f'Invalid equation format: {str(e)}'
             }
+        """
 
         # Evaluating p0 y p1 with function
+        """""
         try:
             fp0 = float(f(float(p0)))
             fp1 = float(f(float(p1)))
@@ -35,6 +47,20 @@ def regula_falsi_func(equation, tol=1e-6, max_iter=100, p0=1.0, p1=2.5):
                 'error': True,
                 'message': 'Error evaluating function at initial points'
             }
+        """
+
+        # Evaluate initial points
+        p0_result = eq_handler.evaluate_at_point(equation, p0)
+        p1_result = eq_handler.evaluate_at_point(equation, p1)
+
+        if not p0_result['success'] and p1_result['success']:
+            return {
+                "error": True,
+                "message": "Error evaluating function at initial points"
+            }
+
+        fp0 = p0_result['value']
+        fp1 = p1_result['value']
 
         # Check if fp0 and fp1 >= 0
         if fp0 * fp1 >= 0:
@@ -117,6 +143,7 @@ def regula_falsi_modified_func(equation, tol=1e-6, max_iter=100, p0=1.0, p1=2.5)
         # Print that calculation is start
         logger.info(f"Starting calculation with equation: {equation}, p0: {p0}, p1: {p1}")
 
+        """""
         equation = equation.replace('^', '**')
         try:
             expr = sympify(equation)
@@ -138,6 +165,28 @@ def regula_falsi_modified_func(equation, tol=1e-6, max_iter=100, p0=1.0, p1=2.5)
                 'error': True,
                 'message': 'Error evaluating function at initial points'
             }
+        """
+
+        eq_result = eq_handler.prepare_equation(equation)
+        if not eq_result['success']:
+            return {
+                'error': True,
+                'message': eq_result['message']
+            }
+
+        f = eq_result['function']
+
+        p0_result = eq_handler.evaluate_at_point(equation, p0)
+        p1_result = eq_handler.evaluate_at_point(equation, p1)
+
+        if not p0_result['success'] and p1_result['success']:
+            return {
+                "error": True,
+                "message": "Error evaluating function at initial points"
+            }
+
+        fp0 = p0_result['value']
+        fp1 = p1_result['value']
 
         # Check if fp0 and fp1 >= 0
         if fp0 * fp1 >= 0:

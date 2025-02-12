@@ -1,5 +1,3 @@
-import base64
-
 from django.shortcuts import render
 from django.http import JsonResponse
 from ..utils.regula_falsi import regula_falsi_func, regula_falsi_modified_func, generate_graph
