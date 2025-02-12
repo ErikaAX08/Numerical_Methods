@@ -46,8 +46,18 @@ def calculate_falsi(request):
                 p1=p1
             )
 
+            print("results_regula_falsi: ", results_regula_falsi)
+            print("results_regula_falsi_modified: ", results_regula_falsi_modified)
+
+            if results_regula_falsi['error'] or results_regula_falsi_modified['error']:
+                return JsonResponse({
+                    'error': True,
+                    'message': str(results_regula_falsi['message'])
+                })
+
             plot_results_regula_falsi_json = generate_graph(equation, a, b, results_regula_falsi['results'])
-            plot_results_regula_falsi_modified_json = generate_graph(equation, a, b, results_regula_falsi_modified['results'])
+            plot_results_regula_falsi_modified_json = generate_graph(equation, a, b,
+                                                                     results_regula_falsi_modified['results'])
 
             response = {
                 "graph_results_regula_falsi": plot_results_regula_falsi_json,

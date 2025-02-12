@@ -31,7 +31,7 @@
                 <div class="mb-3">
                     <div class="col-md-12 col-sm-6 mb-3">
                         <label for="equation" class="form-label">{% translate 'Equation' %}:</label>
-                        <input type="text" class="form-control" id="equation" value="x^3 + 4*x^2 - 10" required>
+                        <input type="text" class="form-control" id="equation" value="x^3 + 4*x^2 - 4" required>
                     </div>
                 </div>
 
@@ -88,9 +88,7 @@
 
             <div id="results" class="mt-5 p-4 bg-light rounded-3 shadow" style="display: none;">
                 <h4 class="mb-3">{% translate 'Results' %}: {% translate 'Regula falsi' %}</h4>
-                <div id="messageContainer">
-
-                </div>
+                <div id="messageContainer"></div>
                 <table id="resultsTable" class="table table-bordered rounded-5 table-striped mb-5">
                     <thead>
                     <tr>
@@ -101,13 +99,10 @@
                         <th>{% translate 'f(p)' %}</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    </tbody>
+                    <tbody></tbody>
                 </table>
                 <h4 class="mb-3">{% translate 'Results' %}: {% translate 'Regula falsi Modified' %}</h4>
-                <div id="messageContainerModified">
-
-                </div>
+                <div id="messageContainerModified"></div>
                 <table id="resultsTableModified" class="table table-bordered rounded-5 table-striped">
                     <thead>
                     <tr>
@@ -118,8 +113,7 @@
                         <th>{% translate 'f(p)' %}</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>
@@ -158,7 +152,27 @@
                 buttonText.textContent = isLoading ? "{% translate 'Calculating...' %}" : "{% translate 'Calculate and Graph' %}";
             }
 
+            function clearPreviousResults() {
+                // Clear tables
+                document.getElementById("resultsTable").querySelector("tbody").innerHTML = "";
+                document.getElementById("resultsTableModified").querySelector("tbody").innerHTML = "";
+
+                // Clear messages
+                document.getElementById("messageContainer").innerHTML = "";
+                document.getElementById("messageContainerModified").innerHTML = "";
+
+                // Clear plots
+                Plotly.purge('plot-container');
+                Plotly.purge('plot-container-modified');
+
+                // Hide results and graphs containers
+                document.getElementById("results").style.display = "none";
+                document.getElementById("graphs-container").style.display = "none";
+            }
+
             function calculateAndGraph() {
+                clearPreviousResults();
+
                 const equation = document.getElementById("equation").value;
                 const a = document.getElementById("intervalA").value;
                 const b = document.getElementById("intervalB").value;
@@ -167,9 +181,7 @@
                 const p0 = document.getElementById("p0").value;
                 const p1 = document.getElementById("p1").value;
 
-                setLoadingState(true)
-
-                const resultsDiv = document.getElementById("results");
+                setLoadingState(true);
 
                 const url = `/calculate-falsi/?equation=${encodeURIComponent(equation)}&a=${a}&b=${b}&tol=${tolerance}&maxIterations=${maxIterations}&p0=${p0}&p1=${p1}`;
 
@@ -182,19 +194,20 @@
                     })
                     .then(data => {
                         if (data.error) {
-                            resultsDiv.innerHTML = `
-                    <div class="alert alert-danger">
-                        <strong>Error:</strong> ${data.message}
-                    </div>`;
-                            return;
+                            throw new Error(data.message);
                         }
 
                         const plotData = JSON.parse(data.graph_results_regula_falsi);
+                        const plotDataModified = JSON.parse(data.graph_results_regula_falsi_modified);
 
                         // Update the layout to be responsive
                         plotData.layout.autosize = true;
-                        plotData.layout.height = undefined; // Remove fixed height
-                        plotData.layout.width = undefined;  // Remove fixed width
+                        plotData.layout.height = undefined;
+                        plotData.layout.width = undefined;
+
+                        plotDataModified.layout.autosize = true;
+                        plotDataModified.layout.height = undefined;
+                        plotDataModified.layout.width = undefined;
 
                         const config = {
                             responsive: true,
@@ -206,98 +219,28 @@
                             modeBarButtonsToRemove: ['lasso2d']
                         };
 
-                        Plotly.newPlot('plot-container', plotData.data, plotData.layout, config)
-                            .then(function () {
-                                document.getElementById("graphs-container").style.display = "block";
+                        Plotly.newPlot('plot-container', plotData.data, plotData.layout, config);
+                        Plotly.newPlot('plot-container-modified', plotDataModified.data, plotDataModified.layout, config);
 
-                                // Add window resize event listener
-                                window.addEventListener('resize', function () {
-                                    Plotly.Plots.resize('plot-container');
-                                });
-                            });
+                        document.getElementById("graphs-container").style.display = "block";
+                        document.getElementById("results").style.display = "block";
 
-
-                        const plotDataModified = JSON.parse(data.graph_results_regula_falsi_modified);
-
-                        // Update the layout to be responsive
-                        plotDataModified.layout.autosize = true;
-                        plotDataModified.layout.height = undefined; // Remove fixed height
-                        plotDataModified.layout.width = undefined;  // Remove fixed width
-
-                        Plotly.newPlot('plot-container-modified', plotDataModified.data, plotDataModified.layout, config)
-                            .then(function () {
-
-                                // Add window resize event listener
-                                window.addEventListener('resize', function () {
-                                    Plotly.Plots.resize('plot-container-modified');
-                                });
-                            });
-
-                        if (!data.results_regula_falsi.results || !data.results_regula_falsi.results.iterations) {
-                            resultsDiv.innerHTML = `
-                            <div class="alert alert-warning">
-                                No results found. Please check your input parameters.
-                            </div>`;
-                            return;
-                        }
-
-                        // Display results
                         displayResults(data);
                     })
                     .catch(error => {
                         console.error("Error:", error);
-                        resultsDiv.innerHTML = `
-                        <div class="alert alert-danger">
-                            <strong>Error:</strong> ${error.message}
-                        </div>`;
-                    }).finally(() => {
-                    setLoadingState(false);
-                });
-            }
-
-            // Helper function to populate a results table
-            function populateResultsTable(tableId, messageId, results, title) {
-                const table = document.getElementById(tableId);
-                const tbody = table.querySelector("tbody");
-                tbody.innerHTML = "";
-
-                // Add status message before the table
-                const messageContainer = document.getElementById(messageId);
-                messageContainer.innerHTML = "";
-                const messageDiv = document.createElement("div");
-                if (results.converged) {
-                    messageDiv.innerHTML = `
-            <div class="alert alert-success">
-                <strong>${title} - {% translate 'Root found' %}:</strong> ${results.root.toFixed(6)}
-            </div>`;
-                } else {
-                    messageDiv.innerHTML = `
-            <div class="alert alert-warning">
-                ${title} - {% translate 'Method did not converge within the maximum number of iterations' %}.
-            </div>`;
-                }
-
-                messageContainer.appendChild(messageDiv);
-
-                // Display all iterations
-                results.iterations.forEach(iter => {
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
-            <td>${iter.iteration}</td>
-            <td>${iter.p0.toFixed(6)}</td>
-            <td>${iter.p1.toFixed(6)}</td>
-            <td>${iter.c.toFixed(6)}</td>
-            <td>${iter['f(c)'].toFixed(6)}</td>
-        `;
-                    tbody.appendChild(row);
-                });
+                        document.getElementById("messageContainer").innerHTML = `
+                            <div class="alert alert-danger">
+                                <strong>Error:</strong> ${error.message}
+                            </div>`;
+                        document.getElementById("results").style.display = "block";
+                    })
+                    .finally(() => {
+                        setLoadingState(false);
+                    });
             }
 
             function displayResults(data) {
-                // Show the results container
-                const resultsDiv = document.getElementById("results");
-                resultsDiv.style.display = "block";
-
                 // Display regular Regula Falsi results
                 populateResultsTable(
                     "resultsTable",
@@ -313,6 +256,39 @@
                     data.results_regula_falsi_modified.results,
                     "{% translate 'Regula falsi Modified' %}"
                 );
+            }
+
+            function populateResultsTable(tableId, messageId, results, title) {
+                const table = document.getElementById(tableId);
+                const tbody = table.querySelector("tbody");
+                tbody.innerHTML = "";
+
+                const messageContainer = document.getElementById(messageId);
+                messageContainer.innerHTML = "";
+
+                if (results.converged) {
+                    messageContainer.innerHTML = `
+                        <div class="alert alert-success">
+                            <strong>${title} - {% translate 'Root found' %}:</strong> ${results.root.toFixed(6)}
+                        </div>`;
+                } else {
+                    messageContainer.innerHTML = `
+                        <div class="alert alert-warning">
+                            ${title} - {% translate 'Method did not converge within the maximum number of iterations' %}.
+                        </div>`;
+                }
+
+                results.iterations.forEach(iter => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${iter.iteration}</td>
+                        <td>${iter.p0.toFixed(6)}</td>
+                        <td>${iter.p1.toFixed(6)}</td>
+                        <td>${iter.c.toFixed(6)}</td>
+                        <td>${iter['f(c)'].toFixed(6)}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
             }
 
         </script>

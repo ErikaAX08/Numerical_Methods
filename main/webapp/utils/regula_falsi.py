@@ -1,5 +1,9 @@
-from sympy import symbols, sympify, lambdify
 import logging
+import random
+
+import numpy as np
+import plotly.graph_objects as go
+from sympy import symbols, sympify, lambdify
 
 from .equation_handler import EquationHandler
 
@@ -14,7 +18,7 @@ def regula_falsi_func(equation, tol=1e-6, max_iter=100, p0=1.0, p1=2.5):
         logger.info(f"Starting calculation with equation: {equation}, p0: {p0}, p1: {p1}")
 
         eq_result = eq_handler.prepare_equation(equation)
-        equation = equation.replace('^', '**')
+        print(eq_result)
 
         if not eq_result['success']:
             return {
@@ -24,46 +28,28 @@ def regula_falsi_func(equation, tol=1e-6, max_iter=100, p0=1.0, p1=2.5):
 
         f = eq_result['function']
 
-        """""
-        try:
-            expr = sympify(equation)
-            f = lambdify(x, expr)
-        except Exception as e:
-            logger.error(f"Error parsing equation: {str(e)}")
-            return {
-                'error': True,
-                'message': f'Invalid equation format: {str(e)}'
-            }
-        """
-
-        # Evaluating p0 y p1 with function
-        """""
-        try:
-            fp0 = float(f(float(p0)))
-            fp1 = float(f(float(p1)))
-        except Exception as e:
-            logger.error(f"Error evaluating function: {str(e)}")
-            return {
-                'error': True,
-                'message': 'Error evaluating function at initial points'
-            }
-        """
-
         # Evaluate initial points
-        p0_result = eq_handler.evaluate_at_point(equation, p0)
-        p1_result = eq_handler.evaluate_at_point(equation, p1)
+        p0_result = eq_handler.evaluate_at_point(f, p0)
+        p1_result = eq_handler.evaluate_at_point(f, p1)
 
-        if not p0_result['success'] and p1_result['success']:
+        print("p0_result: ", p0_result)
+        print("p1_result: ", p1_result)
+
+        if not p0_result['success'] and not p1_result['success']:
             return {
                 "error": True,
                 "message": "Error evaluating function at initial points"
             }
 
-        fp0 = p0_result['value']
-        fp1 = p1_result['value']
+        fp0 = float(p0_result['value'])
+        fp1 = float(p1_result['value'])
+
+        print("fp0: ", fp0)
+        print("fp1: ", fp1)
 
         # Check if fp0 and fp1 >= 0
         if fp0 * fp1 >= 0:
+            print("Los puntos iniciales no tienen una raiz")
             return {
                 'error': True,
                 'message': 'Initial points do not bracket a root'
@@ -105,6 +91,7 @@ def regula_falsi_func(equation, tol=1e-6, max_iter=100, p0=1.0, p1=2.5):
                     # If yes, c is the root and indicate that the function converges
                     results['converged'] = True
                     results['root'] = c
+                    print("La funcion si converge")
                     break
 
                 # Establish new points
@@ -118,10 +105,14 @@ def regula_falsi_func(equation, tol=1e-6, max_iter=100, p0=1.0, p1=2.5):
 
             except Exception as e:
                 logger.error(f"Error in iteration {i}: {str(e)}")
+                print("Error in iteration {i}: {str(e)}")
                 return {
                     'error': True,
                     'message': f'Error in iteration {i}: {str(e)}'
                 }
+
+        if not results['converged']:
+            results['message'] = 'Method did not converge within the maximum number of iterations'
 
         logger.info(f"Calculation completed. Converged: {results['converged']}")
         return {
@@ -143,30 +134,6 @@ def regula_falsi_modified_func(equation, tol=1e-6, max_iter=100, p0=1.0, p1=2.5)
         # Print that calculation is start
         logger.info(f"Starting calculation with equation: {equation}, p0: {p0}, p1: {p1}")
 
-        """""
-        equation = equation.replace('^', '**')
-        try:
-            expr = sympify(equation)
-            f = lambdify(x, expr)
-        except Exception as e:
-            logger.error(f"Error parsing equation: {str(e)}")
-            return {
-                'error': True,
-                'message': f'Invalid equation format: {str(e)}'
-            }
-
-        # Evaluating p0 y p1 with function
-        try:
-            fp0 = float(f(float(p0)))
-            fp1 = float(f(float(p1)))
-        except Exception as e:
-            logger.error(f"Error evaluating function: {str(e)}")
-            return {
-                'error': True,
-                'message': 'Error evaluating function at initial points'
-            }
-        """
-
         eq_result = eq_handler.prepare_equation(equation)
         if not eq_result['success']:
             return {
@@ -176,8 +143,8 @@ def regula_falsi_modified_func(equation, tol=1e-6, max_iter=100, p0=1.0, p1=2.5)
 
         f = eq_result['function']
 
-        p0_result = eq_handler.evaluate_at_point(equation, p0)
-        p1_result = eq_handler.evaluate_at_point(equation, p1)
+        p0_result = eq_handler.evaluate_at_point(f, p0)
+        p1_result = eq_handler.evaluate_at_point(f, p1)
 
         if not p0_result['success'] and p1_result['success']:
             return {
@@ -250,6 +217,9 @@ def regula_falsi_modified_func(equation, tol=1e-6, max_iter=100, p0=1.0, p1=2.5)
                     'message': f'Error in iteration {i}: {str(e)}'
                 }
 
+        if not results['converged']:
+            results['message'] = 'Method did not converge within the maximum number of iterations'
+
         logger.info(f"Calculation completed. Converged: {results['converged']}")
         return {
             'error': False,
@@ -258,7 +228,7 @@ def regula_falsi_modified_func(equation, tol=1e-6, max_iter=100, p0=1.0, p1=2.5)
         }
 
     except Exception as e:
-        logger.error(f"Unexpected error in regula_falsi_func: {str(e)}")
+        logger.error(f"Unexpected error in regula_falsi__modified_func: {str(e)}")
         return {
             'error': True,
             'message': f'Unexpected error: {str(e)}'
@@ -267,10 +237,6 @@ def regula_falsi_modified_func(equation, tol=1e-6, max_iter=100, p0=1.0, p1=2.5)
 
 def generate_graph(equation, a, b, results):
     try:
-        import numpy as np
-        from sympy import symbols, sympify, lambdify
-        import plotly.graph_objects as go
-        import random
 
         # Function to generate random colors
         def random_color():
