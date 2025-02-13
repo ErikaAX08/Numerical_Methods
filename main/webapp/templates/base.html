@@ -51,10 +51,12 @@
                         {% translate 'Nonlinear equations' %}
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">{% translate 'Bisection Method' %}</a></li>
+                        <li><a class="dropdown-item"
+                               href="{% url 'bisection_method' %}">{% translate 'Bisection Method' %}</a></li>
                         <li><a class="dropdown-item" href="#">{% translate 'Newton Raphson Method' %}</a></li>
                         <li><a class="dropdown-item" href="#">{% translate 'Secant Method' %}</a></li>
-                        <li><a class="dropdown-item" href="{% url 'regula_falsi' %}">{% translate 'Regula falsi' %}</a></li>
+                        <li><a class="dropdown-item" href="{% url 'regula_falsi' %}">{% translate 'Regula falsi' %}</a>
+                        </li>
                     </ul>
                 </li>
             </ul>

@@ -2,6 +2,7 @@ from django.urls import path
 from .views.home_views import index
 from .views.taylor_series_views import calculate_taylor, taylor_series
 from .views.regula_falsi_views import calculate_falsi, regula_falsi
+from .views.bisection_method_views import calculate_bisection_method, bisection_method
 
 urlpatterns = [
     path("", index, name="index"),
@@ -9,4 +10,6 @@ urlpatterns = [
     path("calculate-taylor/", calculate_taylor, name="calculate_taylor"),
     path("regula-falsi/", regula_falsi, name="regula_falsi"),
     path("calculate-falsi/", calculate_falsi, name="calculate_falsi"),
+    path("bisection-method/", bisection_method, name="bisection_method"),
+    path("calculate-bisection-method/", calculate_bisection_method, name="calculate_bisection_method"),
 ]

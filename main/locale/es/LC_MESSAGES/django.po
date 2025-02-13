@@ -152,6 +152,10 @@ msgstr "Calculadora de Regula Falsi y Regula Falsi Modificada"
 msgid "The False Position Method (Regula Falsi) is an iterative root-finding algorithm that approximates the root of a function by using linear interpolation between two points that bracket the root. It improves upon the Bisection Method by using the slope of the line connecting the points to converge faster. The Modified False Position Method introduces adjustments to reduce the risk of slow convergence, especially when one bound remains fixed for multiple iterations. Both methods are useful for solving nonlinear equations where analytical solutions are difficult to obtain."
 msgstr "El Método de la Regla Falsa (Regula Falsi) es un algoritmo iterativo para encontrar raíces que aproxima la raíz de una función utilizando interpolación lineal entre dos puntos que la acotan. Mejora el Método de Bisección al usar la pendiente de la línea que conecta los puntos para converger más rápido. El Método de la Regla Falsa Modificada introduce ajustes para reducir el riesgo de convergencia lenta, especialmente cuando uno de los límites permanece fijo durante múltiples iteraciones. Ambos métodos son útiles para resolver ecuaciones no lineales donde las soluciones analíticas son difíciles de obtener."
 
+# Bisection Method
+msgid "Bisection Calculator"
+msgstr "Calculadora de Bisección"
+
 # Calculators
 
 msgid "Calculator"

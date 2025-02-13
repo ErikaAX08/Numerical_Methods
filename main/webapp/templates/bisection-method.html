@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% translate 'Regula Falsi' %} - {% translate 'Numerical Methods' %}{% endblock %}
+{% block title %}{% translate 'Bisection Method' %} - {% translate 'Numerical Methods' %}{% endblock %}
 {% block content %}
     {% load static %}
 
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
             <div class="col-lg-12">
-                <h2 class="display-4 fw-bold lh-1s">{% translate 'Regula Falsi' %}</h2>
+                <h2 class="display-4 fw-bold lh-1s">{% translate 'Bisection Method' %}</h2>
                 <p class="lead py-5">
-                    {% translate 'The False Position Method (Regula Falsi) is an iterative root-finding algorithm that approximates the root of a function by using linear interpolation between two points that bracket the root. It improves upon the Bisection Method by using the slope of the line connecting the points to converge faster. The Modified False Position Method introduces adjustments to reduce the risk of slow convergence, especially when one bound remains fixed for multiple iterations. Both methods are useful for solving nonlinear equations where analytical solutions are difficult to obtain.' %}
+                    {% translate 'El método de bisección es un procedimiento numérico para encontrar la raíz de una función en un intervalo donde los valores de la función tienen signos opuestos. Se basa en dividir el intervalo a la mitad repetidamente y seleccionar la parte donde ocurre el cambio de signo, hasta que se obtiene una aproximación suficientemente precisa de la raíz. Es un método sencillo, confiable y siempre converge si la función es continua, aunque su velocidad de convergencia es relativamente lenta.' %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
@@ -26,7 +26,7 @@
 
         <!-- Hidden calculator section -->
         <div id="calculator" style="display: none;" class="mt-5">
-            <h3 class="mb-5">{% translate 'Regula Falsi Calculator' %}</h3>
+            <h3 class="mb-5">{% translate 'Bisection Calculator' %}</h3>
             <form class="mb-5 p-4 bg-light rounded-3 shadow" id="calculatorForm">
                 <div class="mb-3">
                     <div class="col-md-12 col-sm-6 mb-3">
@@ -75,35 +75,19 @@
                 </button>
             </form>
 
+            <!-- Container for the graphs -->
             <div id="graphs-container" class="mt-5 p-4 bg-light rounded-3 shadow" style="display: none;">
-                <h4 class="mb-3">{% translate 'Regula falsi' %}</h4>
+                <h4 class="mb-3">{% translate 'Bisection Method' %}</h4>
                 <div class="rounded-5 mb-5" id="plot-container" style="width: 100%;">
-                    <!-- Plotly chart will be rendered here -->
-                </div>
-                <h4 class="mb-3">{% translate 'Regula falsi Modified' %}</h4>
-                <div class="rounded-5" id="plot-container-modified" style="width: 100%;">
                     <!-- Plotly chart will be rendered here -->
                 </div>
             </div>
 
+            <!-- Container for the results table -->
             <div id="results" class="mt-5 p-4 bg-light rounded-3 shadow" style="display: none;">
-                <h4 class="mb-3">{% translate 'Results' %}: {% translate 'Regula falsi' %}</h4>
+                <h4 class="mb-3">{% translate 'Results' %}</h4>
                 <div id="messageContainer"></div>
                 <table id="resultsTable" class="table table-bordered rounded-5 table-striped mb-5">
-                    <thead>
-                    <tr>
-                        <th>{% translate 'Iteration' %}</th>
-                        <th>{% translate 'p0' %}</th>
-                        <th>{% translate 'p1' %}</th>
-                        <th>{% translate 'p' %}</th>
-                        <th>{% translate 'f(p)' %}</th>
-                    </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-                <h4 class="mb-3">{% translate 'Results' %}: {% translate 'Regula falsi Modified' %}</h4>
-                <div id="messageContainerModified"></div>
-                <table id="resultsTableModified" class="table table-bordered rounded-5 table-striped">
                     <thead>
                     <tr>
                         <th>{% translate 'Iteration' %}</th>
@@ -119,19 +103,24 @@
         </div>
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3">
-            <h3 class="pb-3">{% translate "Explicación Método Regla Falsa" %}</h3>
+            <h3 class="pb-3">{% translate "Explicación Método de Bisección" %}</h3>
             <p>
-                {% translate "Dado un intervalo [a, b] donde f(a)f(b)< 0, la aproximación de la raíz se encuentra con la fórmula: " %}
+                {% translate "Dada una función continua f(x) en un intervalo [a, b] donde f(a) y f(b) tienen signos opuestos (f(a)f(b < 0)), el método de bisección encuentra una raíz c de f(x) en [a, b] dividiendo repetidamente el intervalo a la mitad y seleccionando el subintervalo que contiene la raíz." %}
                 \[
-                x_r = \frac{a f(b) - b f(a)}{f(b) - f(a)}
+                c = \frac{a + b}{2}
                 \]
                 {% translate "Esta fórmula proviene de la ecuación de la recta que pasa por dos puntos (a, f(a)) y (b, f(b)), resolviendo para x cuando f(x) = 0.<br><br>" %}
 
-                {% translate "<strong>Algoritmo iterativo:</strong><br><br>" %}
-                {% translate "<strong>1.</strong> Calcular \( x_r \) usando la fórmula de la regla falsa.<br><br>" %}
-                {% translate "<strong>2.</strong> Evaluar \( f(x_r) \), si \( f(x_r) \) = 0 , entonces \( x_r \) es la raíz exacta. Si \( f(x_r) \)\( f(a) \) < 0, entonces la raíz está en [a, \( x_r \)], por lo que se actualiza b = \( x_r \). Si \( f(x_r) \)\( f(b) \) < 0, entonces la raíz está en [\( x_r \), b], por lo que se actualiza a = \( x_r \).<br><br>" %}
-                {% translate "<strong>3.</strong> Repetir hasta que |\( f(x_r) \)| sea menor que una tolerancia establecida <strong>ε</strong> o se alcance el número máximo de tolerancias" %}
-                {% translate "Este método converge más rápido que el de bisección en funciones sin curvatura extrema cerca de la raíz. Sin embargo, en funciones con concavidad pronunciada, puede volverse lento y requerir modificaciones como <strong>la regla falsa modificada.</strong>"%} 
+                {% translate "<strong>Criterio de selección del subintervalo:</strong><br><br>" %}
+                {% translate "Si f(a) * f(c) < 0, la raíz está en [a, c]<br>" %}
+                {% translate "Si f(c) * f(b) < 0, la raíz está en [c, b]<br>" %}
+                {% translate "Si f(c) = 0, entonces c es la raíz exacta<br><br>" %}
+                {% translate "<strong>Algoritmo:</strong><br><br>" %}
+                {% translate "<strong>1.</strong> Asegurarse de que \( f(x) \) es continua en el intervalo [a, b].<br><br>" %}
+                {% translate "<strong>2.</strong> Calcular el punto medio \( c = \frac{a + b}{2} \).<br><br>" %}
+                {% translate "<strong>3.</strong> Evaluar \( f(c) \).<br><br>" %}
+                {% translate "<strong>4.</strong> Determinar el nuevo intervalo. Si \( f(a) * f(c)\) < 0, la raíz está en [a, c], hacer b = c. Si \( f(c) * f(b)\) < 0 la raíz está en [c, b], hacer a = c. Si \( f(c) \) = 0, entonces c es la raíz exacta y el método termina.<br><br>" %}
+                {% translate "<strong>5.</strong> Verificar la convergencia. Si el intervalo [a, b] es suficientemente pequeño (|b - a| < ε donde ε es la tolerancia), entonces c es una aproximación de la raíz. De lo contrario, se deben repetir los pasos 2-4" %}
             </p>
         </div>
 
@@ -165,15 +154,12 @@
             function clearPreviousResults() {
                 // Clear tables
                 document.getElementById("resultsTable").querySelector("tbody").innerHTML = "";
-                document.getElementById("resultsTableModified").querySelector("tbody").innerHTML = "";
 
                 // Clear messages
                 document.getElementById("messageContainer").innerHTML = "";
-                document.getElementById("messageContainerModified").innerHTML = "";
 
                 // Clear plots
                 Plotly.purge('plot-container');
-                Plotly.purge('plot-container-modified');
 
                 // Hide results and graphs containers
                 document.getElementById("results").style.display = "none";
@@ -193,7 +179,7 @@
 
                 setLoadingState(true);
 
-                const url = `/calculate-falsi/?equation=${encodeURIComponent(equation)}&a=${a}&b=${b}&tol=${tolerance}&maxIterations=${maxIterations}&p0=${p0}&p1=${p1}`;
+                const url = `/calculate-bisection-method/?equation=${encodeURIComponent(equation)}&a=${a}&b=${b}&tol=${tolerance}&maxIterations=${maxIterations}&p0=${p0}&p1=${p1}`;
 
                 fetch(url)
                     .then(response => {
@@ -207,17 +193,12 @@
                             throw new Error(data.message);
                         }
 
-                        const plotData = JSON.parse(data.graph_results_regula_falsi);
-                        const plotDataModified = JSON.parse(data.graph_results_regula_falsi_modified);
+                        const plotData = JSON.parse(data.graph);
 
                         // Update the layout to be responsive
                         plotData.layout.autosize = true;
                         plotData.layout.height = undefined;
                         plotData.layout.width = undefined;
-
-                        plotDataModified.layout.autosize = true;
-                        plotDataModified.layout.height = undefined;
-                        plotDataModified.layout.width = undefined;
 
                         const config = {
                             responsive: true,
@@ -230,7 +211,6 @@
                         };
 
                         Plotly.newPlot('plot-container', plotData.data, plotData.layout, config);
-                        Plotly.newPlot('plot-container-modified', plotDataModified.data, plotDataModified.layout, config);
 
                         document.getElementById("graphs-container").style.display = "block";
                         document.getElementById("results").style.display = "block";
@@ -255,20 +235,11 @@
                 populateResultsTable(
                     "resultsTable",
                     "messageContainer",
-                    data.results_regula_falsi.results,
-                    "{% translate 'Regula falsi' %}"
-                );
-
-                // Display modified Regula Falsi results
-                populateResultsTable(
-                    "resultsTableModified",
-                    "messageContainerModified",
-                    data.results_regula_falsi_modified.results,
-                    "{% translate 'Regula falsi Modified' %}"
+                    data.results.results
                 );
             }
 
-            function populateResultsTable(tableId, messageId, results, title) {
+            function populateResultsTable(tableId, messageId, results) {
                 const table = document.getElementById(tableId);
                 const tbody = table.querySelector("tbody");
                 tbody.innerHTML = "";
@@ -279,12 +250,12 @@
                 if (results.converged) {
                     messageContainer.innerHTML = `
                         <div class="alert alert-success">
-                            <strong>${title} - {% translate 'Root found' %}:</strong> ${results.root.toFixed(6)}
+                            <strong>{% translate 'Root found' %}:</strong> ${results.root.toFixed(6)}
                         </div>`;
                 } else {
                     messageContainer.innerHTML = `
                         <div class="alert alert-warning">
-                            ${title} - {% translate 'Method did not converge within the maximum number of iterations' %}.
+                            {% translate 'Method did not converge within the maximum number of iterations' %}.
                         </div>`;
                 }
 
