@@ -119,9 +119,19 @@
         </div>
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3">
-            <h3 class="pb-3">{% translate "Explanation of Taylor and Maclaurin Series" %}</h3>
+            <h3 class="pb-3">{% translate "Explicación de la regla falsa (regula falsi)" %}</h3>
             <p>
-                aqui va un texto
+                {% translate "Dado un intervalo [a, b] donde f(a)f(b)< 0, la aproximación de la raíz se encuentra con la fórmula: " %}
+                \[
+                x_r = \frac{a f(b) - b f(a)}{f(b) - f(a)}
+                \]
+                {% translate "Esta fórmula proviene de la ecuación de la recta que pasa por dos puntos (a, f(a)) y (b, f(b)), resolviendo para x cuando f(x) = 0.<br><br>" %}
+
+                {% translate "<strong>Algoritmo iterativo:</strong><br><br>" %}
+                {% translate "<strong>1.</strong> Calcular \( x_r \) usando la fórmula de la regla falsa.<br><br>" %}
+                {% translate "<strong>2.</strong> Evaluar \( f(x_r) \), si \( f(x_r) \) = 0 , entonces \( x_r \) es la raíz exacta. Si \( f(x_r) \)\( f(a) \) < 0, entonces la raíz está en [a, \( x_r \)], por lo que se actualiza b = \( x_r \). Si \( f(x_r) \)\( f(b) \) < 0, entonces la raíz está en [\( x_r \), b], por lo que se actualiza a = \( x_r \).<br><br>" %}
+                {% translate "<strong>3.</strong> Repetir hasta que |\( f(x_r) \)| sea menor que una tolerancia establecida <strong>ε</strong> o se alcance el número máximo de tolerancias" %}
+                {% translate "Este método converge más rápido que el de bisección en funciones sin curvatura extrema cerca de la raíz. Sin embargo, en funciones con concavidad pronunciada, puede volverse lento y requerir modificaciones como <strong>la regla falsa modificada.</strong>"%} 
             </p>
         </div>
 
