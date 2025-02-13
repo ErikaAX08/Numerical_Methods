@@ -105,7 +105,22 @@
         <div id="explanation" class="mt-4 rounded-3">
             <h3 class="pb-3">{% translate "Explicación Método de Bisección" %}</h3>
             <p>
-                aqui va un texto
+                {% translate "Dada una función continua f(x) en un intervalo [a, b] donde f(a) y f(b) tienen signos opuestos (f(a)f(b < 0)), el método de bisección encuentra una raíz c de f(x) en [a, b] dividiendo repetidamente el intervalo a la mitad y seleccionando el subintervalo que contiene la raíz." %}
+                \[
+                c = \frac{a + b}{2}
+                \]
+                {% translate "Esta fórmula proviene de la ecuación de la recta que pasa por dos puntos (a, f(a)) y (b, f(b)), resolviendo para x cuando f(x) = 0.<br><br>" %}
+
+                {% translate "<strong>Criterio de selección del subintervalo:</strong><br><br>" %}
+                {% translate "Si f(a) * f(c) < 0, la raíz está en [a, c]<br>" %}
+                {% translate "Si f(c) * f(b) < 0, la raíz está en [c, b]<br>" %}
+                {% translate "Si f(c) = 0, entonces c es la raíz exacta<br><br>" %}
+                {% translate "<strong>Algoritmo:</strong><br><br>" %}
+                {% translate "<strong>1.</strong> Asegurarse de que \( f(x) \) es continua en el intervalo [a, b].<br><br>" %}
+                {% translate "<strong>2.</strong> Calcular el punto medio \( c = \frac{a + b}{2} \).<br><br>" %}
+                {% translate "<strong>3.</strong> Evaluar \( f(c) \).<br><br>" %}
+                {% translate "<strong>4.</strong> Determinar el nuevo intervalo. Si \( f(a) * f(c)\) < 0, la raíz está en [a, c], hacer b = c. Si \( f(c) * f(b)\) < 0 la raíz está en [c, b], hacer a = c. Si \( f(c) \) = 0, entonces c es la raíz exacta y el método termina.<br><br>" %}
+                {% translate "<strong>5.</strong> Verificar la convergencia. Si el intervalo [a, b] es suficientemente pequeño (|b - a| < ε donde ε es la tolerancia), entonces c es una aproximación de la raíz. De lo contrario, se deben repetir los pasos 2-4" %}
             </p>
         </div>
 
