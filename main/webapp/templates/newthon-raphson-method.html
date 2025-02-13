@@ -9,7 +9,7 @@
             <div class="col-lg-12">
                 <h2 class="display-4 fw-bold lh-1s">{% translate 'Newton Raphson Method' %}</h2>
                 <p class="lead py-5">
-                    {% translate 'El método de bisección es un procedimiento numérico para encontrar la raíz de una función en un intervalo donde los valores de la función tienen signos opuestos. Se basa en dividir el intervalo a la mitad repetidamente y seleccionar la parte donde ocurre el cambio de signo, hasta que se obtiene una aproximación suficientemente precisa de la raíz. Es un método sencillo, confiable y siempre converge si la función es continua, aunque su velocidad de convergencia es relativamente lenta.' %}
+                    {% translate 'El método de Newton-Raphson es un procedimiento numérico utilizado para encontrar aproximaciones de las raíces de una función. Se basa en tomar una estimación inicial y mejorarla iterativamente utilizando la pendiente de la función en ese punto. Cada nueva aproximación se obtiene desplazándose hacia donde la función se acerca a cero, lo que permite una convergencia rápida en la mayoría de los casos. Es uno de los métodos más eficientes, aunque puede fallar si la estimación inicial no es adecuada o si la función tiene comportamientos irregulares.' %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
@@ -103,24 +103,20 @@
         </div>
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3">
-            <h3 class="pb-3">{% translate "Explicación Método de Bisección" %}</h3>
+            <h3 class="pb-3">{% translate "Explicación Método Newton-Raphson" %}</h3>
             <p>
-                {% translate "Dada una función continua f(x) en un intervalo [a, b] donde f(a) y f(b) tienen signos opuestos (f(a)f(b < 0)), el método de bisección encuentra una raíz c de f(x) en [a, b] dividiendo repetidamente el intervalo a la mitad y seleccionando el subintervalo que contiene la raíz." %}
+                {% translate "Dado un valor inicial \( x_0 \), las siguientes aproximaciones se calculan con la fórmula:." %}
                 \[
-                c = \frac{a + b}{2}
+                x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)}
                 \]
-                {% translate "Esta fórmula proviene de la ecuación de la recta que pasa por dos puntos (a, f(a)) y (b, f(b)), resolviendo para x cuando f(x) = 0.<br><br>" %}
+                {% translate "Donde \( x_n \) es la aproximación actual de la raíz, \( f(x_n) \) es el valor de la función en \( x_n \) y \( f'(x_n) \) es la derivada de la función en \( x_n \).<br><br>" %}
 
-                {% translate "<strong>Criterio de selección del subintervalo:</strong><br><br>" %}
-                {% translate "Si f(a) * f(c) < 0, la raíz está en [a, c]<br>" %}
-                {% translate "Si f(c) * f(b) < 0, la raíz está en [c, b]<br>" %}
-                {% translate "Si f(c) = 0, entonces c es la raíz exacta<br><br>" %}
                 {% translate "<strong>Algoritmo:</strong><br><br>" %}
-                {% translate "<strong>1.</strong> Asegurarse de que \( f(x) \) es continua en el intervalo [a, b].<br><br>" %}
-                {% translate "<strong>2.</strong> Calcular el punto medio \( c = \frac{a + b}{2} \).<br><br>" %}
-                {% translate "<strong>3.</strong> Evaluar \( f(c) \).<br><br>" %}
-                {% translate "<strong>4.</strong> Determinar el nuevo intervalo. Si \( f(a) * f(c)\) < 0, la raíz está en [a, c], hacer b = c. Si \( f(c) * f(b)\) < 0 la raíz está en [c, b], hacer a = c. Si \( f(c) \) = 0, entonces c es la raíz exacta y el método termina.<br><br>" %}
-                {% translate "<strong>5.</strong> Verificar la convergencia. Si el intervalo [a, b] es suficientemente pequeño (|b - a| < ε donde ε es la tolerancia), entonces c es una aproximación de la raíz. De lo contrario, se deben repetir los pasos 2-4" %}
+                {% translate "<strong>1.</strong> Definir la función y su derivada. Función: \( f(x) = x^3 + 4x^2 -10 \). Derivada: \( f'(x) = 3x^2 + 8x \).<br><br>" %}
+                {% translate "<strong>2.</strong> Elegir una estimación inicial \( x_0 \): Se toma \( x_0 \) = 1.5 (un punto dentro del intervalo [1, 2]).<br><br>" %}
+                {% translate "<strong>3.</strong> Fórmula de iteración: \( x_{n+1} = x_n - \frac{f(x_n}{f'(x_n)}\).<br><br>" %}
+                {% translate "<strong>4.</strong> Calcular \( x_1 \) y repetir el proceso hasta que se alcance la tolerancia o el número máximo de iteraciones.<br><br>" %}
+                {% translate "<strong>5.</strong> Resultado final. Este método converge rápidamente a la raíz x ≈ 1.365. Con más iteraciones o mayor precisión, el método se acercará más a la raíz que se está buscando." %}
             </p>
         </div>
 
