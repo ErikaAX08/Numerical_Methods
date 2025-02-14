@@ -106,7 +106,11 @@
             <h3 class="pb-3">{% translate "Explicación Método de la Secante" %}</h3>
             <p>
                 {% translate "Se basa en reemplazar la derivada utilizada en el método de Newton-Raphson por una aproximación a partir de dos puntos cercanos. Esto evita la necesidad de calcular la derivada, lo que lo hace útil para funciones complejas.<br><br>" %}
-                {% translate "<strong>Pasos del método</strong>:<br><br>"%}
+                {% translate "<strong>Fórmula del método de la secante</strong>: Dadas dos aproximaciones iniciales \( x_0\) y \( x_1\), la siguiente aproximación \( x_2\) se calcula como: <br><br>"%}
+                \[
+                x_{n+1} = x_n - \frac{f(x_n)(x_n - x_{n-1})}{f(x_n) - f(x_{n-1})}
+                \]
+                {% translate "<br><strong>Pasos del método</strong>:<br><br>"%}
                 {% translate "<strong>1. Escoger dos valores iniciales</strong>: \( x_0\) y \( x_1\) que estén cerca de la raíz.<br><br>"%}
                 {% translate "<strong>2. Calcular una nueva aproximación</strong>: \( x_2\) usando la fórmula anterior.<br><br>"%}
                 {% translate "<strong>3. Actualizar los valores</strong>. Reemplazar \( x_{n-1} \) por \( x_n \). Reemplazar \( x_n \) por \( x_{n+1} \)<br><br>"%}
