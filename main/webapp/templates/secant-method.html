@@ -9,7 +9,7 @@
             <div class="col-lg-12">
                 <h2 class="display-4 fw-bold lh-1s">{% translate 'Secant Method' %}</h2>
                 <p class="lead py-5">
-                    {% translate 'El método de bisección es un procedimiento numérico para encontrar la raíz de una función en un intervalo donde los valores de la función tienen signos opuestos. Se basa en dividir el intervalo a la mitad repetidamente y seleccionar la parte donde ocurre el cambio de signo, hasta que se obtiene una aproximación suficientemente precisa de la raíz. Es un método sencillo, confiable y siempre converge si la función es continua, aunque su velocidad de convergencia es relativamente lenta.' %}
+                    {% translate 'El método de la secante es un procedimiento numérico para encontrar aproximaciones de las raíces de una función. Es similar al método de Newton-Raphson, pero en lugar de usar la derivada de la función, se aproxima con una línea secante que pasa por dos puntos cercanos. A partir de estos puntos, se obtiene una nueva estimación de la raíz y el proceso se repite hasta alcanzar la precisión deseada. Es más eficiente que el método de bisección y no requiere calcular derivadas, pero puede converger más lentamente o fallar si los puntos elegidos no son adecuados..' %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
@@ -103,9 +103,14 @@
         </div>
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3">
-            <h3 class="pb-3">{% translate "Explicación Método de Bisección" %}</h3>
+            <h3 class="pb-3">{% translate "Explicación Método de la Secante" %}</h3>
             <p>
-                aqui va un texto
+                {% translate "Se basa en reemplazar la derivada utilizada en el método de Newton-Raphson por una aproximación a partir de dos puntos cercanos. Esto evita la necesidad de calcular la derivada, lo que lo hace útil para funciones complejas.<br><br>" %}
+                {% translate "<strong>Pasos del método</strong>:<br><br>"%}
+                {% translate "<strong>1. Escoger dos valores iniciales</strong>: \( x_0\) y \( x_1\) que estén cerca de la raíz.<br><br>"%}
+                {% translate "<strong>2. Calcular una nueva aproximcación</strong>: \( x_2\) usando la fórmula anterior.<br><br>"%}
+                {% translate "<strong>3. Actualizar los valores</strong>. Reemplazar \( x_{n-1} \) por \( x_n \). Reemplazar \( x_n \) por \( x_{n+1} \)<br><br>"%}
+                {% translate "4. Repetir el proceso hasta que la diferencia entre valores consecutivos sea menor que una tolerancia predefinida o se alcance un número máximo de iteraciones.<br><br>"%}
             </p>
         </div>
 
