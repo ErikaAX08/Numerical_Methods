@@ -53,8 +53,9 @@
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item"
                                href="{% url 'bisection_method' %}">{% translate 'Bisection Method' %}</a></li>
-                        <li><a class="dropdown-item" href="{% url 'newton_raphson_method' %}">{% translate 'Newton Raphson Method' %}</a></li>
-                        <li><a class="dropdown-item" href="#">{% translate 'Secant Method' %}</a></li>
+                       <li><a class="dropdown-item"
+                               href="{% url 'secant_method' %}">{% translate 'Secant Method' %}</a></li>
+                       <li><a class="dropdown-item" href="{% url 'newton_raphson_method' %}">{% translate 'Newton Raphson Method' %}</a></li>
                         <li><a class="dropdown-item" href="{% url 'regula_falsi' %}">{% translate 'Regula falsi' %}</a>
                         </li>
                     </ul>
