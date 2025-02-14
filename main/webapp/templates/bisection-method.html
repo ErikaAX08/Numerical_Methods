@@ -57,6 +57,7 @@
                     </div>
                 </div>
 
+                <!--
                 <div class="row">
                     <div class="col-sm-6 mb-3">
                         <label for="p0" class="form-label">{% translate 'Initial Point p0' %}:</label>
@@ -67,6 +68,7 @@
                         <input type="number" class="form-control" id="p1" step="any" value="2.5" required>
                     </div>
                 </div>
+                -->
 
                 <button type="submit" class="btn btn-lg btn-primary mt-2" id="calculateButton">
                     <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;"
@@ -104,7 +106,7 @@
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3">
             <h3 class="pb-3">{% translate "Explicación Método de Bisección" %}</h3>
-            <p>
+            <p class="lead">
                 {% translate "Dada una función continua f(x) en un intervalo [a, b] donde f(a) y f(b) tienen signos opuestos (f(a)f(b < 0)), el método de bisección encuentra una raíz c de f(x) en [a, b] dividiendo repetidamente el intervalo a la mitad y seleccionando el subintervalo que contiene la raíz." %}
                 \[
                 c = \frac{a + b}{2}
@@ -174,8 +176,8 @@
                 const b = document.getElementById("intervalB").value;
                 const tolerance = document.getElementById("tolerance").value;
                 const maxIterations = document.getElementById("maxIterations").value;
-                const p0 = document.getElementById("p0").value;
-                const p1 = document.getElementById("p1").value;
+                const p0 = document.getElementById("intervalA").value;
+                const p1 = document.getElementById("intervalB").value;
 
                 setLoadingState(true);
 
