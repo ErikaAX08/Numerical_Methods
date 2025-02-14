@@ -156,6 +156,12 @@ msgstr "El Método de la Regla Falsa (Regula Falsi) es un algoritmo iterativo pa
 msgid "Bisection Calculator"
 msgstr "Calculadora de Bisección"
 
+# Newton Raphson
+
+msgid "Newton Raphson Calculator"
+msgstr "Calculadora de Newton Raphson"
+
+
 # Calculators
 
 msgid "Calculator"
