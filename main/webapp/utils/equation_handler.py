@@ -1,4 +1,4 @@
-from sympy import symbols, sympify, lambdify, parse_expr
+from sympy import symbols, sympify, lambdify, parse_expr, exp
 import logging
 from typing import Dict, Union, Callable
 import re
@@ -47,6 +47,9 @@ class EquationHandler:
 
             for old, new in replacements.items():
                 equation = equation.replace(old, new)
+
+            # Reemplazar e^x por exp(x)
+            equation = re.sub(r'e\*\*(\w+)', r'exp(\1)', equation)
 
             # Pre-process special functions
             special_functions = {
