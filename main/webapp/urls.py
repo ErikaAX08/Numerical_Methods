@@ -4,6 +4,7 @@ from .views.taylor_series_views import calculate_taylor, taylor_series
 from .views.regula_falsi_views import calculate_falsi, regula_falsi
 from .views.bisection_method_views import calculate_bisection_method, bisection_method
 from .views.secant_method_view import calculate_secant_method, secant_method
+from .views.newton_raphson_method_view import newton_raphson, calculate_newton_raphson
 
 urlpatterns = [
     path("", index, name="index"),
@@ -15,4 +16,6 @@ urlpatterns = [
     path("calculate-bisection-method/", calculate_bisection_method, name="calculate_bisection_method"),
     path("secant-method/", secant_method, name="secant_method"),
     path("calculate-secant-method/", calculate_secant_method, name="calculate_secant_method"),
+    path("newton-raphson-method/", newton_raphson, name="newton_raphson_method"),
+    path("calculate-newton-raphson-method/", calculate_newton_raphson, name="calculate_newton_raphson_method"),
 ]
