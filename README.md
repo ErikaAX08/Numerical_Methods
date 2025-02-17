@@ -28,6 +28,7 @@ The web project includes the following calculators and tools:
    - Bisection Method
    - Newton-Raphson Method
    - Secant Method
+   - Regula Falsi Method
    - [Theoretical Document](#)
 
 3. **Systems of Linear Equations**
@@ -70,7 +71,7 @@ Below are some screenshots showcasing the project:
   ![Bisection Method Graph](public/taylor.png)
 
 - **Root-Finding Methods Graphs**
-  ![Bisection Method Graph](#)
+  ![Bisection Method Graph](public/regula_falsi.png)
 
 - **Systems of Linear Equations Calculators**
   ![Gaussian Elimination Tool](#)
