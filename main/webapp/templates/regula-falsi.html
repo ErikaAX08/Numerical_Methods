@@ -131,7 +131,32 @@
                 {% translate "<strong>1.</strong> Calcular \( x_r \) usando la fórmula de la regla falsa.<br><br>" %}
                 {% translate "<strong>2.</strong> Evaluar \( f(x_r) \), si \( f(x_r) \) = 0 , entonces \( x_r \) es la raíz exacta. Si \( f(x_r) \)\( f(a) \) < 0, entonces la raíz está en [a, \( x_r \)], por lo que se actualiza b = \( x_r \). Si \( f(x_r) \)\( f(b) \) < 0, entonces la raíz está en [\( x_r \), b], por lo que se actualiza a = \( x_r \).<br><br>" %}
                 {% translate "<strong>3.</strong> Repetir hasta que |\( f(x_r) \)| sea menor que una tolerancia establecida <strong>ε</strong> o se alcance el número máximo de tolerancias" %}
-                {% translate "Este método converge más rápido que el de bisección en funciones sin curvatura extrema cerca de la raíz. Sin embargo, en funciones con concavidad pronunciada, puede volverse lento y requerir modificaciones como <strong>la regla falsa modificada.</strong>" %}
+                {% translate "Este método converge más rápido que el de bisección en funciones sin curvatura extrema cerca de la raíz. Sin embargo, en funciones con concavidad pronunciada, puede volverse lento y requerir modificaciones como <strong>la regla falsa modificada.</strong><br><br>" %}
+            </p>
+
+            <h3 class="pb-3">{% translate "Explicación Método Regla Falsa Modificada" %}</h3>
+            <p class="lead">
+                {% translate "Dado un intervalo [a, b] donde f(a)f(b)< 0, el método genera una nueva aproximación a la raíz de la siguiente manera: " %}
+                \[
+                c_k = \frac{a f(b) - b f(a)}{f(b) - f(a)}
+                \]
+                {% translate "donde \( c_k \) es el nuevo punto candidato para la raíz<.<br><br>" %}
+
+                {% translate "<strong>Actualización del intervalo:</strong><br><br>" %}
+                {% translate "Se evalúa \( f(c_k) \) y se actualiza el intervalo [a, b] dependiendo del signo de <strong>\( f(c_k) \)</strong>. Si \( f(a) \)\( f(c_k) \) < 0, la raíz está en [a, \( c_k \)], por lo que se actualiza b = \( c_k \). Si \( f(b) \)\( f(c_k) \) < 0, la raíz está en [\( c_k \), b], por lo que se actualiza a = \( c_k \)<br><br>" %}
+                {% translate "<strong>Modificación del factor de corrección:</strong><br><br>" %}
+                {% translate "Para acelerar la convergencia, se introduce un factor de corrección en la actualización de f(a) o f(b).<br><br>" %}
+                \[
+                f(a) = \frac{f(a)}{2}
+                \]
+                \[
+                f(b) = \frac{f(b)}{2}
+                \]
+                {% translate "<strong>Criterio de parada:</strong><br><br>" %}
+                {% translate "<Repetir hasta que |\( f(c_k) \)| sea menor que una tolerancia establecida <strong>ε</strong> o hasta que la diferencia entre iteraciones consecutivas sea suficientemente pequeña" %}
+                \[
+                |c_k - c_{k-1}| < ε
+                \]
             </p>
         </div>
 
