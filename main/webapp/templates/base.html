@@ -53,11 +53,26 @@
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item"
                                href="{% url 'bisection_method' %}">{% translate 'Bisection Method' %}</a></li>
-                       <li><a class="dropdown-item"
+                        <li><a class="dropdown-item"
                                href="{% url 'secant_method' %}">{% translate 'Secant Method' %}</a></li>
-                       <li><a class="dropdown-item" href="{% url 'newton_raphson_method' %}">{% translate 'Newton Raphson Method' %}</a></li>
+                        <li><a class="dropdown-item"
+                               href="{% url 'newton_raphson_method' %}">{% translate 'Newton Raphson Method' %}</a></li>
                         <li><a class="dropdown-item" href="{% url 'regula_falsi' %}">{% translate 'Regula falsi' %}</a>
                         </li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        {% translate 'Interpolation' %}
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item"
+                               href="#">{% translate 'Lagrange' %}</a></li>
+                        <li><a class="dropdown-item"
+                               href="#">{% translate 'Divided differences' %}</a></li>
+                        <li><a class="dropdown-item"
+                               href="#">{% translate 'Nevilles Method' %}</a></li>
                     </ul>
                 </li>
             </ul>
