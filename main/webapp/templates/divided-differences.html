@@ -1,6 +1,291 @@
 {% extends 'base.html' %}
-
+{% load i18n %}
+{% block title %}{% translate 'Divided Differences Method' %} - {% translate 'Divided Differences' %}{% endblock %}
 {% block content %}
-<h1>Método de Diferencias Divididas</h1>
-<p>Contenido de la página...</p>
+    {% load static %}
+
+    <div class="container-sm p-5">
+        <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
+            <div class="col-lg-12">
+                <h2 class="display-4 fw-bold lh-1s">{% translate 'Método Diferencias Divididas' %}</h2>
+                <p class="lead py-5">
+                    {% translate 'El método de diferencias divididas es una técnica empleada en interpolación numérica para encontrar un polinomio que pase a través de un conjunto de puntos dados. Este método se basa en calcular las diferencias sucesivas entre los valores de la función evaluados en puntos específicos, dividiendo estas diferencias por la distancia entre los puntos correspondientes. El proceso comienza con un conjunto de datos, generalmente puntos que consisten en pares de valores de una variable independiente y su correspondiente valor de la función. El primer paso consiste en calcular la diferencia dividida de primer orden, que se obtiene tomando la diferencia entre los valores de la función de dos puntos consecutivos y dividiéndola por la distancia entre los puntos en el eje de la variable independiente' %}
+                </p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
+                    <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
+                            onclick="showCalculator()">{% translate 'Graphing Calculator' %}
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">
+                        {% translate 'Explanation' %}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="py-3"></div>
+
+        <!-- Hidden calculator section -->
+        <div id="calculator" style="display: none;" class="mt-5">
+            <h3 class="mb-5">{% translate 'Calculadora Diferencias Divididas' %}</h3>
+            <form class="mb-5 p-4 bg-light rounded-3 shadow" id="calculatorForm">
+                <div class="mb-3">
+                    <div class="col-md-12 col-sm-6 mb-3">
+                        <label for="equation" class="form-label">{% translate 'Equation' %}:</label>
+                        <input type="text" class="form-control" id="equation" value="x^3 + 4*x^2 - 4" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <label for="intervalA" class="form-label">{% translate 'Interval Start' %}:</label>
+                        <input type="number" class="form-control" id="intervalA" step="any" value="1" required>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <label for="intervalB" class="form-label">{% translate 'Interval End' %}:</label>
+                        <input type="number" class="form-control" id="intervalB" step="any" value="3" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <label for="tolerance" class="form-label">{% translate 'Tolerance' %}:</label>
+                        <input type="number" class="form-control" id="tolerance" step="any" value="0.00001" required>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <label for="maxIterations" class="form-label">{% translate 'Max Iterations' %}:</label>
+                        <input type="number" class="form-control" id="maxIterations" value="100" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12 mb-3">
+                        <label for="p0" class="form-label">{% translate 'Initial Point p0' %}:</label>
+                        <input type="number" class="form-control" id="p0" step="any" value="1.0" required>
+                    </div>
+                    <div class="col-sm-6 mb-3" style="display: none;">
+                        <label for="p1" class="form-label">{% translate 'Initial Point p1' %}:</label>
+                        <input type="number" class="form-control" id="p1" step="any" value="2.5" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-lg btn-primary mt-2" id="calculateButton">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;"
+                          id="loadingSpinner"></span>
+                    <span id="buttonText">{% translate 'Calculate and Graph' %}</span>
+                </button>
+            </form>
+
+            <!-- Container for the graphs -->
+            <div id="graphs-container" class="mt-5 p-4 bg-light rounded-3 shadow" style="display: none;">
+                <h4 class="mb-3">{% translate 'Newton Raphson Method' %}</h4>
+                <div class="rounded-5 mb-5" id="plot-container" style="width: 100%;">
+                    <!-- Plotly chart will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Container for the results table -->
+            <div id="results" class="mt-5 p-4 bg-light rounded-3 shadow" style="display: none;">
+                <h4 class="mb-3">{% translate 'Results' %}</h4>
+                <div id="messageContainer"></div>
+                <table id="resultsTable" class="table table-bordered rounded-5 table-striped mb-5">
+                    <thead>
+                    <tr>
+                        <th>{% translate 'Iteration' %}</th>
+                        <th>{% translate 'p0' %}</th>
+                        <th>{% translate 'p1' %}</th>
+                        <th>{% translate 'p' %}</th>
+                        <th>{% translate 'f(p)' %}</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        <!-- Hidden extensive explanation section -->
+        <div id="explanation" class="mt-4 rounded-3">
+            <h3 class="pb-3">{% translate "Explicación Método Diferencias Divididas" %}</h3>
+            <p class="lead">
+                {% translate "<strong>1. Preparar los datos:</strong><br><br>" %}
+                {% translate "Supón que se tiene un conjunto de puntos dados (\( x_0 \), \( y_0 \)), (\( x_1 \), \( y_1 \)), (\( x_n \), \( y_n \)), donde \( x_i \) son los valores de la variable dependiente y \( y_i \) = f(\( y_i \)) son los valores de la función.<br><br>" %}
+
+                {% translate "<strong>2. Cálculo de las diferencias divididas:</strong><br><br>" %}
+                {% translate "Diferencias divididas primer orden: Se calcula con la fórmula: <br>" %}
+                \[
+                f[x_i, x_{i+1}] = \frac{f(x_{i+1}) - f(x_i)}{x_{i+1} - x_i}
+                \]
+                {% translate "Esta fórmula calcula la tasa de cambio promedio entre los valores de la función en dos puntos consecutivos \( x_i \) y \( x_{i+1} \).<br><br>" %}
+
+                {% translate "Diferencias divididas segundo orden: Se calcula utilizando las diferencias divididas de primer orden ya obtenidas: <br>" %}
+                \[
+                f[x_i, x_{i+1}, x_{i+2}] = \frac{f(x_{i+1}, x_{i+2}) - f(x_i, x_{i+1})}{x_{i+2} - x_i}
+                \]
+
+                {% translate "Generalización para diferencias divididas de orden n: se sigue el mismo principio de cálculo recursivo, usando las diferencias divididas de orden n - 1 y la fórmula general: <br><br>" %}
+                \[
+                f[x_i, x_{i+1}, ..., x_{i+n}] = \frac{f(x_{i+1}, ..., x_{i+n}) - f(x_i, ..., x_{i+n-1})}{x_{i+n} - x_i}
+                \]
+                {% translate "<strong>3. Construcción polinomio de interpolación: </strong><br><br>" %}
+                {% translate "Una vez que se han calculado todas las diferencias divididas, el polinomio de interpolación se construye de la siguiente manera: .<br>" %}
+                \[
+                P(x) = f[x_0] + (x - x_0)f[x_0, x_1] + (x - x_0)(x - x_1)f[x_0, x_1, x_2] + ... 
+                \]
+                {% translate "<strong>4. Evaluación del polinomio: </strong><br><br>" %}
+                {% translate "Para evaluar el polinomio en un valor x dado, se sustituye x en la expresión del polinomio P(x). Esta forma de evaluación es eficiente debido a que la estructura del polinomio permite agregar puntos de manera incremental sin necesidad de recalcular todo el polinomio desde cero." %}
+            </p>
+        </div>
+
+        <script>
+
+            function showCalculator() {
+                document.getElementById('explanation').style.display = 'none';
+                document.getElementById('calculator').style.display = 'block';
+            }
+
+            function showExplanation() {
+                document.getElementById('calculator').style.display = 'none';
+                document.getElementById('explanation').style.display = 'block';
+            }
+
+            document.getElementById("calculatorForm").addEventListener("submit", function (event) {
+                event.preventDefault();
+                calculateAndGraph();
+            });
+
+            function setLoadingState(isLoading) {
+                const button = document.getElementById("calculateButton");
+                const spinner = document.getElementById("loadingSpinner");
+                const buttonText = document.getElementById("buttonText");
+
+                button.disabled = isLoading;
+                spinner.style.display = isLoading ? "inline-block" : "none";
+                buttonText.textContent = isLoading ? "{% translate 'Calculating...' %}" : "{% translate 'Calculate and Graph' %}";
+            }
+
+            function clearPreviousResults() {
+                // Clear tables
+                document.getElementById("resultsTable").querySelector("tbody").innerHTML = "";
+
+                // Clear messages
+                document.getElementById("messageContainer").innerHTML = "";
+
+                // Clear plots
+                Plotly.purge('plot-container');
+
+                // Hide results and graphs containers
+                document.getElementById("results").style.display = "none";
+                document.getElementById("graphs-container").style.display = "none";
+            }
+
+            function calculateAndGraph() {
+                clearPreviousResults();
+
+                const equation = document.getElementById("equation").value;
+                const a = document.getElementById("intervalA").value;
+                const b = document.getElementById("intervalB").value;
+                const tolerance = document.getElementById("tolerance").value;
+                const maxIterations = document.getElementById("maxIterations").value;
+                const p0 = document.getElementById("p0").value;
+                const p1 = document.getElementById("p1").value;
+
+                setLoadingState(true);
+
+                const url = `/calculate-newton-raphson-method/?equation=${encodeURIComponent(equation)}&a=${a}&b=${b}&tol=${tolerance}&maxIterations=${maxIterations}&p0=${p0}&p1=${p1}`;
+
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.error) {
+                            throw new Error(data.message);
+                        }
+
+                        const plotData = JSON.parse(data.graph);
+
+                        // Update the layout to be responsive
+                        plotData.layout.autosize = true;
+                        plotData.layout.height = undefined;
+                        plotData.layout.width = undefined;
+
+                        const config = {
+                            responsive: true,
+                            displayModeBar: true,
+                            scrollZoom: true,
+                            showLink: false,
+                            displaylogo: false,
+                            modeBarButtonsToAdd: ['drawopenpath', 'eraseshape'],
+                            modeBarButtonsToRemove: ['lasso2d']
+                        };
+
+                        Plotly.newPlot('plot-container', plotData.data, plotData.layout, config);
+
+                        document.getElementById("graphs-container").style.display = "block";
+                        document.getElementById("results").style.display = "block";
+                        console.log(data)
+
+                        displayResults(data);
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        document.getElementById("messageContainer").innerHTML = `
+                            <div class="alert alert-danger">
+                                <strong>Error:</strong> ${error.message}
+                            </div>`;
+                        document.getElementById("results").style.display = "block";
+                    })
+                    .finally(() => {
+                        setLoadingState(false);
+                    });
+            }
+
+            function displayResults(data) {
+                // Display regular Regula Falsi results
+                populateResultsTable(
+                    "resultsTable",
+                    "messageContainer",
+                    data.results.results
+                );
+            }
+
+            function populateResultsTable(tableId, messageId, results) {
+                const table = document.getElementById(tableId);
+                const tbody = table.querySelector("tbody");
+                tbody.innerHTML = "";
+
+                const messageContainer = document.getElementById(messageId);
+                messageContainer.innerHTML = "";
+
+                if (results.converged) {
+                    messageContainer.innerHTML = `
+                        <div class="alert alert-success">
+                            <strong>{% translate 'Root found' %}:</strong> ${results.root.toFixed(6)}
+                        </div>`;
+                } else {
+                    messageContainer.innerHTML = `
+                        <div class="alert alert-warning">
+                            {% translate 'Method did not converge within the maximum number of iterations' %}.
+                        </div>`;
+                }
+
+                console.log(results)
+
+                results.iterations.forEach(iter => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${iter.iteration}</td>
+                        <td>${iter.p0.toFixed(6)}</td>
+                        <td>${iter.p1.toFixed(6)}</td>
+                        <td>${iter['f(p0)'].toFixed(6)}</td>
+                        <td>${iter['f(p1)'].toFixed(6)}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+        </script>
+
+    </div>
 {% endblock %}
