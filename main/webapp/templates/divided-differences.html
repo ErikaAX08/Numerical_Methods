@@ -28,74 +28,68 @@
         <div id="calculator" style="display: none;" class="mt-5">
             <h3 class="mb-5">{% translate 'Calculadora Diferencias Divididas' %}</h3>
             <form class="mb-5 p-4 bg-light rounded-3 shadow" id="calculatorForm">
+
+                <!-- Valores de x -->
                 <div class="mb-3">
                     <div class="col-md-12 col-sm-6 mb-3">
-                        <label for="equation" class="form-label">{% translate 'Equation' %}:</label>
-                        <input type="text" class="form-control" id="equation" value="x^3 + 4*x^2 - 4" required>
+                        <label for="input_x" class="form-label">{% translate 'Valores de x' %}:</label>
+                        <input type="text" class="form-control" id="input_x" required>
                     </div>
                 </div>
 
+                <!-- Valores de f(x) -->
                 <div class="row">
                     <div class="col-sm-6 mb-3">
-                        <label for="intervalA" class="form-label">{% translate 'Interval Start' %}:</label>
-                        <input type="number" class="form-control" id="intervalA" step="any" value="1" required>
-                    </div>
-                    <div class="col-sm-6 mb-3">
-                        <label for="intervalB" class="form-label">{% translate 'Interval End' %}:</label>
-                        <input type="number" class="form-control" id="intervalB" step="any" value="3" required>
+                        <label for="input_y" class="form-label">{% translate 'Valores de f(x)' %}:</label>
+                        <input type="text" class="form-control" id="input_y" step="any" value="3" required>
                     </div>
                 </div>
 
+                <!-- Botón para agregar puntos -->
+                <button type="button" class="btn btn-secondary mt-2" id="agregar_punto_btn">
+                    {% translate 'Agregar punto' %}
+                </button>
+
+                <!-- Lista de puntos ingresados -->
+                <div class="mb-3">
+                    <label class="form-label">{% translate 'Puntos ingresados' %}:</label>
+                    <ul id="puntos_list" class="list-group"></ul>
+                </div>
+
+                <!-- Grado de polinomio y X a interpolar-->
                 <div class="row">
                     <div class="col-sm-6 mb-3">
-                        <label for="tolerance" class="form-label">{% translate 'Tolerance' %}:</label>
-                        <input type="number" class="form-control" id="tolerance" step="any" value="0.00001" required>
+                        <label for="grado" class="form-label">{% translate 'Grado del polinomio (ng)' %}:</label>
+                        <input type="number" class="form-control" id="grado" value="1" min="1" required>
                     </div>
+
+                    <!-- Valor de x a interpolar -->
                     <div class="col-sm-6 mb-3">
-                        <label for="maxIterations" class="form-label">{% translate 'Max Iterations' %}:</label>
-                        <input type="number" class="form-control" id="maxIterations" value="100" required>
+                        <label for="x_interpolar" class="form-label">{% translate 'Valor de x a interpolar' %}:</label>
+                        <input type="number" class="form-control" id="x_interpolar" step="any" required>
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-sm-12 mb-3">
-                        <label for="p0" class="form-label">{% translate 'Initial Point p0' %}:</label>
-                        <input type="number" class="form-control" id="p0" step="any" value="1.0" required>
-                    </div>
-                    <div class="col-sm-6 mb-3" style="display: none;">
-                        <label for="p1" class="form-label">{% translate 'Initial Point p1' %}:</label>
-                        <input type="number" class="form-control" id="p1" step="any" value="2.5" required>
-                    </div>
-                </div>
-
+                <!-- Botón para calcular la interpolación -->
                 <button type="submit" class="btn btn-lg btn-primary mt-2" id="calculateButton">
-                    <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;"
-                          id="loadingSpinner"></span>
-                    <span id="buttonText">{% translate 'Calculate and Graph' %}</span>
+                    <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;" id="loadingSpinner"></span>
+                    <span id="buttonText">{% translate 'Calcular interpolación' %}</span>
                 </button>
             </form>
 
-            <!-- Container for the graphs -->
-            <div id="graphs-container" class="mt-5 p-4 bg-light rounded-3 shadow" style="display: none;">
-                <h4 class="mb-3">{% translate 'Newton Raphson Method' %}</h4>
-                <div class="rounded-5 mb-5" id="plot-container" style="width: 100%;">
-                    <!-- Plotly chart will be rendered here -->
-                </div>
-            </div>
+            <!-- Resultados -->
+            <div id="messageContainer"></div>
 
-            <!-- Container for the results table -->
-            <div id="results" class="mt-5 p-4 bg-light rounded-3 shadow" style="display: none;">
-                <h4 class="mb-3">{% translate 'Results' %}</h4>
-                <div id="messageContainer"></div>
-                <table id="resultsTable" class="table table-bordered rounded-5 table-striped mb-5">
+            <!-- Tabla de resultados -->
+            <div id="results-container" style="display: none;">
+                <h4>{% translate 'Results' %}</h4>
+                <table id="resultsTable" class="table table-bordered">
                     <thead>
-                    <tr>
-                        <th>{% translate 'Iteration' %}</th>
-                        <th>{% translate 'p0' %}</th>
-                        <th>{% translate 'p1' %}</th>
-                        <th>{% translate 'p' %}</th>
-                        <th>{% translate 'f(p)' %}</th>
-                    </tr>
+                        <tr>
+                            <th>#</th>
+                            <th>{% translate 'Punto (x, f(x))' %}</th>
+                            <th>{% translate 'Diferencias divididas' %}</th>
+                        </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
@@ -134,7 +128,7 @@
             </p>
         </div>
 
-        <script>
+       <script>
 
             function showCalculator() {
                 document.getElementById('explanation').style.display = 'none';
@@ -284,6 +278,8 @@
                     tbody.appendChild(row);
                 });
             }
+
+            
 
         </script>
 
