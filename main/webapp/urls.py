@@ -5,6 +5,7 @@ from .views.regula_falsi_views import calculate_falsi, regula_falsi
 from .views.bisection_method_views import calculate_bisection_method, bisection_method
 from .views.secant_method_view import calculate_secant_method, secant_method
 from .views.newton_raphson_method_view import newton_raphson, calculate_newton_raphson
+from .views.lagrange_views import lagrange, calculate_lagrange
 
 urlpatterns = [
     path("", index, name="index"),
@@ -18,4 +19,6 @@ urlpatterns = [
     path("calculate-secant-method/", calculate_secant_method, name="calculate_secant_method"),
     path("newton-raphson-method/", newton_raphson, name="newton_raphson_method"),
     path("calculate-newton-raphson-method/", calculate_newton_raphson, name="calculate_newton_raphson_method"),
+    path("lagrange/", lagrange, name="lagrange"),
+    path("calculate-lagrange/", calculate_lagrange, name="calculate_lagrange"),
 ]
