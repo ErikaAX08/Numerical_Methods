@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% translate 'Taylor Series' %} - {% translate 'Numerical Methods' %}{% endblock %}
+{% block title %}{% translate 'Interpolación de Lagrange' %} - {% translate 'Métodos Numéricos' %}{% endblock %}
 {% block content %}
     {% load static %}
 
@@ -9,7 +9,7 @@
             <div class="col-lg-12">
                 <h2 class="display-4 fw-bold lh-1s">{% translate 'Lagrange' %}</h2>
                 <p class="lead py-5">
-                    {% translate 'Taylor and Maclaurin series are mathematical tools used to approximate functions using polynomials. A Taylor series represents a function as an infinite sum of terms calculated from the values of its derivatives at a single point. A Maclaurin series is a special case of the Taylor series, where the function is expanded around zero. These series are widely used in calculus, physics, and engineering to approximate complex functions with simpler polynomial expressions.' %}
+                    {% translate 'La interpolación de Lagrange es una técnica numérica utilizada para construir un polinomio que interpola un conjunto de puntos. Dados los puntos (x₀, y₀), (x₁, y₁), …, (xₙ, yₙ), se determina un único polinomio P(x) de grado n que satisface P(xᵢ) = yᵢ para cada i. Este método utiliza polinomios base que garantizan que cada término contribuya únicamente en el punto correspondiente, asegurando la unicidad del polinomio interpolador.' %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
@@ -26,7 +26,7 @@
 
         <!-- Hidden calculator section -->
         <div id="calculator" style="display: none;" class="mt-5">
-            <h3 class="mb-5">{% translate 'Taylor Series Calculator' %}</h3>
+            <h3 class="mb-5">{% translate 'Calculadora de Interpolación de Lagrange' %}</h3>
             <form class="mb-5 p-4 bg-light rounded-3 shadow" id="calculatorForm">
                 <div class="mb-3">
                     <label for="functionSelect" class="form-label">{% translate 'Select Function' %}:</label>
@@ -97,23 +97,122 @@
         </div>
 
         <!-- Hidden extensive explanation section -->
-        <div id="explanation" class="mt-4 rounded-3">
-            <h3 class="pb-3">{% translate "Explanation of Taylor and Maclaurin Series" %}</h3>
+        <div id="explanation" class="mt-4 rounded-3 lead">
+            <h3 class="pb-3">{% translate "Explicación de la interpolación de Lagrange" %}</h3>
             <p>
-                {% translate "The <strong>Taylor series</strong> of a function \( f(x) \) around a point \( a \) is given by:" %}
+                {% translate "La interpolación de Lagrange permite construir un polinomio interpolador P(x) a partir de un conjunto de puntos (x₀, y₀), (x₁, y₁), …, (xₙ, yₙ). Se basa en la construcción de polinomios base Lᵢ(x) que cumplen:" %}
+            </p>
+            <p>
                 \[
-                f(x) = f(a) + f'(a)(x - a) + \frac{f''(a)}{2!}(x - a)^2 + \frac{f'''(a)}{3!}(x - a)^3 + \cdots
+                L_i(x) = \prod_{\substack{j=0 \\ j \neq i}}^{n} \frac{x - x_j}{x_i - x_j}
                 \]
-                {% translate "The <strong>Maclaurin series</strong> is a Taylor series centered at \( a = 0 \):" %}
+            </p>
+            <p>
+                {% translate "De esta forma, el polinomio interpolador se obtiene mediante la suma ponderada de los valores yᵢ:" %}
+            </p>
+            <p>
                 \[
-                f(x) = f(0) + f'(0)x + \frac{f''(0)}{2!}x^2 + \frac{f'''(0)}{3!}x^3 + \cdots
+                P(x) = \sum_{i=0}^{n} y_i \cdot L_i(x)
                 \]
-                {% translate "These series are particularly useful for approximating functions that are difficult to compute directly." %}
-                {% translate "For example, the exponential function \( e^x \) can be approximated using its Maclaurin series:" %}
+            </p>
+            <p>
+                {% translate "Este método garantiza que P(xᵢ) = yᵢ para cada i, asegurando la unicidad del polinomio interpolador." %}
+            </p>
+            <h4 class="pt-3">{% translate "Algoritmo de Interpolación de Lagrange" %}</h4>
+            <p>
+                {% translate "1. Entrada: Se reciben los arreglos X = [x₀, x₁, …, xₙ] y Y = [y₀, y₁, …, yₙ] y el valor x a evaluar." %}
+            </p>
+            <p>
+                {% translate "2. Inicialización: Se establece P(x) = 0." %}
+            </p>
+            <p>
+                {% translate "3. Para cada índice i de 0 a n, se calcula el polinomio base Lᵢ(x) mediante:" %}
+            </p>
+            <p>
                 \[
-                e^x = 1 + x + \frac{x^2}{2!} + \frac{x^3}{3!} + \cdots
+                L_i(x) = \prod_{\substack{j=0 \\ j \neq i}}^{n} \frac{x - x_j}{x_i - x_j}
                 \]
-                {% translate "The accuracy of the approximation depends on the number of terms used in the series." %}
+            </p>
+            <p>
+                {% translate "Y se actualiza:" %}
+            </p>
+            <p>
+                \[
+                P(x) = P(x) + y_i \cdot L_i(x)
+                \]
+            </p>
+            <p>
+                {% translate "4. Salida: Se retorna el valor de P(x), el cual es el polinomio interpolador evaluado en x." %}
+            </p>
+            <p>
+                {% translate "El pseudocódigo del algoritmo es el siguiente:" %}
+            </p>
+            <pre>
+{% verbatim %}
+Entrada: Arrays X[0...n] y Y[0...n], valor x a evaluar
+P ← 0
+Para i desde 0 hasta n hacer:
+    L ← 1
+    Para j desde 0 hasta n hacer:
+        Si j ≠ i entonces:
+            L ← L * (x - X[j]) / (X[i] - X[j])
+    FinPara
+    P ← P + Y[i] * L
+FinPara
+Retornar P
+{% endverbatim %}
+            </pre>
+            <h4 class="pt-3">{% translate "Ejemplo Detallado" %}</h4>
+            <p>
+                {% translate "Consideremos tres puntos: (1, 2), (2, 3) y (4, 1). Se desea encontrar el polinomio interpolador P(x) que pase por estos puntos." %}
+            </p>
+            <p>
+                {% translate "Primero, se definen los puntos: x₀ = 1, y₀ = 2; x₁ = 2, y₁ = 3; x₂ = 4, y₂ = 1." %}
+            </p>
+            <p>
+                {% translate "A continuación, se calculan los polinomios base:" %}
+            </p>
+            <p>
+                \[
+                L_0(x) = \frac{(x - 2)(x - 4)}{(1 - 2)(1 - 4)} = \frac{(x - 2)(x - 4)}{3}
+                \]
+            </p>
+            <p>
+                \[
+                L_1(x) = \frac{(x - 1)(x - 4)}{(2 - 1)(2 - 4)} = -\frac{(x - 1)(x - 4)}{2}
+                \]
+            </p>
+            <p>
+                \[
+                L_2(x) = \frac{(x - 1)(x - 2)}{(4 - 1)(4 - 2)} = \frac{(x - 1)(x - 2)}{6}
+                \]
+            </p>
+            <p>
+                {% translate "El polinomio interpolador se construye combinando estos polinomios base ponderados por los valores correspondientes:" %}
+            </p>
+            <p>
+                \[
+                P(x) = 2L_0(x) + 3L_1(x) + 1L_2(x)
+                \]
+            </p>
+            <p>
+                {% translate "Sustituyendo y simplificando se obtiene:" %}
+            </p>
+            <p>
+                \[
+                P(x) = \frac{2(x-2)(x-4)}{3} - \frac{3(x-1)(x-4)}{2} + \frac{(x-1)(x-2)}{6}
+                \]
+            </p>
+            <p>
+                {% translate "Desarrollando y simplificando, se llega a la forma final:" %}
+            </p>
+            <p>
+                \[
+                P(x) = -\frac{2}{3}x^2 + 3x - \frac{1}{3}
+                \]
+            </p>
+            <p>
+                {% translate "Este polinomio es el interpolador que pasa por los puntos dados." %}
             </p>
         </div>
 
