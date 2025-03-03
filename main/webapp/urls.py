@@ -5,7 +5,7 @@ from .views.regula_falsi_views import calculate_falsi, regula_falsi
 from .views.bisection_method_views import calculate_bisection_method, bisection_method
 from .views.secant_method_view import calculate_secant_method, secant_method
 from .views.newton_raphson_method_view import newton_raphson, calculate_newton_raphson
-from .views.divided_differences_views import divided_differences, calculate_divided_differences
+from .views.divided_differences_views import divided_differences
 
 urlpatterns = [
     path("", index, name="index"),
@@ -20,5 +20,4 @@ urlpatterns = [
     path("newton-raphson-method/", newton_raphson, name="newton_raphson_method"),
     path("calculate-newton-raphson-method/", calculate_newton_raphson, name="calculate_newton_raphson_method"),
     path("divided-differences/", divided_differences, name="divided_differences"),
-    path("calculate_divided_differences/", calculate_divided_differences, name="calculate_divided_differences")    
 ]
