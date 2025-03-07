@@ -1,11 +1,7 @@
 import logging
 import random
-
 import numpy as np
-import plotly.graph_objects as go
-from sympy import symbols, sympify, lambdify
-
-from .equation_handler import EquationHandler
+from sympy import symbols, sympify, lambdify, expand
 
 
 def lagrange_method(degree=0.0, value=0.0, points=[]):
@@ -26,6 +22,8 @@ def lagrange_method(degree=0.0, value=0.0, points=[]):
         # Paso 2: Calcular los polinomios base
         L_values = []
         L_expressions = []
+
+        x = symbols('x')
 
         for i in range(n):
             xi, yi = points[i]
@@ -87,14 +85,26 @@ def lagrange_method(degree=0.0, value=0.0, points=[]):
             'intermediate_result': f"P({value}) = {result}"
         })
 
-        # Si es posible, desarrollar el polinomio final (esto requeriría sympy para la manipulación simbólica)
-        # Esto es solo un placeholder
-        final_formula = "P(x) = [Polinomio desarrollado]"
+        # Paso 5: Desarrollar y simplificar el polinomio final usando sympy
+        # Crear la expresión simbólica para P(x)
+        P_expr = 0
+        for i in range(n):
+            xi, yi = points[i]
+            L_expr = 1
+            for j in range(n):
+                if j != i:
+                    xj = points[j][0]
+                    L_expr *= (x - xj) / (xi - xj)
+            P_expr += yi * L_expr
+
+        final_result = f"P({value}) = {result}"
+
         process_steps.append({
-            'step': final_formula,
-            'intermediate_result': f"Resultado final: P({value}) = {result}"
+            'step': final_result,
+            'intermediate_result': f""
         })
 
+        # Regresar solo los pasos hasta el Paso 6, sin el Paso 7
         return result, process_steps
 
     except Exception as e:
