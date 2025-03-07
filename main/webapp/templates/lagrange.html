@@ -53,9 +53,9 @@
                 <table id="pointsTable" class="mb-2 table table-bordered rounded-5 table-striped">
                     <thead>
                     <tr>
-                        <th style="width:45%;">x</th>
-                        <th style="width:45%;">f(x)</th>
-                        <th style="width:10%;">{% translate 'Options' %}</th>
+                        <th style="width:40%;">x</th>
+                        <th style="width:40%;">f(x)</th>
+                        <th style="width:20%;">{% translate 'Options' %}</th>
                     </tr>
                     </thead>
                     <tbody id="bodyTablePoints">
@@ -243,6 +243,13 @@ Retornar P
                 calculate()
             })
 
+            document.getElementById("degree").addEventListener("change", updateCalculateButtonState);
+            document.getElementById("degree").addEventListener("input", updateCalculateButtonState);
+
+            document.addEventListener("DOMContentLoaded", function () {
+                updateCalculateButtonState();
+            });
+
             function setLoadingState(isLoading) {
                 const button = document.getElementById("calculateButton");
                 const spinner = document.getElementById("loadingSpinner");
@@ -250,7 +257,7 @@ Retornar P
 
                 button.disabled = isLoading;
                 spinner.style.display = isLoading ? "inline-block" : "none";
-                buttonText.textContent = isLoading ? "{% translate 'Calculating...' %}" : "{% translate 'Calculate and Graph' %}";
+                buttonText.textContent = isLoading ? "{% translate 'Calculating...' %}" : "{% translate 'Calculate' %}";
             }
 
             function addPoint() {
@@ -264,94 +271,183 @@ Retornar P
                 let addItem = !points.some(item => item.x === x);
 
                 if (addItem) {
-                    let index = points.push({
+                    points.push({
                         x,
-                        fx
-                    })
-                    console.log(index)
+                        fx,
+                        selected: true
+                    });
+
+                    const pointIndex = points.length - 1;
 
                     row.innerHTML = `
-                        <td>${x}</td>
-                        <td>${fx}</td>
-                        <td>
-                            <button type="button" class="btn btn-danger delete-btn">{% translate 'Delete' %}</button>
-                        </td>
-                    `;
+            <td>${x}</td>
+            <td>${fx}</td>
+            <td
+                style="
+                display: flex;
+                flex-direction: row;
+                align-items: center;"
+            >
+                <button type="button" class="btn btn-danger delete-btn">{% translate 'Delete' %}</button>
+                <div class="form-check">
+                <input type="checkbox" class="form-check-input select-point ms-2"
+
+                       id="point-${pointIndex}"
+                       data-index="${pointIndex}"
+                       data-x="${x}"
+                       data-fx="${fx}"
+                       checked>
+                <label class="form-check-label ms-1" for="point-${pointIndex}">
+                    {% translate 'Selected' %}
+                </label>
+                </div>
+
+            </td>
+        `;
 
                     const deleteButton = row.querySelector('.delete-btn');
                     deleteButton.addEventListener('click', function () {
-                        const xValue = row.querySelector('td:first-child').textContent;
-                        const currentIndex = points.findIndex(point => point.x === xValue);
-                        deletePoint(row, currentIndex);
+                        const index = parseInt(row.querySelector('.select-point').getAttribute('data-index'));
+                        deletePoint(row, index);
+                    });
+
+                    const checkbox = row.querySelector('.select-point');
+                    checkbox.addEventListener('change', function () {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        points[index].selected = this.checked;
+                        updateCalculateButtonState();
                     });
 
                     bodyTable.appendChild(row);
                     messageContainer.innerHTML = '';
+
+                    document.getElementById("xValue").value = "";
+                    document.getElementById("fxValue").value = "";
+                    document.getElementById("xValue").focus();
+
+                    updateCalculateButtonState();
                 } else {
                     messageContainer.innerHTML = `
-                        <div class="alert alert-danger" role="alert">
-                            {% translate 'The value of x has already been added' %}
-                        </div>
-                    `
+            <div class="alert alert-danger" role="alert">
+                {% translate 'The value of x has already been added' %}
+            </div>
+        `;
                 }
             }
 
             function deletePoint(row, index) {
                 points.splice(index, 1);
                 row.remove();
+
+                const checkboxes = document.querySelectorAll('.select-point');
+                checkboxes.forEach((checkbox, i) => {
+                    checkbox.setAttribute('data-index', i);
+                    checkbox.id = `point-${i}`;
+                    checkbox.nextElementSibling.setAttribute('for', `point-${i}`);
+                });
+
+                updateCalculateButtonState();
+            }
+
+            function updateCalculateButtonState() {
+                const degree = parseInt(document.getElementById("degree").value);
+                const requiredPoints = degree + 1;
+                const selectedPoints = points.filter(point => point.selected).length;
+                const calculateButton = document.getElementById("calculateButton");
+                const messageContainer = document.getElementById("pointsMessageContainer");
+
+                console.log(`Grado: ${degree}, Puntos requeridos: ${requiredPoints}, Puntos seleccionados: ${selectedPoints}`);
+
+                if (selectedPoints < requiredPoints) {
+                    // Caso: menos puntos de los necesarios
+                    calculateButton.disabled = true;
+                    messageContainer.innerHTML = `
+            <div class="alert alert-warning" role="alert">
+                {% translate 'For a polynomial of degree' %} ${degree},
+                {% translate 'you need exactly' %} ${requiredPoints}
+                {% translate 'selected points' %}.
+                {% translate 'Currently selected' %}: ${selectedPoints}
+            </div>
+        `;
+                } else if (selectedPoints > requiredPoints) {
+                    // Caso: más puntos de los necesarios
+                    calculateButton.disabled = true;
+                    messageContainer.innerHTML = `
+            <div class="alert alert-warning" role="alert">
+                {% translate 'For a polynomial of degree' %} ${degree},
+                {% translate 'you need exactly' %} ${requiredPoints}
+                {% translate 'selected points' %}.
+                {% translate 'Currently selected' %}: ${selectedPoints}.
+                {% translate 'Please deselect' %} ${selectedPoints - requiredPoints}
+                {% translate 'points' %}.
+            </div>
+        `;
+                } else {
+                    // Caso: número exacto de puntos
+                    calculateButton.disabled = false;
+                    messageContainer.innerHTML = `
+            <div class="alert alert-success" role="alert">
+                {% translate 'Ready to calculate with' %} ${selectedPoints}
+                {% translate 'points for a polynomial of degree' %} ${degree}.
+            </div>
+        `;
+                }
             }
 
             function calculate() {
-                const messagePoints = document.getElementById("pointsMessageContainer");
+                const messageContainer = document.getElementById("pointsMessageContainer");
+                const degree = parseInt(document.getElementById("degree").value);
+                const valueToInterpolate = document.getElementById("valueToInterpolate").value;
 
-                if (points.length < 2) {
-                    messagePoints.innerHTML = `
-                        <div class="alert alert-danger" role="alert">
-                            {% translate 'There must be at least 2 points' %}
-                        </div>
-                    `
+                const selectedPoints = points.filter(point => point.selected);
+
+                const requiredPoints = degree + 1;
+
+                if (selectedPoints.length !== requiredPoints) {
+                    messageContainer.innerHTML = `
+            <div class="alert alert-danger" role="alert">
+                {% translate 'For a polynomial of degree' %} ${degree},
+                {% translate 'you need exactly' %} ${requiredPoints}
+                {% translate 'selected points' %}.
+                {% translate 'Currently selected' %}: ${selectedPoints.length}
+            </div>
+        `;
                     return;
                 }
 
-                messagePoints.innerHTML = '';
+                messageContainer.innerHTML = '';
 
-                const degree = document.getElementById("degree").value;
-                const valueToInterpolate = document.getElementById("valueToInterpolate").value;
-
-                // show loading state
                 setLoadingState(true);
 
-                // Build url with query parameters
-                const url = `/calculate-lagrange/?points=${encodeURIComponent(JSON.stringify(points))}&degree=${degree}&valueToInterpolate=${valueToInterpolate}`;
+                const pointsData = selectedPoints.map(point => ({x: point.x, fx: point.fx}));
+                const url = `/calculate-lagrange/?points=${encodeURIComponent(JSON.stringify(pointsData))}&degree=${degree}&valueToInterpolate=${valueToInterpolate}`;
 
-                // Fetch the data from the server
                 fetch(url)
                     .then((response) => response.json())
                     .then((data) => {
-
-                        console.log(data)
-
                         if (data.error) {
-                            alert("Error: " + data.error);
-                            console.log(data.error)
+                            messageContainer.innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        ${data.error}
+                    </div>
+                `;
                             return;
                         }
 
-                        if (data.error) {
-                            alert(data.error);
-                            return;
-                        }
-
-                        // Generate the results table
-                        // Show the result and the steps
                         showResult(data.result);
                         showProcessSteps(data.process_steps);
                     })
                     .catch((error) => {
                         console.error("Error:", error);
-                    }).finally(() => {
-                    setLoadingState(false);
-                });
+                        messageContainer.innerHTML = `
+                <div class="alert alert-danger" role="alert">
+                    {% translate 'An error occurred during calculation' %}: ${error}
+                </div>
+            `;
+                    })
+                    .finally(() => {
+                        setLoadingState(false);
+                    });
             }
 
             function showResult(result) {

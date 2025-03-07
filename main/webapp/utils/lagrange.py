@@ -104,7 +104,6 @@ def lagrange_method(degree=0.0, value=0.0, points=[]):
             'intermediate_result': f""
         })
 
-        # Regresar solo los pasos hasta el Paso 6, sin el Paso 7
         return result, process_steps
 
     except Exception as e:
