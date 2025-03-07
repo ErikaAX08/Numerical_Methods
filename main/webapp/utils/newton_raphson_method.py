@@ -44,11 +44,7 @@ def newton_raphson_method_func(equation, tol=1e-6, max_iter=100, p0=1.0):
         results = {
             'iterations': [],
             'p0': float(p0),
-            'dp0': float(df(p0)),
-            'dp1': None,
             'p1': None,
-            'f(p0)': float(p0_result['value']),
-            'f(p1)': None,
             'root': None,
             'converged': False
         }
@@ -59,8 +55,6 @@ def newton_raphson_method_func(equation, tol=1e-6, max_iter=100, p0=1.0):
                 # Evaluar la funcion y su derivada en p0
                 fp0 = f(p0)
                 dfp0 = df(p0)
-
-                print(f"derivada: {dfp0}")
 
                 # Evitar division por cero
                 if abs(dfp0) < 1e-10:
@@ -78,9 +72,7 @@ def newton_raphson_method_func(equation, tol=1e-6, max_iter=100, p0=1.0):
                 results['iterations'].append({
                     'iteration': i + 1,
                     'p0': p0,
-                    'dp0': dfp0,
                     'p1': x1,
-                    'dp1': df(x1),
                     'f(p0)': float(fp0),
                     'f(p1)': float(f(x1)),
                     'root': None,
@@ -163,11 +155,8 @@ def generate_graph(equation, a, b, results):
         iteration_colors = [random_color() for _ in range(len(results['iterations']))]
 
         print(iteration_colors)
-        print(results)
 
         for i, iteration in enumerate(results['iterations']):
-            print(f"Iteracion {i + 1}: p0 = {iteration['p0']}, p1 = {iteration['p1']}")
-
             # Point c
             fig.add_trace(
                 go.Scatter(
@@ -176,22 +165,6 @@ def generate_graph(equation, a, b, results):
                     mode='markers',
                     name=f"Punto c - Iteración {i + 1}",
                     marker=dict(color=iteration_colors[i], size=8),
-                    visible=False
-                )
-            )
-
-            # Draw
-            fig.add_trace(
-                go.Scatter(
-                    x=original_x_values,
-                    y=generate_tangent_line_graph(
-                        iteration['p0'],
-                        iteration['dp0'],
-                        iteration['f(p0)'],
-                        original_x_values),
-                    mode='lines',
-                    name=f"Línea - Iteración {i + 1}",
-                    line=dict(color=iteration_colors[i], width=2),
                     visible=False
                 )
             )
@@ -244,7 +217,3 @@ def generate_graph(equation, a, b, results):
     except Exception as e:
         print(f"Unexpected error in generate_graph: {str(e)}")
         raise e
-
-
-def generate_tangent_line_graph(a, slope, y_a, x):
-    return y_a + slope * (x - a)
