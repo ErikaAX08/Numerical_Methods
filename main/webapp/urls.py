@@ -23,5 +23,5 @@ urlpatterns = [
     path("calculate-newton-raphson-method/", calculate_newton_raphson, name="calculate_newton_raphson_method"),
     path("divided-differences/", divided_differences, name="divided_differences"),
     path("neville-method/", neville_method, name="neville_method"),
-    path("cubic-spline/", cubic_spline, name="cubic_spline")
+    path("cubic-spline/", cubic_spline, name="cubic_spline"),
 ]

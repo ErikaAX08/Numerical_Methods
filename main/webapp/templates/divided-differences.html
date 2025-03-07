@@ -388,7 +388,6 @@
         // Mostrar estado de carga
         setLoadingState(true);
         
-        // Aquí implementarías el cálculo de diferencias divididas o llamarías a tu API
         setTimeout(() => {
             try {
                 const resultado = calcularDiferenciasDivididas(puntosSeleccionados, grado, xInterpolar);
@@ -440,7 +439,6 @@
     }
     
     function seleccionarPuntosOptimos(puntos, cantidad, xInterpolar) {
-        // Si tenemos menos o igual puntos que la cantidad solicitada, usamos todos
         if (puntos.length <= cantidad) {
             return [...puntos];
         }
@@ -517,9 +515,5 @@
 
 });
 
-            
-
-        </script>
-
-    </div>
+    </script>
 {% endblock %}
