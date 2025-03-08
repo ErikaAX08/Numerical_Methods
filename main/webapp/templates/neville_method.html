@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% translate 'Neville Method' %} - {% translate 'Neville Method' %}{% endblock %}
+{% block title %}{% translate 'Método de Neville' %} - {% translate 'Métodos Numéricos' %}{% endblock %}
 {% block content %}
     {% load static %}
 
@@ -27,139 +27,118 @@
         <!-- Hidden calculator section -->
         <div id="calculator" style="display: none;" class="mt-5">
             <h3 class="mb-5">{% translate 'Calculadora Método de Neville' %}</h3>
-            <form class="mb-5 p-4 bg-light rounded-3 shadow" id="calculatorForm">
+            <div class="mb-5 p-4 bg-light rounded-3 shadow">
 
-                <!-- Valores de x -->
-                <div class="mb-3">
-                    <div class="col-md-12 col-sm-6 mb-3">
-                        <label for="input_x" class="form-label">{% translate 'Valores de x' %}:</label>
-                        <input type="text" class="form-control" id="input_x">
+                <h5>{% translate 'Add point' %}</h5>
+                <form class="mb-4" id="addPointForm">
+                    <div class="row">
+                        <div class="col-sm-5 mb-3">
+                            <label for="xValue" class="form-label">{% translate 'x value' %}:</label>
+                            <input type="number" class="form-control" id="xValue" step="any" required>
+                        </div>
+                        <div class="col-sm-5 mb-3">
+                            <label for="fxValue" class="form-label">{% translate 'f(x) values' %}:</label>
+                            <input type="number" class="form-control" id="fxValue" step="any" required>
+                        </div>
+
+                        <div class="col-sm-2 mb-3 d-flex justify-content-center">
+                            <button type="submit" class="btn btn-lg btn-primary mt-2" id="addPointButton">
+                                <span>{% translate 'Add point' %}</span>
+                            </button>
+                        </div>
                     </div>
-                </div>
+                </form>
 
-                <!-- Valores de f(x) -->
-                <div class="row">
-                    <div class="col-sm-6 mb-3">
-                        <label for="input_y" class="form-label">{% translate 'Valores de f(x)' %}:</label>
-                        <input type="text" class="form-control" id="input_y" step="any">
-                    </div>
-                </div>
-
-                <!-- Botón para agregar puntos -->
-                <button type="button" class="btn btn-secondary mt-2" id="agregar_punto_btn">
-                    {% translate 'Agregar punto' %}
-                </button>
-
-                <!-- Lista de puntos ingresados -->
-                <div class="mb-3">
-                    <label class="form-label">{% translate 'Puntos ingresados' %}:</label>
-                    <ul id="puntos_list" class="list-group"></ul>
-                </div>
-
-                <!-- Grado de polinomio y X a interpolar-->
-                <div class="row">
-                    <div class="col-sm-6 mb-3">
-                        <label for="grado" class="form-label">{% translate 'Grado del polinomio (ng)' %}:</label>
-                        <input type="number" class="form-control" id="grado" value="1" min="1" required>
-                    </div>
-
-                    <!-- Valor de x a interpolar -->
-                    <div class="col-sm-6 mb-3">
-                        <label for="x_interpolar" class="form-label">{% translate 'Valor de x a interpolar' %}:</label>
-                        <input type="number" class="form-control" id="x_interpolar" step="any" required>
-                    </div>
-                </div>
-
-                <!-- Botón para calcular la interpolación -->
-                <button type="submit" class="btn btn-lg btn-primary mt-2" id="calculateButton">
-                    <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;" id="loadingSpinner"></span>
-                    <span id="buttonText">{% translate 'Calcular interpolación' %}</span>
-                </button>
-            </form>
-
-            <!-- Resultados -->
-            <div id="messageContainer"></div>
-
-            <!-- Tabla de resultados -->
-            <div id="results-container" style="display: none;">
-                <h4>{% translate 'Resultados' %}</h4>
-                <table id="resultsTable" class="table table-bordered">
+                <h5>{% translate 'Points table' %}</h5>
+                <table id="pointsTable" class="mb-2 table table-bordered rounded-5 table-striped">
                     <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>{% translate 'Punto (x, f(x))' %}</th>
-                            <!-- Headers dinámicos según el grado del polinomio -->
-                        </tr>
+                    <tr>
+                        <th style="width:40%;">x</th>
+                        <th style="width:40%;">f(x)</th>
+                        <th style="width:20%;">{% translate 'Options' %}</th>
+                    </tr>
                     </thead>
-                    <tbody></tbody>
+                    <tbody id="bodyTablePoints">
+                    </tbody>
                 </table>
-            </div>
-            
-            <!-- Sección para fórmulas utilizadas -->
-            <div id="formula-container" style="display: none;" class="mt-4 p-4 bg-light rounded-3">
-                <h4>{% translate 'Fórmula utilizada' %}</h4>
-                <div class="formula">
-                    <p>{% translate 'Fórmula de Neville:' %}</p>
-                    <div class="p-3 bg-white rounded">
-                        \[
-                        P_{i,j}(x) = \frac{(x - x_j) \cdot P_{i,j-1}(x) - (x - x_i) \cdot P_{i+1,j}(x)}{x_i - x_j}
-                        \]
+
+                <div id="pointsMessageContainer" class="mb-5">
+                </div>
+
+                <form id="calculateForm" class="mb-3">
+                    <div class="row">
+                        <div class="col-sm-6 mb-3">
+                            <label for="degree"
+                                   class="form-label">{% translate 'Degree of the polynomial (ng)' %}:</label>
+                            <input type="number" class="form-control" id="degree" step="any" value="1" required>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label for="valueToInterpolate"
+                                   class="form-label">{% translate 'Value of x to interpolate' %}:</label>
+                            <input type="number" class="form-control" id="valueToInterpolate" step="any" required>
+                        </div>
                     </div>
-                    <p class="mt-3">{% translate 'Donde:' %}</p>
-                    <ul>
-                        <li>{% translate '\( P_{i,j}(x) \) es el polinomio interpolante basado en los puntos \( x_i \) a \( x_j \)' %}</li>
-                        <li>{% translate '\( P_{i,i}(x) = f(x_i) \) son los valores iniciales' %}</li>
-                        <li>{% translate 'El resultado de la interpolación es \( P_{0,n}(x) \) para \( n \) puntos' %}</li>
-                    </ul>
-                </div>
-                <div id="formula-steps" class="mt-3">
-                    <!-- Aquí se mostrarán los pasos del cálculo -->
-                </div>
+
+                    <button type="submit" class="btn btn-lg btn-primary mt-2" id="calculateButton">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;"
+                              id="loadingSpinner"></span>
+                        <span id="buttonText">{% translate 'Calculate' %}</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Results container -->
+            <div id="responseContainer" class="mt-5" style="display: none;">
+                <div id="resultContainer" class="mt-5"></div>
+                <div id="stepsContainer" class="p-4 mt-3 bg-light rounded-3 shadow"></div>
             </div>
         </div>
-        
+
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3">
             <h3 class="pb-3">{% translate "Explicación Método de Neville" %}</h3>
             <p class="lead">
                 {% translate "<strong>1. Preparar los datos:</strong><br><br>" %}
                 {% translate "Supón que se tiene un conjunto de puntos dados (\( x_0, y_0 \)), (\( x_1, y_1 \)), ..., (\( x_n, y_n \)), donde \( x_i \) son los valores de la variable independiente y \( y_i = f(x_i) \) son los valores de la función en dichos puntos.<br><br>" %}
-        
+
                 {% translate "<strong>2. Construcción del polinomio de interpolación de Neville:</strong><br><br>" %}
                 {% translate "El método de Neville es un procedimiento recursivo que construye una tabla de interpolación basada en la siguiente ecuación:<br>" %}
                 \[
                 P_{i,j}(x) = \frac{(x - x_j) P_{i,j-1}(x) - (x - x_i) P_{i+1,j}(x)}{x_i - x_j}
                 \]
                 {% translate "Donde \( P_{i,j}(x) \) representa el polinomio interpolante basado en los puntos \( x_i \) a \( x_j \).<br><br>" %}
-        
+
                 {% translate "<strong>3. Cálculo de los polinomios de interpolación:</strong><br><br>" %}
                 {% translate "La construcción comienza con los valores iniciales:<br>" %}
                 \[
                 P_{i,i}(x) = f(x_i)
                 \]
                 {% translate "Luego, utilizando la ecuación de Neville, se calculan los siguientes niveles de interpolación de manera iterativa:<br>" %}
-                
+
                 {% translate "Para dos puntos \( x_i \) y \( x_{i+1} \), el polinomio de primer grado es:<br>" %}
                 \[
                 P_{i,i+1}(x) = \frac{(x - x_{i+1}) P_{i,i}(x) - (x - x_i) P_{i+1,i+1}(x)}{x_i - x_{i+1}}
                 \]
-                
+
                 {% translate "Para tres puntos \( x_i, x_{i+1}, x_{i+2} \), el polinomio cuadrático es:<br>" %}
                 \[
                 P_{i,i+2}(x) = \frac{(x - x_{i+2}) P_{i,i+1}(x) - (x - x_i) P_{i+1,i+2}(x)}{x_i - x_{i+2}}
                 \]
-        
+
                 {% translate "Este proceso se repite hasta construir el polinomio de interpolación de orden \( n \):<br>" %}
                 \[
                 P_{0,n}(x) = \frac{(x - x_n) P_{0,n-1}(x) - (x - x_0) P_{1,n}(x)}{x_0 - x_n}
                 \]
-        
+
                 {% translate "<strong>4. Evaluación del polinomio:</strong><br><br>" %}
                 {% translate "El valor interpolado en \( x \) se obtiene al calcular \( P_{0,n}(x) \), que es la mejor aproximación de la función en dicho punto. Este método es útil porque minimiza el error numérico y evita la necesidad de calcular coeficientes explícitos como en otros métodos de interpolación." %}
             </p>
         </div>
 
         <script>
+            const points = [];
+
+            // UI Control Functions
             function showCalculator() {
                 document.getElementById('explanation').style.display = 'none';
                 document.getElementById('calculator').style.display = 'block';
@@ -170,381 +149,264 @@
                 document.getElementById('explanation').style.display = 'block';
             }
 
-            function setLoadingState(isLoading) {
-                const button = document.getElementById("calculateButton");
-                const spinner = document.getElementById("loadingSpinner");
-                const buttonText = document.getElementById("buttonText");
+            // Event Listeners
+            document.getElementById("addPointForm").addEventListener("submit", addPointHandler);
+            document.getElementById("calculateForm").addEventListener("submit", calculateHandler);
+            document.getElementById("degree").addEventListener("input", updateValidation);
 
-                button.disabled = isLoading;
-                spinner.style.display = isLoading ? "inline-block" : "none";
-                buttonText.textContent = isLoading ? "{% translate 'Calculating...' %}" : "{% translate 'Calcular interpolación' %}";
+            // Point Management
+            function addPointHandler(event) {
+                event.preventDefault();
+                const x = parseFloat(document.getElementById("xValue").value);
+                const fx = parseFloat(document.getElementById("fxValue").value);
+
+                if (points.some(p => p.x === x)) {
+                    showMessage('error', '{% translate "X value already exists" %}');
+                    return;
+                }
+
+                points.push({x, fx, selected: true});
+                updatePointsTable();
+                clearInputs();
+                updateValidation();
             }
 
-            let puntos = [];
+            function updatePointsTable() {
+                const tbody = document.getElementById("bodyTablePoints");
+                tbody.innerHTML = '';
 
-            document.addEventListener('DOMContentLoaded', function() {
-                // Referencias a elementos del DOM
-                const agregarPuntoBtn = document.getElementById('agregar_punto_btn');
-                const puntosList = document.getElementById('puntos_list');
-                const form = document.getElementById('calculatorForm');
-                
-                // Inicializar eventos
-                inicializarEventos();
-                
-                function inicializarEventos() {
-                    // Evento para agregar un punto
-                    agregarPuntoBtn.addEventListener('click', function() {
-                        agregarPunto();
-                    });
-                    
-                    // Evento para el formulario de cálculo
-                    form.addEventListener('submit', function(e) {
-                        e.preventDefault();
-                        calcularInterpolacion();
-                    });
-                    
-                    // Permitir agregar punto con Enter en los campos
-                    document.getElementById('input_x').addEventListener('keypress', function(e) {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            document.getElementById('input_y').focus();
-                        }
-                    });
-                    
-                    document.getElementById('input_y').addEventListener('keypress', function(e) {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            agregarPunto();
-                        }
-                    });
-                }
-                
-                function agregarPunto() {
-                    const inputX = document.getElementById('input_x').value.trim();
-                    const inputY = document.getElementById('input_y').value.trim();
-                    
-                    if (inputX && inputY) {
-                        const x = parseFloat(inputX);
-                        const y = parseFloat(inputY);
-                        
-                        // Verificar si es un número válido
-                        if (!isNaN(x) && !isNaN(y)) {
-                            // Verificar si el punto ya existe
-                            const existingPoint = puntos.find(p => p.x === x);
-                            if (existingPoint) {
-                                mostrarMensaje('warning', 'Ya existe un punto con ese valor de x.');
-                                return;
-                            }
-                            
-                            // Agregar punto al arreglo
-                            puntos.push({ x, y, selected: true }); // Por defecto, seleccionado
-                            puntos.sort((a, b) => a.x - b.x); // Ordenar por x
-                            
-                            // Actualizar lista de puntos
-                            actualizarListaPuntos();
-                            
-                            // Limpiar inputs
-                            document.getElementById('input_x').value = '';
-                            document.getElementById('input_y').value = '';
-                            document.getElementById('input_x').focus();
-                        } else {
-                            mostrarMensaje('warning', 'Por favor, ingrese valores numéricos válidos.');
-                        }
-                    } else {
-                        mostrarMensaje('warning', 'Por favor, complete todos los campos.');
-                    }
-                }
-                
-                function actualizarListaPuntos() {
-                    puntosList.innerHTML = '';
-                    
-                    if (puntos.length === 0) {
-                        const li = document.createElement('li');
-                        li.className = 'list-group-item text-center text-muted';
-                        li.textContent = 'No hay puntos ingresados';
-                        puntosList.appendChild(li);
-                        return;
-                    }
-                    
-                    puntos.forEach((punto, index) => {
-                        const li = document.createElement('li');
-                        li.className = 'list-group-item d-flex justify-content-between align-items-center';
-                        
-                        // Checkbox para seleccionar/deseleccionar el punto
-                        const checkboxDiv = document.createElement('div');
-                        checkboxDiv.className = 'form-check';
-                        
-                        const checkbox = document.createElement('input');
-                        checkbox.className = 'form-check-input';
-                        checkbox.type = 'checkbox';
-                        checkbox.id = `punto-${index}`;
-                        checkbox.checked = punto.selected;
-                        checkbox.setAttribute('data-index', index);
-                        checkbox.addEventListener('change', function() {
-                            const idx = parseInt(this.getAttribute('data-index'));
-                            puntos[idx].selected = this.checked;
-                        });
-                        
-                        const label = document.createElement('label');
-                        label.className = 'form-check-label';
-                        label.htmlFor = `punto-${index}`;
-                        label.textContent = `Punto ${index+1}: (${punto.x.toFixed(4)}, ${punto.y.toFixed(4)})`;
-                        
-                        checkboxDiv.appendChild(checkbox);
-                        checkboxDiv.appendChild(label);
-                        
-                        // Botón para eliminar
-                        const deleteBtn = document.createElement('button');
-                        deleteBtn.className = 'btn btn-danger btn-sm';
-                        deleteBtn.textContent = 'Eliminar';
-                        deleteBtn.setAttribute('data-index', index);
-                        deleteBtn.addEventListener('click', function() {
-                            const idx = parseInt(this.getAttribute('data-index'));
-                            puntos.splice(idx, 1);
-                            actualizarListaPuntos();
-                        });
-                        
-                        li.appendChild(checkboxDiv);
-                        li.appendChild(deleteBtn);
-                        puntosList.appendChild(li);
-                    });
-                }
-                
-                function mostrarMensaje(tipo, mensaje) {
-                    const messageContainer = document.getElementById('messageContainer');
-                    messageContainer.innerHTML = `
-                        <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
-                            ${mensaje}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
+                points.forEach((point, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${point.x}</td>
+                        <td>${point.fx}</td>
+                        <td style="display: flex; align-items: center; gap: 10px;">
+                            <button class="btn btn-danger btn-sm" onclick="deletePoint(${index})">{% translate 'Delete' %}</button>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                    id="check-${index}"
+                                    ${point.selected ? 'checked' : ''}
+                                    onchange="togglePointSelection(${index})">
+                                <label class="form-check-label" for="check-${index}">
+                                    {% translate 'Selected' %}
+                                </label>
+                            </div>
+                        </td>
                     `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            function deletePoint(index) {
+                points.splice(index, 1);
+                updatePointsTable();
+                updateValidation();
+            }
+
+            function togglePointSelection(index) {
+                points[index].selected = !points[index].selected;
+                updateValidation();
+            }
+
+            // Validation System
+            function updateValidation() {
+                const degree = parseInt(document.getElementById("degree").value);
+                const requiredPoints = degree + 1;
+                const selectedPoints = points.filter(p => p.selected).length;
+                const messageContainer = document.getElementById("pointsMessageContainer");
+
+                if (selectedPoints < requiredPoints) {
+                    showMessage('warning', `{% translate "Need" %} ${requiredPoints} {% translate "points, current:" %} ${selectedPoints}`);
+                    disableCalculateButton(true);
+                } else if (selectedPoints > requiredPoints) {
+                    showMessage('warning', `{% translate "Too many points, deselect" %} ${selectedPoints - requiredPoints}`);
+                    disableCalculateButton(true);
+                } else {
+                    showMessage('success', `{% translate "Ready to calculate" %} (${selectedPoints} {% translate "points" %})`);
+                    disableCalculateButton(false);
                 }
-                
-                function calcularInterpolacion() {
-                    // Verificar que haya puntos seleccionados
-                    const puntosSeleccionados = puntos.filter(p => p.selected);
-                    
-                    if (puntosSeleccionados.length < 2) {
-                        mostrarMensaje('warning', 'Se necesitan al menos 2 puntos seleccionados para interpolar.');
-                        return;
-                    }
-                    
-                    // Obtener valor a interpolar y grado
-                    const xInterpolar = parseFloat(document.getElementById('x_interpolar').value);
-                    const grado = parseInt(document.getElementById('grado').value);
-                    
-                    if (isNaN(xInterpolar)) {
-                        mostrarMensaje('warning', 'Ingrese un valor válido para x a interpolar.');
-                        return;
-                    }
-                    
-                    if (isNaN(grado) || grado < 1) {
-                        mostrarMensaje('warning', 'El grado debe ser un número entero positivo.');
-                        return;
-                    }
-                    
-                    if (grado >= puntosSeleccionados.length) {
-                        mostrarMensaje('warning', `El grado máximo para ${puntosSeleccionados.length} puntos es ${puntosSeleccionados.length - 1}.`);
-                        return;
-                    }
-                    
-                    // Mostrar estado de carga
-                    setLoadingState(true);
-                    
-                    // Realizar el cálculo con método de Neville
-                    setTimeout(() => {
-                        try {
-                            const resultado = calcularNeville(puntosSeleccionados, grado, xInterpolar);
-                            mostrarResultados(resultado);
-                            mostrarMensaje('success', `Interpolación calculada. f(${xInterpolar.toFixed(4)}) ≈ ${resultado.valorInterpolado.toFixed(6)}`);
-                            
-                            // Mostrar la sección de fórmulas
-                            document.getElementById('formula-container').style.display = 'block';
-                            
-                            // Mostrar los pasos del cálculo
-                            mostrarPasosNeville(resultado.tabla, puntosSeleccionados, xInterpolar);
-                        } catch (error) {
-                            mostrarMensaje('danger', 'Error en el cálculo: ' + error.message);
-                        } finally {
-                            setLoadingState(false);
+            }
+
+            // Calculation Logic
+            function calculateHandler(event) {
+                event.preventDefault();
+                const degree = parseInt(document.getElementById("degree").value);
+                const x = parseFloat(document.getElementById("valueToInterpolate").value);
+                const selectedPoints = points.filter(p => p.selected);
+
+                if (selectedPoints.length !== degree + 1) {
+                    showMessage('error', '{% translate "Invalid points selection" %}');
+                    return;
+                }
+
+                setLoadingState(true);
+
+                try {
+                    const optimalPoints = selectOptimalPoints(selectedPoints, x, degree + 1);
+                    const result = nevilleAlgorithm(optimalPoints, x);
+
+                    showResult(result.value, result.table, result.points);
+                    showSteps(result.steps);
+                } catch (error) {
+                    showMessage('error', error.message);
+                } finally {
+                    setLoadingState(false);
+                }
+            }
+
+            // Neville Algorithm Core
+            function nevilleAlgorithm(points, x) {
+                const n = points.length;
+                const table = Array.from({length: n}, () => new Array(n).fill(null));
+                const steps = [];
+
+                // Initialize diagonal
+                for (let i = 0; i < n; i++) {
+                    table[i][0] = points[i].fx;
+                }
+
+                // Build table
+                for (let j = 1; j < n; j++) {
+                    for (let i = 0; i < n - j; i++) {
+                        const xi = points[i].x;
+                        const xj = points[i + j].x;
+
+                        const numerator = (x - xj) * table[i][j - 1] - (x - xi) * table[i + 1][j - 1];
+                        const denominator = xi - xj;
+
+                        table[i][j] = numerator / denominator;
+
+                        // Este bloque registra solo la primera capa (opcional):
+                        if (j === 1) {
+                            steps.push({
+                                formula: `P_{${i},${i + j}} = \\frac{(${x} - ${xj}) \\cdot ${table[i][j - 1].toFixed(4)} - (${x} - ${xi}) \\cdot ${table[i + 1][j - 1].toFixed(4)}}{${xi} - ${xj}} = ${table[i][j].toFixed(4)}`
+                            });
                         }
-                    }, 500);
-                }
-                
-                function calcularNeville(puntos, grado, xInterpolar) {
-                    // Seleccionar puntos óptimos (los más cercanos al valor a interpolar)
-                    const puntosOptimos = seleccionarPuntosOptimos(puntos, grado + 1, xInterpolar);
-                    
-                    // Crear tabla de Neville
-                    const n = puntosOptimos.length;
-                    const tabla = new Array(n);
-                    
-                    for (let i = 0; i < n; i++) {
-                        tabla[i] = new Array(n).fill(null);
-                        tabla[i][0] = puntosOptimos[i].y; // Valores f(x) iniciales P_i,i
-                    }
-                    
-                    // Pasos para el cálculo de Neville
-                    const pasos = [];
-                    
-                    // Implementación del método de Neville
-                    for (let j = 1; j < n; j++) {
-                        for (let i = 0; i < n - j; i++) {
-                            // Fórmula de Neville:
-                            // P_i,j(x) = [(x - x_j) * P_i,j-1(x) - (x - x_i) * P_i+1,j-1(x)] / (x_i - x_j)
-                            const numerador1 = (xInterpolar - puntosOptimos[i+j].x) * tabla[i][j-1];
-                            const numerador2 = (xInterpolar - puntosOptimos[i].x) * tabla[i+1][j-1];
-                            const denominador = puntosOptimos[i].x - puntosOptimos[i+j].x;
-                            
-                            tabla[i][j] = (numerador1 - numerador2) / denominador;
-                            
-                            // Registrar el paso para la explicación
-                            if (j === 1) { // Primer paso (polinomio de primer grado)
-                                pasos.push({
-                                    grado: j,
-                                    i: i,
-                                    j: i+j,
-                                    formula: `P_{${i},${i+j}}(${xInterpolar.toFixed(4)}) = \\frac{(${xInterpolar.toFixed(4)} - ${puntosOptimos[i+j].x.toFixed(4)}) \\cdot ${tabla[i][j-1].toFixed(4)} - (${xInterpolar.toFixed(4)} - ${puntosOptimos[i].x.toFixed(4)}) \\cdot ${tabla[i+1][j-1].toFixed(4)}}{${puntosOptimos[i].x.toFixed(4)} - ${puntosOptimos[i+j].x.toFixed(4)}} = ${tabla[i][j].toFixed(6)}`
-                                });
-                            }
+
+                        // Este bloque registra solo el paso final, cuando se llega a P_{0,n-1}:
+                        if (j === n - 1 && i === 0) {
+                            steps.push({
+                                formula: `\\text{Paso Final: } P_{0,${n - 1}}(x)
+                  = \\frac{(${x} - ${xj}) \\cdot P_{0,${n - 2}}(x)
+                    - (${x} - ${xi}) \\cdot P_{1,${n - 1}}(x)}
+                  {${xi} - ${xj}}
+                  = ${table[0][n - 1].toFixed(4)}`
+                            });
                         }
                     }
-                    
-                    return {
-                        tabla: tabla,
-                        puntos: puntosOptimos,
-                        valorInterpolado: tabla[0][n-1],
-                        pasos: pasos
-                    };
                 }
-                
-                function seleccionarPuntosOptimos(puntos, cantidad, xInterpolar) {
-                    // Si tenemos menos o igual puntos que la cantidad solicitada, usamos todos
-                    if (puntos.length <= cantidad) {
-                        return [...puntos];
-                    }
-                    
-                    // Ordenar puntos por la distancia a xInterpolar
-                    const puntosConDistancia = puntos.map(p => ({
-                        ...p,
-                        distancia: Math.abs(p.x - xInterpolar)
-                    }));
-                    
-                    puntosConDistancia.sort((a, b) => a.distancia - b.distancia);
-                    
-                    // Seleccionar los n puntos más cercanos
-                    const puntosSeleccionados = puntosConDistancia.slice(0, cantidad).map(p => ({ 
-                        x: p.x, 
-                        y: p.y, 
-                        selected: p.selected 
-                    }));
-                    
-                    // Reordenar por valor de x para el algoritmo
-                    puntosSeleccionados.sort((a, b) => a.x - b.x);
-                    
-                    return puntosSeleccionados;
+
+                return {
+                    value: table[0][n - 1],
+                    table: table,
+                    steps: steps,
+                    points: points
+                };
+            }
+
+            function selectOptimalPoints(points, x, count) {
+                // Sort by distance to target x
+                return points
+                    .map(p => ({...p, distance: Math.abs(p.x - x)}))
+                    .sort((a, b) => a.distance - b.distance)
+                    .slice(0, count)
+                    .sort((a, b) => a.x - b.x);
+            }
+
+            // UI Helpers
+            function showResult(value, table, points) {
+                document.getElementById("responseContainer").style.display = "block";
+                const resultContainer = document.getElementById("resultContainer");
+
+                // Resultado principal
+                resultContainer.innerHTML = `
+                    <div class="alert alert-success">
+                        <h4>{% translate 'Interpolated Value' %}: ${value.toFixed(6)}</h4>
+                    </div>
+                    <div class="mt-4">
+                        <h5>{% translate 'Neville Table' %}</h5>
+                        ${generateTableHTML(table, points)}
+                    </div>
+                `;
+            }
+
+            // Generador de tabla HTML
+            function generateTableHTML(table, points) {
+                let html = '<div class="table-responsive"><table class="table table-bordered table-striped">';
+
+                // Encabezados
+                html += '<thead><tr>';
+                html += '<th>P<sub>i,j</sub></th>';
+                for (let j = 0; j < table.length; j++) {
+                    html += `<th>P[${j}]</th>`;
                 }
-                
-                function mostrarResultados(resultado) {
-                    const resultsContainer = document.getElementById('results-container');
-                    const resultsTable = document.getElementById('resultsTable').getElementsByTagName('tbody')[0];
-                    
-                    // Limpiar tabla anterior
-                    resultsTable.innerHTML = '';
-                    
-                    // Crear encabezado dinámico según el grado del polinomio
-                    const thead = document.getElementById('resultsTable').getElementsByTagName('thead')[0];
-                    thead.innerHTML = ''; // Limpiar encabezado anterior
-                    const headerRow = document.createElement('tr');
-                    headerRow.innerHTML = `<th>#</th><th>Punto (x, f(x))</th>`;
-                    
-                    // Crear encabezados para cada orden del polinomio
-                    for (let j = 0; j < resultado.puntos.length; j++) {
-                        headerRow.innerHTML += `<th>P[${j}]</th>`;
-                    }
-                    
-                    thead.appendChild(headerRow);
-                    
-                    // Mostrar los puntos y los valores de la tabla de Neville
-                    for (let i = 0; i < resultado.puntos.length; i++) {
-                        const tr = document.createElement('tr');
-                        
-                        // Número de fila
-                        const tdNum = document.createElement('td');
-                        tdNum.textContent = i + 1;
-                        tr.appendChild(tdNum);
-                        
-                        // Punto (x, f(x))
-                        const tdPunto = document.createElement('td');
-                        tdPunto.textContent = `(${resultado.puntos[i].x.toFixed(4)}, ${resultado.puntos[i].y.toFixed(4)})`;
-                        tr.appendChild(tdPunto);
-                        
-                        // Valores de la tabla de Neville
-                        for (let j = 0; j < resultado.puntos.length; j++) {
-                            const tdValor = document.createElement('td');
-                            // Solo mostramos los valores que existen en la tabla triangular
-                            if (j <= resultado.puntos.length - 1 - i && resultado.tabla[i][j] !== null) {
-                                tdValor.textContent = resultado.tabla[i][j].toFixed(6);
-                            } else {
-                                tdValor.textContent = '-';
-                            }
-                            tr.appendChild(tdValor);
+                html += '</tr></thead>';
+
+                // Filas
+                html += '<tbody>';
+                for (let i = 0; i < table.length; i++) {
+                    html += '<tr>';
+                    html += `<td class="fw-bold">(${points[i].x.toFixed(4)}, ${points[i].fx.toFixed(4)})</td>`;
+
+                    for (let j = 0; j < table[i].length; j++) {
+                        html += '<td>';
+                        if (table[i][j] !== null) {
+                            html += table[i][j].toFixed(4);
+                        } else {
+                            html += '-';
                         }
-                        
-                        resultsTable.appendChild(tr);
+                        html += '</td>';
                     }
-                    
-                    // Mostrar la tabla de resultados
-                    resultsContainer.style.display = 'block';
+                    html += '</tr>';
                 }
-                
-                function mostrarPasosNeville(tabla, puntos, xInterpolar) {
-                    const formulaSteps = document.getElementById('formula-steps');
-                    formulaSteps.innerHTML = '<h5>Pasos del cálculo:</h5>';
-                    
-                    // Inicialización de los valores P_i,i
-                    let html = '<div class="mb-3"><strong>Inicialización:</strong><br>';
-                    for (let i = 0; i < puntos.length; i++) {
-                        html += `P_{${i},${i}}(${xInterpolar.toFixed(4)}) = f(${puntos[i].x.toFixed(4)}) = ${puntos[i].y.toFixed(4)}<br>`;
-                    }
-                    html += '</div>';
-                    
-                    // Cálculos de cada nivel
-                    for (let nivel = 1; nivel < puntos.length; nivel++) {
-                        html += `<div class="mb-3"><strong>Nivel ${nivel} (polinomio de grado ${nivel}):</strong><br>`;
-                        
-                        for (let i = 0; i < puntos.length - nivel; i++) {
-                            const j = i + nivel;
-                            const numerador1 = `(${xInterpolar.toFixed(4)} - ${puntos[j].x.toFixed(4)}) \\cdot ${tabla[i][nivel-1].toFixed(4)}`;
-                            const numerador2 = `(${xInterpolar.toFixed(4)} - ${puntos[i].x.toFixed(4)}) \\cdot ${tabla[i+1][nivel-1].toFixed(4)}`;
-                            const denominador = `${puntos[i].x.toFixed(4)} - ${puntos[j].x.toFixed(4)}`;
-                            
-                            html += `
-                            <div class="formula-step p-2 bg-white rounded mt-2">
-                                P_{${i},${j}}(${xInterpolar.toFixed(4)}) = \\frac{${numerador1} - ${numerador2}}{${denominador}} = ${tabla[i][nivel].toFixed(6)}
-                            </div>`;
-                        }
-                        
-                        html += '</div>';
-                    }
-                    
-                    // Resultado final
-                    html += `<div class="alert alert-info mt-3">
-                        <strong>Resultado final:</strong> P_{0,${puntos.length-1}}(${xInterpolar.toFixed(4)}) = ${tabla[0][puntos.length-1].toFixed(6)}
-                    </div>`;
-                    
-                    formulaSteps.innerHTML += html;
-                    
-                    // Cargar MathJax para renderizar las fórmulas
-                    if (window.MathJax) {
-                        MathJax.typesetPromise().then(() => {
-                            console.log('MathJax renderizado correctamente');
-                        }).catch((err) => {
-                            console.error('Error al renderizar MathJax:', err);
-                        });
-                    }
-                }
-            });
+                html += '</tbody></table></div>';
+
+                return html;
+            }
+
+            function showSteps(steps) {
+                const container = document.getElementById("stepsContainer");
+                container.innerHTML = steps.map((step, i) => `
+                    <div class="step mb-4 p-2 border-bottom">
+                        <h5>{% translate 'Step' %} ${i + 1}</h5>
+                        <div class="math-content">\\[${step.formula}\\]</div>
+                    </div>
+                `).join('');
+                MathJax.typeset();
+            }
+
+            function setLoadingState(loading) {
+                document.getElementById("loadingSpinner").style.display = loading ? "inline-block" : "none";
+                document.getElementById("buttonText").textContent = loading ?
+                    '{% translate "Calculating..." %}' :
+                    '{% translate "Calculate" %}';
+                document.getElementById("calculateButton").disabled = loading;
+            }
+
+            function showMessage(type, text) {
+                const container = document.getElementById("pointsMessageContainer");
+                const alertClass = {
+                    error: 'danger',
+                    warning: 'warning',
+                    success: 'success'
+                }[type];
+
+                container.innerHTML = `
+                    <div class="alert alert-${alertClass} alert-dismissible fade show">
+                        ${text}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+            }
+
+            function disableCalculateButton(disabled) {
+                document.getElementById("calculateButton").disabled = disabled;
+            }
+
+            function clearInputs() {
+                document.getElementById("xValue").value = '';
+                document.getElementById("fxValue").value = '';
+            }
         </script>
     </div>
 {% endblock %}
