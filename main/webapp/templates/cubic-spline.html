@@ -1,16 +1,15 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% translate 'Cubic Spline Method' %} - {% translate 'Cubic Spline' %}{% endblock %}
+{% block title %}{% translate 'Trazadores Cúbicos' %} - {% translate 'Trazadores Cúbicos' %}{% endblock %}
 {% block content %}
     {% load static %}
 
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
             <div class="col-lg-12">
-                <h2 class="display-4 fw-bold lh-1s">{% translate 'Método Trazadores Cúbicos' %}</h2>
+                <h2 class="display-4 fw-bold lh-1s">{% translate 'Método de Trazadores Cúbicos' %}</h2>
                 <p class="lead py-5">
-                    {% translate 'El método de trazadores cúbicos, también conocido como spline cúbico, es una técnica utilizada en matemáticas y ciencias de la computación para interpolar datos de manera suave y precisa. A diferencia de otros métodos de interpolación, como los polinomios de Lagrange, que pueden generar oscilaciones no deseadas entre los puntos conocidos, los trazadores cúbicos buscan crear una curva suave que pase por todos los puntos dados, sin comportamientos erráticos.
-                    La idea central del método es dividir el conjunto de datos en segmentos más pequeños y ajustar un polinomio cúbico a cada uno de estos segmentos. Estos polinomios se eligen de manera que no solo pasen por los puntos dados, sino que también garanticen que la curva resultante sea suave en los puntos de unión entre segmentos.' %}
+                    {% translate 'En análisis numérico, un trazador cúbico (o spline cúbico) es una curva diferenciable definida en porciones mediante polinomios de grado 3. Este método de interpolación genera curvas suaves que pasan exactamente por los puntos dados, manteniendo continuidad hasta en la segunda derivada, lo que resulta en transiciones más naturales que otros métodos de interpolación polinomial.' %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
@@ -27,7 +26,7 @@
 
         <!-- Hidden calculator section -->
         <div id="calculator" style="display: none;" class="mt-5">
-            <h3 class="mb-5">{% translate 'Calculadora Trazadores Cúbicos' %}</h3>
+            <h3 class="mb-5">{% translate 'Calculadora de Trazadores Cúbicos' %}</h3>
             <form class="mb-5 p-4 bg-light rounded-3 shadow" id="calculatorForm">
 
                 <!-- Valores de x -->
@@ -57,14 +56,33 @@
                     <ul id="puntos_list" class="list-group"></ul>
                 </div>
 
-                <!-- Grado de polinomio y X a interpolar-->
+                <!-- Condición de frontera -->
                 <div class="row">
                     <div class="col-sm-6 mb-3">
-                        <label for="grado" class="form-label">{% translate 'Grado del polinomio (ng)' %}:</label>
-                        <input type="number" class="form-control" id="grado" value="1" min="1" required>
+                        <label for="condicion_frontera" class="form-label">{% translate 'Condición de frontera' %}:</label>
+                        <select class="form-control" id="condicion_frontera">
+                            <option value="natural">{% translate 'Natural (segunda derivada = 0)' %}</option>
+                            <option value="sujeto">{% translate 'Sujeto (primera derivada específica)' %}</option>
+                        </select>
                     </div>
+                    
+                    <!-- Derivadas en los extremos (solo se muestra si se selecciona "sujeto") -->
+                    <div class="col-sm-6 mb-3" id="derivadas_container" style="display: none;">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <label for="derivada_inicial" class="form-label">{% translate 'f\'(x₀)' %}:</label>
+                                <input type="number" class="form-control" id="derivada_inicial" step="any" value="0">
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="derivada_final" class="form-label">{% translate 'f\'(xₙ)' %}:</label>
+                                <input type="number" class="form-control" id="derivada_final" step="any" value="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                    <!-- Valor de x a interpolar -->
+                <!-- Valor de x a interpolar -->
+                <div class="row">
                     <div class="col-sm-6 mb-3">
                         <label for="x_interpolar" class="form-label">{% translate 'Valor de x a interpolar' %}:</label>
                         <input type="number" class="form-control" id="x_interpolar" step="any" required>
@@ -83,151 +101,153 @@
 
             <!-- Tabla de resultados -->
             <div id="results-container" style="display: none;">
-                <h4>{% translate 'Results' %}</h4>
-                <table id="resultsTable" class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>{% translate 'Punto (x, f(x))' %}</th>
-                            <th>{% translate 'Diferencias divididas' %}</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                <h4>{% translate 'Resultados' %}</h4>
+                
+                <!-- Tabla de coeficientes -->
+                <div class="mb-4">
+                    <h5>{% translate 'Coeficientes de los trazadores' %}</h5>
+                    <table id="coefficientsTable" class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>{% translate 'Intervalo' %}</th>
+                                <th>a</th>
+                                <th>b</th>
+                                <th>c</th>
+                                <th>d</th>
+                                <th>{% translate 'Ecuación' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                
+                <!-- Valor interpolado -->
+                <div id="interpolatedValue" class="alert alert-success">
+                    <!-- Aquí se mostrará el valor interpolado -->
+                </div>
+            </div>
+            
+            <!-- Sección para fórmulas utilizadas -->
+            <div id="formula-container" style="display: none;" class="mt-4 p-4 bg-light rounded-3">
+                <h4>{% translate 'Fórmula utilizada' %}</h4>
+                <div class="formula">
+                    <p>{% translate 'Forma de los trazadores cúbicos:' %}</p>
+                    <div class="p-3 bg-white rounded">
+                        \[
+                        S_i(x) = a_i + b_i(x - x_i) + c_i(x - x_i)^2 + d_i(x - x_i)^3
+                        \]
+                    </div>
+                    <p class="mt-3">{% translate 'Donde:' %}</p>
+                    <ul>
+                        <li>{% translate '\( S_i(x) \) es el trazador cúbico en el intervalo \( [x_i, x_{i+1}] \)' %}</li>
+                        <li>{% translate '\( a_i, b_i, c_i, d_i \) son los coeficientes del polinomio' %}</li>
+                    </ul>
+                </div>
+                <div id="formula-steps" class="mt-3">
+                    <!-- Aquí se mostrarán detalles adicionales -->
+                </div>
             </div>
         </div>
         
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3">
-            <h3 class="pb-3">{% translate "Explicación Método Trazadores Cúbicos" %}</h3>
+            <h3 class="pb-3">{% translate "Explicación Método de Trazadores Cúbicos" %}</h3>
             <p class="lead">
-                {% translate "<strong>1. Preparar los datos:</strong><br><br>" %}
-                {% translate "Supón que se tiene un conjunto de puntos dados (\( x_0 \), \( y_0 \)), (\( x_1 \), \( y_1 \)), (\( x_n \), \( y_n \)), donde \( x_i \) son los valores de la variable dependiente y \( y_i \) = f(\( y_i \)) son los valores de la función.<br><br>" %}
-
-                {% translate "<strong>2. Cálculo de las diferencias divididas:</strong><br><br>" %}
-                {% translate "Diferencias divididas primer orden: Se calcula con la fórmula: <br>" %}
+                {% translate "<strong>1. Concepto básico:</strong><br><br>" %}
+                {% translate "El método de trazadores cúbicos (spline cúbico) consiste en construir un polinomio cúbico para cada intervalo entre puntos dados, de manera que la curva resultante sea continua y suave. Para un conjunto de puntos \( (x_0, y_0), (x_1, y_1), ..., (x_n, y_n) \), se crean \( n \) polinomios, uno para cada intervalo \( [x_i, x_{i+1}] \).<br><br>" %}
+        
+                {% translate "<strong>2. Forma del trazador cúbico:</strong><br><br>" %}
+                {% translate "Cada trazador cúbico \( S_i(x) \) en el intervalo \( [x_i, x_{i+1}] \) tiene la forma:<br>" %}
                 \[
-                f[x_i, x_{i+1}] = \frac{f(x_{i+1}) - f(x_i)}{x_{i+1} - x_i}
+                S_i(x) = a_i + b_i(x - x_i) + c_i(x - x_i)^2 + d_i(x - x_i)^3
                 \]
-                {% translate "Esta fórmula calcula la tasa de cambio promedio entre los valores de la función en dos puntos consecutivos \( x_i \) y \( x_{i+1} \).<br><br>" %}
-
-                {% translate "Diferencias divididas segundo orden: Se calcula utilizando las diferencias divididas de primer orden ya obtenidas: <br>" %}
+                {% translate "donde \( a_i, b_i, c_i, d_i \) son coeficientes a determinar.<br><br>" %}
+        
+                {% translate "<strong>3. Condiciones que deben cumplir los trazadores:</strong><br><br>" %}
+                {% translate "Para obtener una interpolación suave y continua, los trazadores deben cumplir estas condiciones:<br>" %}
+                
+                {% translate "<ul>" %}
+                {% translate "<li>Cada trazador debe pasar por los puntos que delimitan su intervalo:<br>" %}
                 \[
-                f[x_i, x_{i+1}, x_{i+2}] = \frac{f(x_{i+1}, x_{i+2}) - f(x_i, x_{i+1})}{x_{i+2} - x_i}
+                S_i(x_i) = y_i \quad \text{y} \quad S_i(x_{i+1}) = y_{i+1}
                 \]
-
-                {% translate "Generalización para diferencias divididas de orden n: se sigue el mismo principio de cálculo recursivo, usando las diferencias divididas de orden n - 1 y la fórmula general: <br><br>" %}
+                {% translate "</li>" %}
+                
+                {% translate "<li>La primera derivada debe ser continua en los nodos internos:<br>" %}
                 \[
-                f[x_i, x_{i+1}, ..., x_{i+n}] = \frac{f(x_{i+1}, ..., x_{i+n}) - f(x_i, ..., x_{i+n-1})}{x_{i+n} - x_i}
+                S_i'(x_{i+1}) = S_{i+1}'(x_{i+1})
                 \]
-                {% translate "<strong>3. Construcción polinomio de interpolación: </strong><br><br>" %}
-                {% translate "Una vez que se han calculado todas las diferencias divididas, el polinomio de interpolación se construye de la siguiente manera: .<br>" %}
+                {% translate "</li>" %}
+                
+                {% translate "<li>La segunda derivada debe ser continua en los nodos internos:<br>" %}
                 \[
-                P(x) = f[x_0] + (x - x_0)f[x_0, x_1] + (x - x_0)(x - x_1)f[x_0, x_1, x_2] + ... 
+                S_i''(x_{i+1}) = S_{i+1}''(x_{i+1})
                 \]
-                {% translate "<strong>4. Evaluación del polinomio: </strong><br><br>" %}
-                {% translate "Para evaluar el polinomio en un valor x dado, se sustituye x en la expresión del polinomio P(x). Esta forma de evaluación es eficiente debido a que la estructura del polinomio permite agregar puntos de manera incremental sin necesidad de recalcular todo el polinomio desde cero." %}
+                {% translate "</li>" %}
+                {% translate "</ul>" %}
+                
+                {% translate "<strong>4. Condiciones de frontera:</strong><br><br>" %}
+                {% translate "Para completar el sistema de ecuaciones, se necesitan condiciones adicionales en los extremos. Las más comunes son:<br>" %}
+                
+                {% translate "<ul>" %}
+                {% translate "<li>Spline natural: La segunda derivada es cero en los extremos:<br>" %}
+                \[
+                S_0''(x_0) = 0 \quad \text{y} \quad S_{n-1}''(x_n) = 0
+                \]
+                {% translate "</li>" %}
+                
+                {% translate "<li>Spline sujeto: Se especifican valores para la primera derivada en los extremos:<br>" %}
+                \[
+                S_0'(x_0) = f'_0 \quad \text{y} \quad S_{n-1}'(x_n) = f'_n
+                \]
+                {% translate "</li>" %}
+                {% translate "</ul>" %}
+                
+                {% translate "<strong>5. Resolución del sistema:</strong><br><br>" %}
+                {% translate "Al aplicar todas estas condiciones, se obtiene un sistema de ecuaciones lineales que permite calcular los coeficientes \( a_i, b_i, c_i, d_i \) para cada trazador. El resultado es una función continua con primera y segunda derivadas continuas, lo que proporciona una interpolación visualmente suave entre los puntos dados." %}
             </p>
         </div>
 
-       <script>
+        <script>
+         function showCalculator() {
+    document.getElementById('explanation').style.display = 'none';
+    document.getElementById('calculator').style.display = 'block';
+}
 
-            function showCalculator() {
-                document.getElementById('explanation').style.display = 'none';
-                document.getElementById('calculator').style.display = 'block';
-            }
+function showExplanation() {
+    document.getElementById('calculator').style.display = 'none';
+    document.getElementById('explanation').style.display = 'block';
+}
 
-            function showExplanation() {
-                document.getElementById('calculator').style.display = 'none';
-                document.getElementById('explanation').style.display = 'block';
-            }
+function setLoadingState(isLoading) {
+    const button = document.getElementById("calculateButton");
+    const spinner = document.getElementById("loadingSpinner");
+    const buttonText = document.getElementById("buttonText");
 
-            document.getElementById("calculatorForm").addEventListener("submit", function (event) {
-                event.preventDefault();
-                calculateAndGraph();
-            });
+    button.disabled = isLoading;
+    spinner.style.display = isLoading ? "inline-block" : "none";
+    buttonText.textContent = isLoading ? "{% translate 'Calculando...' %}" : "{% translate 'Calcular trazador' %}";
+}
 
-            function setLoadingState(isLoading) {
-                const button = document.getElementById("calculateButton");
-                const spinner = document.getElementById("loadingSpinner");
-                const buttonText = document.getElementById("buttonText");
+let puntos = [];
 
-                button.disabled = isLoading;
-                spinner.style.display = isLoading ? "inline-block" : "none";
-                buttonText.textContent = isLoading ? "{% translate 'Calculating...' %}" : "{% translate 'Calculate and Graph' %}";
-            }
-
-            function clearPreviousResults() {
-                // Clear tables
-                document.getElementById("resultsTable").querySelector("tbody").innerHTML = "";
-
-                // Clear messages
-                document.getElementById("messageContainer").innerHTML = "";
-
-                // Clear plots
-                Plotly.purge('plot-container');
-
-                // Hide results and graphs containers
-                document.getElementById("results").style.display = "none";
-                document.getElementById("graphs-container").style.display = "none";
-            }
-
-            
-
-            function displayResults(data) {
-                // Display regular Regula Falsi results
-                populateResultsTable(
-                    "resultsTable",
-                    "messageContainer",
-                    data.results.results
-                );
-            }
-
-            function populateResultsTable(tableId, messageId, results) {
-                const table = document.getElementById(tableId);
-                const tbody = table.querySelector("tbody");
-                tbody.innerHTML = "";
-
-                const messageContainer = document.getElementById(messageId);
-                messageContainer.innerHTML = "";
-
-                if (results.converged) {
-                    messageContainer.innerHTML = `
-                        <div class="alert alert-success">
-                            <strong>{% translate 'Root found' %}:</strong> ${results.root.toFixed(6)}
-                        </div>`;
-                } else {
-                    messageContainer.innerHTML = `
-                        <div class="alert alert-warning">
-                            {% translate 'Method did not converge within the maximum number of iterations' %}.
-                        </div>`;
-                }
-
-                console.log(results)
-
-                results.iterations.forEach(iter => {
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
-                        <td>${iter.iteration}</td>
-                        <td>${iter.p0.toFixed(6)}</td>
-                        <td>${iter.p1.toFixed(6)}</td>
-                        <td>${iter['f(p0)'].toFixed(6)}</td>
-                        <td>${iter['f(p1)'].toFixed(6)}</td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            }
-
-    let puntos = [];
-
-    document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
     // Referencias a elementos del DOM
     const agregarPuntoBtn = document.getElementById('agregar_punto_btn');
     const puntosList = document.getElementById('puntos_list');
     const form = document.getElementById('calculatorForm');
     
+    // Verificar si los elementos esenciales existen
+    if (!agregarPuntoBtn || !puntosList || !form) {
+        console.error('No se encontraron elementos esenciales del DOM');
+        return;
+    }
+    
     // Inicializar eventos
     inicializarEventos();
+    
+    // Crear tabla de resultados si no existe
+    crearTablaResultadosSiNoExiste();
     
     function inicializarEventos() {
         // Evento para agregar un punto
@@ -238,32 +258,100 @@
         // Evento para el formulario de cálculo
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-            calcularInterpolacion();
+            calcularTrazadorCubico();
         });
         
         // Permitir agregar punto con Enter en los campos
-        document.getElementById('input_x').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                document.getElementById('input_y').focus();
-            }
-        });
+        const inputX = document.getElementById('input_x');
+        const inputY = document.getElementById('input_y');
         
-        document.getElementById('input_y').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                agregarPunto();
-            }
-        });
+        if (inputX) {
+            inputX.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (inputY) inputY.focus();
+                }
+            });
+        }
+        
+        if (inputY) {
+            inputY.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    agregarPunto();
+                }
+            });
+        }
+    }
+    
+    function crearTablaResultadosSiNoExiste() {
+        // Verificar si el contenedor de resultados existe
+        let resultsContainer = document.getElementById('results-container');
+        
+        // Si no existe, crearlo
+        if (!resultsContainer) {
+            resultsContainer = document.createElement('div');
+            resultsContainer.id = 'results-container';
+            resultsContainer.style.display = 'none';
+            resultsContainer.className = 'mt-4';
+            
+            const resultsTitle = document.createElement('h4');
+            resultsTitle.textContent = 'Resultados del Trazador Cúbico';
+            resultsContainer.appendChild(resultsTitle);
+            
+            // Crear la tabla
+            const tableContainer = document.createElement('div');
+            tableContainer.className = 'table-responsive';
+            
+            const table = document.createElement('table');
+            table.id = 'resultsTable';
+            table.className = 'table table-bordered table-sm';
+            
+            const thead = document.createElement('thead');
+            thead.className = 'table-light';
+            table.appendChild(thead);
+            
+            const tbody = document.createElement('tbody');
+            table.appendChild(tbody);
+            
+            tableContainer.appendChild(table);
+            resultsContainer.appendChild(tableContainer);
+            
+            // Crear contenedor para fórmulas
+            const formulaContainer = document.createElement('div');
+            formulaContainer.id = 'formula-container';
+            formulaContainer.style.display = 'none';
+            formulaContainer.className = 'mt-4';
+            
+            const formulaTitle = document.createElement('h4');
+            formulaTitle.textContent = 'Ecuaciones del Trazador Cúbico';
+            formulaContainer.appendChild(formulaTitle);
+            
+            const formulaSteps = document.createElement('div');
+            formulaSteps.id = 'formula-steps';
+            formulaContainer.appendChild(formulaSteps);
+            
+            // Agregar al contenedor del formulario
+            form.parentNode.appendChild(resultsContainer);
+            form.parentNode.appendChild(formulaContainer);
+        }
     }
     
     function agregarPunto() {
-        const inputX = document.getElementById('input_x').value.trim();
-        const inputY = document.getElementById('input_y').value.trim();
+        const inputX = document.getElementById('input_x');
+        const inputY = document.getElementById('input_y');
         
-        if (inputX && inputY) {
-            const x = parseFloat(inputX);
-            const y = parseFloat(inputY);
+        if (!inputX || !inputY) {
+            mostrarMensaje('danger', 'Error: No se encontraron los campos de entrada.');
+            return;
+        }
+        
+        const xValue = inputX.value.trim();
+        const yValue = inputY.value.trim();
+        
+        if (xValue && yValue) {
+            const x = parseFloat(xValue);
+            const y = parseFloat(yValue);
             
             // Verificar si es un número válido
             if (!isNaN(x) && !isNaN(y)) {
@@ -276,15 +364,15 @@
                 
                 // Agregar punto al arreglo
                 puntos.push({ x, y, selected: true }); // Por defecto, seleccionado
-                puntos.sort((a, b) => a.x - b.x); // Ordenar por x
+                puntos.sort((a, b) => a.x - b.x); // Ordenar por x ascendente
                 
                 // Actualizar lista de puntos
                 actualizarListaPuntos();
                 
                 // Limpiar inputs
-                document.getElementById('input_x').value = '';
-                document.getElementById('input_y').value = '';
-                document.getElementById('input_x').focus();
+                inputX.value = '';
+                inputY.value = '';
+                inputX.focus();
             } else {
                 mostrarMensaje('warning', 'Por favor, ingrese valores numéricos válidos.');
             }
@@ -349,7 +437,15 @@
     }
     
     function mostrarMensaje(tipo, mensaje) {
-        const messageContainer = document.getElementById('messageContainer');
+        let messageContainer = document.getElementById('messageContainer');
+        
+        // Si no existe, crearlo
+        if (!messageContainer) {
+            messageContainer = document.createElement('div');
+            messageContainer.id = 'messageContainer';
+            form.parentNode.insertBefore(messageContainer, form);
+        }
+        
         messageContainer.innerHTML = `
             <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
                 ${mensaje}
@@ -358,169 +454,337 @@
         `;
     }
     
-    function calcularInterpolacion() {
-    // Verificar que haya puntos seleccionados
+    function calcularTrazadorCubico() {
+        // Verificar que haya puntos seleccionados
         const puntosSeleccionados = puntos.filter(p => p.selected);
         
-        if (puntosSeleccionados.length < 2) {
-            mostrarMensaje('warning', 'Se necesitan al menos 2 puntos seleccionados para interpolar.');
+        if (puntosSeleccionados.length < 3) {
+            mostrarMensaje('warning', 'Se necesitan al menos 3 puntos seleccionados para crear un trazador cúbico.');
             return;
         }
         
-        // Obtener valor a interpolar y grado
-        const xInterpolar = parseFloat(document.getElementById('x_interpolar').value);
-        const grado = parseInt(document.getElementById('grado').value);
+        // Obtener valor a interpolar
+        const xInterpolarInput = document.getElementById('x_interpolar');
+        
+        if (!xInterpolarInput) {
+            mostrarMensaje('danger', 'No se encontró el campo para el valor a interpolar.');
+            return;
+        }
+        
+        const xInterpolar = parseFloat(xInterpolarInput.value);
         
         if (isNaN(xInterpolar)) {
             mostrarMensaje('warning', 'Ingrese un valor válido para x a interpolar.');
             return;
         }
         
-        if (isNaN(grado) || grado < 1) {
-            mostrarMensaje('warning', 'El grado debe ser un número entero positivo.');
-            return;
-        }
+        // Verificar si el valor a interpolar está dentro del rango de los puntos
+        const xMin = Math.min(...puntosSeleccionados.map(p => p.x));
+        const xMax = Math.max(...puntosSeleccionados.map(p => p.x));
         
-        if (grado >= puntosSeleccionados.length) {
-            mostrarMensaje('warning', `El grado máximo para ${puntosSeleccionados.length} puntos es ${puntosSeleccionados.length - 1}.`);
+        if (xInterpolar < xMin || xInterpolar > xMax) {
+            mostrarMensaje('warning', `El valor a interpolar debe estar dentro del rango [${xMin.toFixed(4)}, ${xMax.toFixed(4)}].`);
             return;
         }
         
         // Mostrar estado de carga
         setLoadingState(true);
         
-        // Aquí implementarías el cálculo de diferencias divididas o llamarías a tu API
+        // Realizar el cálculo con retraso para mostrar spinner
         setTimeout(() => {
             try {
-                const resultado = calcularDiferenciasDivididas(puntosSeleccionados, grado, xInterpolar);
+                const resultado = calcularSplineCubico(puntosSeleccionados, xInterpolar);
                 mostrarResultados(resultado);
-                mostrarMensaje('success', `Interpolación calculada. f(${xInterpolar.toFixed(4)}) ≈ ${resultado.valorInterpolado.toFixed(6)}`);
+                mostrarMensaje('success', `Valor interpolado: S(${xInterpolar.toFixed(4)}) ≈ ${resultado.valorInterpolado.toFixed(6)}`);
+                
+                // Mostrar la sección de fórmulas
+                const formulaContainer = document.getElementById('formula-container');
+                if (formulaContainer) {
+                    formulaContainer.style.display = 'block';
+                }
+                
+                // Mostrar ecuaciones del trazador
+                mostrarEcuacionesTrazador(resultado, xInterpolar);
             } catch (error) {
                 mostrarMensaje('danger', 'Error en el cálculo: ' + error.message);
+                console.error('Error detallado:', error);
             } finally {
                 setLoadingState(false);
             }
         }, 500);
     }
-
     
-    function calcularDiferenciasDivididas(puntos, grado, xInterpolar) {
-        // Seleccionar puntos óptimos (los más cercanos al valor a interpolar)
-        const puntosOptimos = seleccionarPuntosOptimos(puntos, grado + 1, xInterpolar);
+    function calcularSplineCubico(puntos, xInterpolar) {
+        // Asegurar que los puntos estén ordenados por x
+        puntos.sort((a, b) => a.x - b.x);
         
-        // Crear tabla de diferencias divididas
-        const n = puntosOptimos.length;
-        const tabla = new Array(n);
+        const n = puntos.length;
         
-        for (let i = 0; i < n; i++) {
-            tabla[i] = new Array(n).fill(0);
-            tabla[i][0] = puntosOptimos[i].y; // Valores f(x)
+        // Paso 1: Calcular las diferencias h_i = x_{i+1} - x_i
+        const h = [];
+        for (let i = 0; i < n - 1; i++) {
+            h.push(puntos[i + 1].x - puntos[i].x);
         }
         
-        // Calcular diferencias divididas
-        for (let j = 1; j < n; j++) {
-            for (let i = 0; i < n - j; i++) {
-                tabla[i][j] = (tabla[i+1][j-1] - tabla[i][j-1]) / (puntosOptimos[i+j].x - puntosOptimos[i].x);
-            }
+        // Paso 2: Construir sistema de ecuaciones para encontrar las segundas derivadas
+        // Crear matriz tridiagonal A y vector b
+        const A = Array(n).fill().map(() => Array(n).fill(0));
+        const b = Array(n).fill(0);
+        
+        // Primera y última ecuación (condiciones de contorno natural)
+        A[0][0] = 1;
+        A[n-1][n-1] = 1;
+        
+        // Ecuaciones intermedias
+        for (let i = 1; i < n - 1; i++) {
+            A[i][i-1] = h[i-1];                         // Coeficiente de M_{i-1}
+            A[i][i] = 2 * (h[i-1] + h[i]);              // Coeficiente de M_i
+            A[i][i+1] = h[i];                           // Coeficiente de M_{i+1}
+            
+            // Lado derecho de la ecuación
+            b[i] = 6 * (
+                (puntos[i+1].y - puntos[i].y) / h[i] - 
+                (puntos[i].y - puntos[i-1].y) / h[i-1]
+            );
         }
         
-        // Evaluar polinomio en xInterpolar (Fórmula de Newton)
-        let resultado = tabla[0][0];
-        let termino = 1;
+        // Paso 3: Resolver el sistema para obtener M (segundas derivadas)
+        const M = resolverSistemaTridiagonal(A, b);
         
-        for (let i = 1; i < n; i++) {
-            termino *= (xInterpolar - puntosOptimos[i-1].x);
-            resultado += tabla[0][i] * termino;
+        // Paso 4: Calcular coeficientes de cada segmento del spline
+        const coeficientes = [];
+        for (let i = 0; i < n - 1; i++) {
+            const a = puntos[i].y;
+            const b = (puntos[i+1].y - puntos[i].y) / h[i] - h[i] * (2 * M[i] + M[i+1]) / 6;
+            const c = M[i] / 2;
+            const d = (M[i+1] - M[i]) / (6 * h[i]);
+            
+            coeficientes.push({ a, b, c, d });
         }
+        
+        // Paso 5: Encontrar el segmento donde cae xInterpolar
+        let segmento = 0;
+        while (segmento < n - 1 && xInterpolar > puntos[segmento + 1].x) {
+            segmento++;
+        }
+        
+        // Paso 6: Calcular el valor interpolado
+        const coef = coeficientes[segmento];
+        const dx = xInterpolar - puntos[segmento].x;
+        const valorInterpolado = coef.a + coef.b * dx + coef.c * dx * dx + coef.d * dx * dx * dx;
         
         return {
-            tabla: tabla,
-            puntos: puntosOptimos,
-            valorInterpolado: resultado
+            puntos,
+            h,
+            M,
+            coeficientes,
+            segmento,
+            valorInterpolado
         };
     }
     
-    function seleccionarPuntosOptimos(puntos, cantidad, xInterpolar) {
-        // Si tenemos menos o igual puntos que la cantidad solicitada, usamos todos
-        if (puntos.length <= cantidad) {
-            return [...puntos];
+    function resolverSistemaTridiagonal(A, b) {
+        const n = A.length;
+        
+        // Crear arreglos para la solución
+        const d = [...b];  // Copiar b para no modificarlo
+        const c = Array(n).fill(0);
+        const m = Array(n).fill(0);
+        
+        // Eliminación hacia adelante
+        c[0] = A[0][1] / A[0][0];
+        d[0] = b[0] / A[0][0];
+        
+        for (let i = 1; i < n - 1; i++) {
+            m[i] = A[i][i] - A[i][i-1] * c[i-1];
+            c[i] = A[i][i+1] / m[i];
+            d[i] = (b[i] - A[i][i-1] * d[i-1]) / m[i];
         }
         
-        // Ordenar puntos por la distancia a xInterpolar
-        const puntosConDistancia = puntos.map(p => ({
-            ...p,
-            distancia: Math.abs(p.x - xInterpolar)
-        }));
+        m[n-1] = A[n-1][n-1] - A[n-1][n-2] * c[n-2];
+        d[n-1] = (b[n-1] - A[n-1][n-2] * d[n-2]) / m[n-1];
         
-        puntosConDistancia.sort((a, b) => a.distancia - b.distancia);
+        // Sustitución hacia atrás
+        const x = Array(n).fill(0);
+        x[n-1] = d[n-1];
         
-        // Seleccionar los n puntos más cercanos
-        const puntosSeleccionados = puntosConDistancia.slice(0, cantidad).map(p => ({ 
-            x: p.x, 
-            y: p.y, 
-            selected: p.selected 
-        }));
+        for (let i = n - 2; i >= 0; i--) {
+            x[i] = d[i] - c[i] * x[i+1];
+        }
         
-        // Reordenar por valor de x para el algoritmo
-        puntosSeleccionados.sort((a, b) => a.x - b.x);
-        
-        return puntosSeleccionados;
+        return x;
     }
     
     function mostrarResultados(resultado) {
-    const resultsContainer = document.getElementById('results-container');
-    const resultsTable = document.getElementById('resultsTable').getElementsByTagName('tbody')[0];
-
-    // Limpiar tabla anterior
-    resultsTable.innerHTML = '';
-
-    // Crear encabezado dinámico según el número de diferencias divididas
-    const thead = document.getElementById('resultsTable').getElementsByTagName('thead')[0];
-    thead.innerHTML = ''; // Limpiar encabezado anterior
-    const headerRow = document.createElement('tr');
-    headerRow.innerHTML = `<th>#</th><th>Punto (x, f(x))</th>`;
-
-    for (let j = 1; j < resultado.puntos.length; j++) {
-        headerRow.innerHTML += `<th>Diferencia Orden ${j}</th>`;
+        // Buscar o crear el contenedor de resultados
+        let resultsContainer = document.getElementById('results-container');
+        if (!resultsContainer) {
+            crearTablaResultadosSiNoExiste();
+            resultsContainer = document.getElementById('results-container');
+        }
+        
+        let resultsTable = document.getElementById('resultsTable');
+        if (!resultsTable) {
+            console.error('No se encontró la tabla de resultados');
+            return;
+        }
+        
+        let thead = resultsTable.getElementsByTagName('thead')[0];
+        let tbody = resultsTable.getElementsByTagName('tbody')[0];
+        
+        // Si no existen el encabezado o el cuerpo de la tabla, crearlos
+        if (!thead) {
+            thead = document.createElement('thead');
+            thead.className = 'table-light';
+            resultsTable.appendChild(thead);
+        }
+        
+        if (!tbody) {
+            tbody = document.createElement('tbody');
+            resultsTable.appendChild(tbody);
+        }
+        
+        // Limpiar tablas anteriores
+        thead.innerHTML = '';
+        tbody.innerHTML = '';
+        
+        // Crear encabezado dinámico para la tabla
+        const headerRow = document.createElement('tr');
+        headerRow.innerHTML = `
+            <th>i</th>
+            <th>x_i</th>
+            <th>f(x_i)</th>
+            <th>h_i</th>
+            <th>M_i</th>
+            <th>a_i</th>
+            <th>b_i</th>
+            <th>c_i</th>
+            <th>d_i</th>
+        `;
+        
+        thead.appendChild(headerRow);
+        
+        // Mostrar los coeficientes del trazador
+        for (let i = 0; i < resultado.puntos.length; i++) {
+            const tr = document.createElement('tr');
+            
+            // Índice
+            tr.innerHTML = `<td>${i}</td>`;
+            
+            // x_i y f(x_i)
+            tr.innerHTML += `<td>${resultado.puntos[i].x.toFixed(4)}</td>`;
+            tr.innerHTML += `<td>${resultado.puntos[i].y.toFixed(4)}</td>`;
+            
+            // h_i
+            if (i < resultado.h.length) {
+                tr.innerHTML += `<td>${resultado.h[i].toFixed(4)}</td>`;
+            } else {
+                tr.innerHTML += `<td>-</td>`;
+            }
+            
+            // M_i
+            tr.innerHTML += `<td>${resultado.M[i].toFixed(4)}</td>`;
+            
+            // Coeficientes a_i, b_i, c_i, d_i
+            if (i < resultado.coeficientes.length) {
+                const coef = resultado.coeficientes[i];
+                tr.innerHTML += `
+                    <td>${coef.a.toFixed(4)}</td>
+                    <td>${coef.b.toFixed(4)}</td>
+                    <td>${coef.c.toFixed(4)}</td>
+                    <td>${coef.d.toFixed(4)}</td>
+                `;
+            } else {
+                tr.innerHTML += `<td>-</td><td>-</td><td>-</td><td>-</td>`;
+            }
+            
+            tbody.appendChild(tr);
+        }
+        
+        // Marcar el segmento utilizado para la interpolación
+        if (tbody.rows.length > resultado.segmento) {
+            tbody.rows[resultado.segmento].classList.add('table-primary');
+        }
+        
+        // Mostrar la tabla de resultados
+        resultsContainer.style.display = 'block';
     }
     
-    thead.appendChild(headerRow);
-
-    // Mostrar los puntos y las diferencias divididas
-    for (let i = 0; i < resultado.puntos.length; i++) {
-        const tr = document.createElement('tr');
-
-        // Número de fila
-        const tdNum = document.createElement('td');
-        tdNum.textContent = i + 1;
-        tr.appendChild(tdNum);
-
-        // Punto (x, f(x))
-        const tdPunto = document.createElement('td');
-        tdPunto.textContent = `(${resultado.puntos[i].x.toFixed(4)}, ${resultado.puntos[i].y.toFixed(4)})`;
-        tr.appendChild(tdPunto);
-
-        // Diferencias divididas en columnas
-        for (let j = 1; j < resultado.puntos.length - i; j++) {
-            const tdDiferencia = document.createElement('td');
-            tdDiferencia.textContent = resultado.tabla[i][j] !== undefined 
-                ? resultado.tabla[i][j].toFixed(6) 
-                : '';
-            tr.appendChild(tdDiferencia);
+    function mostrarEcuacionesTrazador(resultado, xInterpolar) {
+        let formulaSteps = document.getElementById('formula-steps');
+        
+        if (!formulaSteps) {
+            console.error('No se encontró el contenedor de pasos de fórmula');
+            return;
         }
-
-        resultsTable.appendChild(tr);
-    }
-
-    // Mostrar la tabla de resultados
-    resultsContainer.style.display = 'block';
-}
-
-});
-
+        
+        formulaSteps.innerHTML = '<h5>Ecuaciones del trazador cúbico:</h5>';
+        
+        let html = '<div class="mb-3">';
+        
+        // Mostrar ecuaciones para cada segmento
+        for (let i = 0; i < resultado.coeficientes.length; i++) {
+            const coef = resultado.coeficientes[i];
+            const x_i = resultado.puntos[i].x;
+            const x_i1 = resultado.puntos[i+1].x;
             
-
-        </script>
-
+            html += `
+            <div class="formula-step p-2 bg-white rounded mt-2 ${i === resultado.segmento ? 'border border-primary' : ''}">
+                <strong>S_${i}(x)</strong> para x ∈ [${x_i.toFixed(4)}, ${x_i1.toFixed(4)}]:<br>
+                S_${i}(x) = ${coef.a.toFixed(6)} + ${coef.b.toFixed(6)}(x - ${x_i.toFixed(4)})`;
+            
+            if (coef.c !== 0) {
+                html += ` + ${coef.c.toFixed(6)}(x - ${x_i.toFixed(4)})^2`;
+            }
+            
+            if (coef.d !== 0) {
+                html += ` + ${coef.d.toFixed(6)}(x - ${x_i.toFixed(4)})^3`;
+            }
+            
+            html += `
+                ${i === resultado.segmento ? '<div class="mt-2 text-primary"><strong>⟵ Segmento utilizado para la interpolación</strong></div>' : ''}
+            </div>`;
+        }
+        
+        html += '</div>';
+        
+        // Mostrar ecuación utilizada para calcular el valor interpolado
+        if (resultado.segmento >= 0 && resultado.segmento < resultado.coeficientes.length) {
+            const coef = resultado.coeficientes[resultado.segmento];
+            const x_i = resultado.puntos[resultado.segmento].x;
+            const dx = xInterpolar - x_i;
+            
+            html += `
+            <div class="alert alert-info mt-3">
+                <strong>Cálculo del valor interpolado:</strong><br>
+                S(${xInterpolar.toFixed(4)}) = ${coef.a.toFixed(6)} + ${coef.b.toFixed(6)} · ${dx.toFixed(4)}`;
+            
+            if (coef.c !== 0) {
+                const dx2 = dx * dx;
+                html += ` + ${coef.c.toFixed(6)} · ${dx.toFixed(4)}^2`;
+            }
+            
+            if (coef.d !== 0) {
+                const dx3 = dx * dx * dx;
+                html += ` + ${coef.d.toFixed(6)} · ${dx.toFixed(4)}^3`;
+            }
+            
+            html += ` = ${resultado.valorInterpolado.toFixed(6)}
+            </div>`;
+        }
+        
+        formulaSteps.innerHTML += html;
+        
+        // Cargar MathJax para renderizar las fórmulas si está disponible
+        if (window.MathJax) {
+            MathJax.typesetPromise().then(() => {
+                console.log('MathJax renderizado correctamente');
+            }).catch((err) => {
+                console.error('Error al renderizar MathJax:', err);
+            });
+        }
+    }
+});
+            </script>
     </div>
 {% endblock %}
