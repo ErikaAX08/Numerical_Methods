@@ -1,20 +1,19 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% translate 'Trazadores Cúbicos' %} - {% translate 'Trazadores Cúbicos' %}{% endblock %}
+{% block title %}{% translate 'Trazadores Cúbicos' %} - {% translate 'Métodos Numéricos' %}{% endblock %}
 {% block content %}
     {% load static %}
 
     <div class="container-sm p-5">
-        <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
+        <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-lg-3">
             <div class="col-lg-12">
-                <h2 class="display-4 fw-bold lh-1s">{% translate 'Método de Trazadores Cúbicos' %}</h2>
+                <h2 class="display-4 fw-bold lh-1s">{% translate 'Trazadores Cúbicos' %}</h2>
                 <p class="lead py-5">
-                    {% translate 'En análisis numérico, un trazador cúbico (o spline cúbico) es una curva diferenciable definida en porciones mediante polinomios de grado 3. Este método de interpolación genera curvas suaves que pasan exactamente por los puntos dados, manteniendo continuidad hasta en la segunda derivada, lo que resulta en transiciones más naturales que otros métodos de interpolación polinomial.' %}
+                    {% translate 'Los trazadores cúbicos son una técnica de interpolación que utiliza polinomios de grado 3 en cada intervalo, asegurando la continuidad de la función, su primera y segunda derivada para obtener una curva suave que pase por todos los puntos.' %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
-                            onclick="showCalculator()">{% translate 'Graphing Calculator' %}
-                    </button>
+                            onclick="showCalculator()">{% translate 'Graphing Calculator' %}</button>
                     <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">
                         {% translate 'Explanation' %}
                     </button>
@@ -24,767 +23,420 @@
 
         <div class="py-3"></div>
 
-        <!-- Hidden calculator section -->
+        <!-- Sección oculta de la calculadora -->
         <div id="calculator" style="display: none;" class="mt-5">
             <h3 class="mb-5">{% translate 'Calculadora de Trazadores Cúbicos' %}</h3>
-            <form class="mb-5 p-4 bg-light rounded-3 shadow" id="calculatorForm">
+            <div class="mb-5 p-4 bg-light rounded-3 shadow">
 
-                <!-- Valores de x -->
-                <div class="mb-3">
-                    <div class="col-md-12 col-sm-6 mb-3">
-                        <label for="input_x" class="form-label">{% translate 'Valores de x' %}:</label>
-                        <input type="text" class="form-control" id="input_x">
+                <h5>{% translate 'Add point' %}</h5>
+                <form class="mb-4" id="addPointForm">
+                    <div class="row">
+                        <div class="col-sm-5 mb-3">
+                            <label for="xValue" class="form-label">{% translate 'x value' %}:</label>
+                            <input type="number" class="form-control" id="xValue" step="any" required>
+                        </div>
+                        <div class="col-sm-5 mb-3">
+                            <label for="fxValue" class="form-label">{% translate 'f(x) values' %}:</label>
+                            <input type="number" class="form-control" id="fxValue" step="any" required>
+                        </div>
+
+                        <div class="col-sm-2 mb-3 d-flex justify-content-center">
+                            <button type="submit" class="btn btn-lg btn-primary mt-2" id="addPointButton">
+                                <span>{% translate 'Add point' %}</span>
+                            </button>
+                        </div>
                     </div>
-                </div>
+                </form>
 
-                <!-- Valores de f(x) -->
-                <div class="row">
-                    <div class="col-sm-6 mb-3">
-                        <label for="input_y" class="form-label">{% translate 'Valores de f(x)' %}:</label>
-                        <input type="text" class="form-control" id="input_y" step="any">
+                <h5>{% translate 'Points table' %}</h5>
+                <table id="pointsTable" class="mb-2 table table-bordered rounded-5 table-striped">
+                    <thead>
+                    <tr>
+                        <th style="width:40%;">x</th>
+                        <th style="width:40%;">f(x)</th>
+                        <th style="width:20%;">{% translate 'Options' %}</th>
+                    </tr>
+                    </thead>
+                    <tbody id="bodyTablePoints">
+                    </tbody>
+                </table>
+
+                <div id="pointsMessageContainer" class="mb-5"></div>
+
+                <!-- Formulario para cálculo (sin el campo "degree") -->
+                <form id="calculateForm" class="mb-3">
+                    <div class="row">
+                        <div class="col-sm-6 mb-3">
+                            <label for="valueToInterpolate"
+                                   class="form-label">{% translate 'Value of x to interpolate' %}:</label>
+                            <input type="number" class="form-control" id="valueToInterpolate" step="any" required>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label for="boundary" class="form-label">{% translate 'Boundary Condition' %}:</label>
+                            <select class="form-control" id="boundary">
+                                <option value="natural">{% translate "Natural (second derivative = 0)" %}</option>
+                                <option value="clamped">{% translate "Clamped (specific first derivative)" %}</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-
-                <!-- Botón para agregar puntos -->
-                <button type="button" class="btn btn-secondary mt-2" id="agregar_punto_btn">
-                    {% translate 'Agregar punto' %}
-                </button>
-
-                <!-- Lista de puntos ingresados -->
-                <div class="mb-3">
-                    <label class="form-label">{% translate 'Puntos ingresados' %}:</label>
-                    <ul id="puntos_list" class="list-group"></ul>
-                </div>
-
-                <!-- Condición de frontera -->
-                <div class="row">
-                    <div class="col-sm-6 mb-3">
-                        <label for="condicion_frontera" class="form-label">{% translate 'Condición de frontera' %}:</label>
-                        <select class="form-control" id="condicion_frontera">
-                            <option value="natural">{% translate 'Natural (segunda derivada = 0)' %}</option>
-                            <option value="sujeto">{% translate 'Sujeto (primera derivada específica)' %}</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Derivadas en los extremos (solo se muestra si se selecciona "sujeto") -->
-                    <div class="col-sm-6 mb-3" id="derivadas_container" style="display: none;">
+                    <!-- Campos extra para la condición Clamped -->
+                    <div id="clampedFields" style="display: none;">
                         <div class="row">
-                            <div class="col-sm-6">
-                                <label for="derivada_inicial" class="form-label">{% translate 'f\'(x₀)' %}:</label>
-                                <input type="number" class="form-control" id="derivada_inicial" step="any" value="0">
+                            <div class="col-sm-6 mb-3">
+                                <label for="derivStart" class="form-label">{% translate "f'(x₀)" %}:</label>
+                                <input type="number" class="form-control" id="derivStart" step="any" value="0">
                             </div>
-                            <div class="col-sm-6">
-                                <label for="derivada_final" class="form-label">{% translate 'f\'(xₙ)' %}:</label>
-                                <input type="number" class="form-control" id="derivada_final" step="any" value="0">
+                            <div class="col-sm-6 mb-3">
+                                <label for="derivEnd" class="form-label">{% translate "f'(xₙ)" %}:</label>
+                                <input type="number" class="form-control" id="derivEnd" step="any" value="0">
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Valor de x a interpolar -->
-                <div class="row">
-                    <div class="col-sm-6 mb-3">
-                        <label for="x_interpolar" class="form-label">{% translate 'Valor de x a interpolar' %}:</label>
-                        <input type="number" class="form-control" id="x_interpolar" step="any" required>
-                    </div>
-                </div>
-
-                <!-- Botón para calcular la interpolación -->
-                <button type="submit" class="btn btn-lg btn-primary mt-2" id="calculateButton">
-                    <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;" id="loadingSpinner"></span>
-                    <span id="buttonText">{% translate 'Calcular interpolación' %}</span>
-                </button>
-            </form>
-
-            <!-- Resultados -->
-            <div id="messageContainer"></div>
-
-            <!-- Tabla de resultados -->
-            <div id="results-container" style="display: none;">
-                <h4>{% translate 'Resultados' %}</h4>
-                
-                <!-- Tabla de coeficientes -->
-                <div class="mb-4">
-                    <h5>{% translate 'Coeficientes de los trazadores' %}</h5>
-                    <table id="coefficientsTable" class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>{% translate 'Intervalo' %}</th>
-                                <th>a</th>
-                                <th>b</th>
-                                <th>c</th>
-                                <th>d</th>
-                                <th>{% translate 'Ecuación' %}</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-                
-                <!-- Valor interpolado -->
-                <div id="interpolatedValue" class="alert alert-success">
-                    <!-- Aquí se mostrará el valor interpolado -->
-                </div>
+                    <button type="submit" class="btn btn-lg btn-primary mt-2" id="calculateButton">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;"
+                              id="loadingSpinner"></span>
+                        <span id="buttonText">{% translate 'Calculate' %}</span>
+                    </button>
+                </form>
             </div>
-            
-            <!-- Sección para fórmulas utilizadas -->
-            <div id="formula-container" style="display: none;" class="mt-4 p-4 bg-light rounded-3">
-                <h4>{% translate 'Fórmula utilizada' %}</h4>
-                <div class="formula">
-                    <p>{% translate 'Forma de los trazadores cúbicos:' %}</p>
-                    <div class="p-3 bg-white rounded">
-                        \[
-                        S_i(x) = a_i + b_i(x - x_i) + c_i(x - x_i)^2 + d_i(x - x_i)^3
-                        \]
-                    </div>
-                    <p class="mt-3">{% translate 'Donde:' %}</p>
-                    <ul>
-                        <li>{% translate '\( S_i(x) \) es el trazador cúbico en el intervalo \( [x_i, x_{i+1}] \)' %}</li>
-                        <li>{% translate '\( a_i, b_i, c_i, d_i \) son los coeficientes del polinomio' %}</li>
-                    </ul>
-                </div>
-                <div id="formula-steps" class="mt-3">
-                    <!-- Aquí se mostrarán detalles adicionales -->
-                </div>
+
+            <!-- Contenedor para los resultados -->
+            <div id="responseContainer" class="mt-5" style="display: none;">
+                <div id="resultContainer" class="mt-5"></div>
+                <div id="coefficientsContainer" class="mt-5"></div>
+                <div id="stepsContainer" class="p-4 mt-3 bg-light rounded-3 shadow"></div>
             </div>
         </div>
-        
-        <!-- Hidden extensive explanation section -->
-        <div id="explanation" class="mt-4 rounded-3">
-            <h3 class="pb-3">{% translate "Explicación Método de Trazadores Cúbicos" %}</h3>
+
+        <!-- Sección de explicación -->
+        <div id="explanation" class="mt-4 rounded-3 lead">
+            <h3 class="pb-3">{% translate "Explanation of Cubic Spline Interpolation" %}</h3>
             <p class="lead">
                 {% translate "<strong>1. Concepto básico:</strong><br><br>" %}
                 {% translate "El método de trazadores cúbicos (spline cúbico) consiste en construir un polinomio cúbico para cada intervalo entre puntos dados, de manera que la curva resultante sea continua y suave. Para un conjunto de puntos \( (x_0, y_0), (x_1, y_1), ..., (x_n, y_n) \), se crean \( n \) polinomios, uno para cada intervalo \( [x_i, x_{i+1}] \).<br><br>" %}
-        
+
                 {% translate "<strong>2. Forma del trazador cúbico:</strong><br><br>" %}
                 {% translate "Cada trazador cúbico \( S_i(x) \) en el intervalo \( [x_i, x_{i+1}] \) tiene la forma:<br>" %}
                 \[
                 S_i(x) = a_i + b_i(x - x_i) + c_i(x - x_i)^2 + d_i(x - x_i)^3
                 \]
                 {% translate "donde \( a_i, b_i, c_i, d_i \) son coeficientes a determinar.<br><br>" %}
-        
+
                 {% translate "<strong>3. Condiciones que deben cumplir los trazadores:</strong><br><br>" %}
                 {% translate "Para obtener una interpolación suave y continua, los trazadores deben cumplir estas condiciones:<br>" %}
-                
+
                 {% translate "<ul>" %}
                 {% translate "<li>Cada trazador debe pasar por los puntos que delimitan su intervalo:<br>" %}
                 \[
                 S_i(x_i) = y_i \quad \text{y} \quad S_i(x_{i+1}) = y_{i+1}
                 \]
                 {% translate "</li>" %}
-                
+
                 {% translate "<li>La primera derivada debe ser continua en los nodos internos:<br>" %}
                 \[
                 S_i'(x_{i+1}) = S_{i+1}'(x_{i+1})
                 \]
                 {% translate "</li>" %}
-                
+
                 {% translate "<li>La segunda derivada debe ser continua en los nodos internos:<br>" %}
                 \[
                 S_i''(x_{i+1}) = S_{i+1}''(x_{i+1})
                 \]
                 {% translate "</li>" %}
                 {% translate "</ul>" %}
-                
+
                 {% translate "<strong>4. Condiciones de frontera:</strong><br><br>" %}
                 {% translate "Para completar el sistema de ecuaciones, se necesitan condiciones adicionales en los extremos. Las más comunes son:<br>" %}
-                
+
                 {% translate "<ul>" %}
                 {% translate "<li>Spline natural: La segunda derivada es cero en los extremos:<br>" %}
                 \[
                 S_0''(x_0) = 0 \quad \text{y} \quad S_{n-1}''(x_n) = 0
                 \]
                 {% translate "</li>" %}
-                
+
                 {% translate "<li>Spline sujeto: Se especifican valores para la primera derivada en los extremos:<br>" %}
                 \[
                 S_0'(x_0) = f'_0 \quad \text{y} \quad S_{n-1}'(x_n) = f'_n
                 \]
                 {% translate "</li>" %}
                 {% translate "</ul>" %}
-                
+
                 {% translate "<strong>5. Resolución del sistema:</strong><br><br>" %}
                 {% translate "Al aplicar todas estas condiciones, se obtiene un sistema de ecuaciones lineales que permite calcular los coeficientes \( a_i, b_i, c_i, d_i \) para cada trazador. El resultado es una función continua con primera y segunda derivadas continuas, lo que proporciona una interpolación visualmente suave entre los puntos dados." %}
             </p>
         </div>
 
-        <script>
-         function showCalculator() {
-    document.getElementById('explanation').style.display = 'none';
-    document.getElementById('calculator').style.display = 'block';
-}
+    </div>
 
-function showExplanation() {
-    document.getElementById('calculator').style.display = 'none';
-    document.getElementById('explanation').style.display = 'block';
-}
+    <script>
+        // Array to store points; each point is an object { x, fx, selected }
+        const points = [];
 
-function setLoadingState(isLoading) {
-    const button = document.getElementById("calculateButton");
-    const spinner = document.getElementById("loadingSpinner");
-    const buttonText = document.getElementById("buttonText");
+        function showCalculator() {
+            document.getElementById('explanation').style.display = 'none';
+            document.getElementById('calculator').style.display = 'block';
+        }
 
-    button.disabled = isLoading;
-    spinner.style.display = isLoading ? "inline-block" : "none";
-    buttonText.textContent = isLoading ? "{% translate 'Calculando...' %}" : "{% translate 'Calcular trazador' %}";
-}
+        function showExplanation() {
+            document.getElementById('calculator').style.display = 'none';
+            document.getElementById('explanation').style.display = 'block';
+        }
 
-let puntos = [];
-
-document.addEventListener('DOMContentLoaded', function() {
-    // Referencias a elementos del DOM
-    const agregarPuntoBtn = document.getElementById('agregar_punto_btn');
-    const puntosList = document.getElementById('puntos_list');
-    const form = document.getElementById('calculatorForm');
-    
-    // Verificar si los elementos esenciales existen
-    if (!agregarPuntoBtn || !puntosList || !form) {
-        console.error('No se encontraron elementos esenciales del DOM');
-        return;
-    }
-    
-    // Inicializar eventos
-    inicializarEventos();
-    
-    // Crear tabla de resultados si no existe
-    crearTablaResultadosSiNoExiste();
-    
-    function inicializarEventos() {
-        // Evento para agregar un punto
-        agregarPuntoBtn.addEventListener('click', function() {
-            agregarPunto();
+        // Mostrar u ocultar campos extra según condición de frontera
+        document.getElementById('boundary').addEventListener('change', function () {
+            document.getElementById('clampedFields').style.display = this.value === 'clamped' ? 'block' : 'none';
         });
-        
-        // Evento para el formulario de cálculo
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            calcularTrazadorCubico();
+
+        // Agregar punto
+        document.getElementById("addPointForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            addPoint();
         });
-        
-        // Permitir agregar punto con Enter en los campos
-        const inputX = document.getElementById('input_x');
-        const inputY = document.getElementById('input_y');
-        
-        if (inputX) {
-            inputX.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    if (inputY) inputY.focus();
-                }
+
+        // Calcular interpolación
+        document.getElementById("calculateForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            calculate();
+        });
+
+        function setLoadingState(isLoading) {
+            const button = document.getElementById("calculateButton");
+            const spinner = document.getElementById("loadingSpinner");
+            const buttonText = document.getElementById("buttonText");
+
+            button.disabled = isLoading;
+            spinner.style.display = isLoading ? "inline-block" : "none";
+            buttonText.textContent = isLoading ? "{% translate 'Calculating...' %}" : "{% translate 'Calculate' %}";
+        }
+
+        function addPoint() {
+            const x = document.getElementById("xValue").value;
+            const fx = document.getElementById("fxValue").value;
+            const messageContainer = document.getElementById("pointsMessageContainer");
+
+            // Verificar que no exista ya un punto con ese valor de x
+            if (points.some(item => item.x === x)) {
+                messageContainer.innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        {% translate 'The value of x has already been added' %}
+                    </div>
+                `;
+                return;
+            }
+
+            points.push({x, fx, selected: true});
+            renderPoints();
+            document.getElementById("xValue").value = "";
+            document.getElementById("fxValue").value = "";
+            document.getElementById("xValue").focus();
+            messageContainer.innerHTML = `
+                    <div class="alert alert-success" role="alert">
+                        {% translate 'Point added successfully.' %}
+                    </div>
+                `;
+            updateCalculateButtonState();
+        }
+
+        function renderPoints() {
+            const tbody = document.getElementById("bodyTablePoints");
+            tbody.innerHTML = "";
+            // Ordenar puntos por x
+            points.sort((a, b) => a.x - b.x);
+            points.forEach((p, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${p.x}</td>
+                    <td>${p.fx}</td>
+                    <td style="display: flex; align-items: center;">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="deletePoint(${index})">
+                            {% translate 'Delete' %}
+                        </button>
+                        <div class="form-check ms-2">
+                            <input type="checkbox" class="form-check-input select-point" id="point-${index}" data-index="${index}" ${p.selected ? 'checked' : ''}>
+                            <label class="form-check-label" for="point-${index}">{% translate 'Selected' %}</label>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            // Asignar evento a cada checkbox para actualizar la propiedad "selected"
+            document.querySelectorAll('.select-point').forEach(checkbox => {
+                checkbox.addEventListener('change', function () {
+                    const idx = parseInt(this.getAttribute('data-index'));
+                    points[idx].selected = this.checked;
+                    updateCalculateButtonState();
+                });
             });
         }
-        
-        if (inputY) {
-            inputY.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    agregarPunto();
-                }
+
+        function deletePoint(index) {
+            points.splice(index, 1);
+            const tbody = document.getElementById("bodyTablePoints");
+            tbody.innerHTML = "";
+            points.forEach((p, i) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${p.x}</td>
+                    <td>${p.fx}</td>
+                    <td style="display: flex; align-items: center;">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="deletePoint(${i})">
+                            {% translate 'Delete' %}
+                        </button>
+                        <div class="form-check ms-2">
+                            <input type="checkbox" class="form-check-input select-point" id="point-${i}" data-index="${i}" ${p.selected ? 'checked' : ''}>
+                            <label class="form-check-label" for="point-${i}">{% translate 'Selected' %}</label>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
             });
+            updateCalculateButtonState();
         }
-    }
-    
-    function crearTablaResultadosSiNoExiste() {
-        // Verificar si el contenedor de resultados existe
-        let resultsContainer = document.getElementById('results-container');
-        
-        // Si no existe, crearlo
-        if (!resultsContainer) {
-            resultsContainer = document.createElement('div');
-            resultsContainer.id = 'results-container';
-            resultsContainer.style.display = 'none';
-            resultsContainer.className = 'mt-4';
-            
-            const resultsTitle = document.createElement('h4');
-            resultsTitle.textContent = 'Resultados del Trazador Cúbico';
-            resultsContainer.appendChild(resultsTitle);
-            
-            // Crear la tabla
-            const tableContainer = document.createElement('div');
-            tableContainer.className = 'table-responsive';
-            
-            const table = document.createElement('table');
-            table.id = 'resultsTable';
-            table.className = 'table table-bordered table-sm';
-            
-            const thead = document.createElement('thead');
-            thead.className = 'table-light';
-            table.appendChild(thead);
-            
-            const tbody = document.createElement('tbody');
-            table.appendChild(tbody);
-            
-            tableContainer.appendChild(table);
-            resultsContainer.appendChild(tableContainer);
-            
-            // Crear contenedor para fórmulas
-            const formulaContainer = document.createElement('div');
-            formulaContainer.id = 'formula-container';
-            formulaContainer.style.display = 'none';
-            formulaContainer.className = 'mt-4';
-            
-            const formulaTitle = document.createElement('h4');
-            formulaTitle.textContent = 'Ecuaciones del Trazador Cúbico';
-            formulaContainer.appendChild(formulaTitle);
-            
-            const formulaSteps = document.createElement('div');
-            formulaSteps.id = 'formula-steps';
-            formulaContainer.appendChild(formulaSteps);
-            
-            // Agregar al contenedor del formulario
-            form.parentNode.appendChild(resultsContainer);
-            form.parentNode.appendChild(formulaContainer);
-        }
-    }
-    
-    function agregarPunto() {
-        const inputX = document.getElementById('input_x');
-        const inputY = document.getElementById('input_y');
-        
-        if (!inputX || !inputY) {
-            mostrarMensaje('danger', 'Error: No se encontraron los campos de entrada.');
-            return;
-        }
-        
-        const xValue = inputX.value.trim();
-        const yValue = inputY.value.trim();
-        
-        if (xValue && yValue) {
-            const x = parseFloat(xValue);
-            const y = parseFloat(yValue);
-            
-            // Verificar si es un número válido
-            if (!isNaN(x) && !isNaN(y)) {
-                // Verificar si el punto ya existe
-                const existingPoint = puntos.find(p => p.x === x);
-                if (existingPoint) {
-                    mostrarMensaje('warning', 'Ya existe un punto con ese valor de x.');
-                    return;
-                }
-                
-                // Agregar punto al arreglo
-                puntos.push({ x, y, selected: true }); // Por defecto, seleccionado
-                puntos.sort((a, b) => a.x - b.x); // Ordenar por x ascendente
-                
-                // Actualizar lista de puntos
-                actualizarListaPuntos();
-                
-                // Limpiar inputs
-                inputX.value = '';
-                inputY.value = '';
-                inputX.focus();
+
+        function updateCalculateButtonState() {
+            const selectedPoints = points.filter(point => point.selected);
+            const calculateButton = document.getElementById("calculateButton");
+            const messageContainer = document.getElementById("pointsMessageContainer");
+
+            if (selectedPoints.length < 3) {
+                calculateButton.disabled = true;
+                messageContainer.innerHTML = `
+                    <div class="alert alert-warning" role="alert">
+                        {% translate 'At least 3 selected points are required for cubic spline interpolation.' %}
+                        {% translate 'Currently selected' %}: ${selectedPoints.length}
+                    </div>
+                `;
             } else {
-                mostrarMensaje('warning', 'Por favor, ingrese valores numéricos válidos.');
+                calculateButton.disabled = false;
+                messageContainer.innerHTML = `
+                    <div class="alert alert-success" role="alert">
+                        {% translate 'Ready to calculate with' %} ${selectedPoints.length} {% translate 'selected points.' %}
+                    </div>
+                `;
             }
-        } else {
-            mostrarMensaje('warning', 'Por favor, complete todos los campos.');
         }
-    }
-    
-    function actualizarListaPuntos() {
-        puntosList.innerHTML = '';
-        
-        if (puntos.length === 0) {
-            const li = document.createElement('li');
-            li.className = 'list-group-item text-center text-muted';
-            li.textContent = 'No hay puntos ingresados';
-            puntosList.appendChild(li);
-            return;
-        }
-        
-        puntos.forEach((punto, index) => {
-            const li = document.createElement('li');
-            li.className = 'list-group-item d-flex justify-content-between align-items-center';
-            
-            // Checkbox para seleccionar/deseleccionar el punto
-            const checkboxDiv = document.createElement('div');
-            checkboxDiv.className = 'form-check';
-            
-            const checkbox = document.createElement('input');
-            checkbox.className = 'form-check-input';
-            checkbox.type = 'checkbox';
-            checkbox.id = `punto-${index}`;
-            checkbox.checked = punto.selected;
-            checkbox.setAttribute('data-index', index);
-            checkbox.addEventListener('change', function() {
-                const idx = parseInt(this.getAttribute('data-index'));
-                puntos[idx].selected = this.checked;
+
+        function calculate() {
+            const messageContainer = document.getElementById("pointsMessageContainer");
+            const selectedPoints = points.filter(point => point.selected);
+
+            if (selectedPoints.length < 3) {
+                messageContainer.innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        {% translate 'At least 3 selected points are required for cubic spline interpolation.' %}
+                    </div>
+                `;
+                return;
+            }
+
+            messageContainer.innerHTML = "";
+            setLoadingState(true);
+
+            const pointsData = selectedPoints.map(point => ({x: point.x, fx: point.fx}));
+            const valueToInterpolate = document.getElementById("valueToInterpolate").value;
+            const boundary = document.getElementById("boundary").value;
+            const derivStart = document.getElementById("derivStart").value;
+            const derivEnd = document.getElementById("derivEnd").value;
+            const params = new URLSearchParams({
+                points: JSON.stringify(pointsData),
+                x_interp: valueToInterpolate,
+                boundary: boundary,
+                deriv_start: derivStart,
+                deriv_end: derivEnd
             });
-            
-            const label = document.createElement('label');
-            label.className = 'form-check-label';
-            label.htmlFor = `punto-${index}`;
-            label.textContent = `Punto ${index+1}: (${punto.x.toFixed(4)}, ${punto.y.toFixed(4)})`;
-            
-            checkboxDiv.appendChild(checkbox);
-            checkboxDiv.appendChild(label);
-            
-            // Botón para eliminar
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'btn btn-danger btn-sm';
-            deleteBtn.textContent = 'Eliminar';
-            deleteBtn.setAttribute('data-index', index);
-            deleteBtn.addEventListener('click', function() {
-                const idx = parseInt(this.getAttribute('data-index'));
-                puntos.splice(idx, 1);
-                actualizarListaPuntos();
-            });
-            
-            li.appendChild(checkboxDiv);
-            li.appendChild(deleteBtn);
-            puntosList.appendChild(li);
-        });
-    }
-    
-    function mostrarMensaje(tipo, mensaje) {
-        let messageContainer = document.getElementById('messageContainer');
-        
-        // Si no existe, crearlo
-        if (!messageContainer) {
-            messageContainer = document.createElement('div');
-            messageContainer.id = 'messageContainer';
-            form.parentNode.insertBefore(messageContainer, form);
+            fetch(`/calculate-cubic-spline/?${params.toString()}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        messageContainer.innerHTML = `
+                            <div class="alert alert-danger" role="alert">
+                                ${data.error}
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    console.log(data)
+                    displayResults(data.result);
+                    showProcessSteps(data.result.process_steps);
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    messageContainer.innerHTML = `
+                        <div class="alert alert-danger" role="alert">
+                            {% translate 'An error occurred during calculation' %}: ${error}
+                        </div>
+                    `;
+                })
+                .finally(() => {
+                    setLoadingState(false);
+                });
         }
-        
-        messageContainer.innerHTML = `
-            <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
-                ${mensaje}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        `;
-    }
-    
-    function calcularTrazadorCubico() {
-        // Verificar que haya puntos seleccionados
-        const puntosSeleccionados = puntos.filter(p => p.selected);
-        
-        if (puntosSeleccionados.length < 3) {
-            mostrarMensaje('warning', 'Se necesitan al menos 3 puntos seleccionados para crear un trazador cúbico.');
-            return;
-        }
-        
-        // Obtener valor a interpolar
-        const xInterpolarInput = document.getElementById('x_interpolar');
-        
-        if (!xInterpolarInput) {
-            mostrarMensaje('danger', 'No se encontró el campo para el valor a interpolar.');
-            return;
-        }
-        
-        const xInterpolar = parseFloat(xInterpolarInput.value);
-        
-        if (isNaN(xInterpolar)) {
-            mostrarMensaje('warning', 'Ingrese un valor válido para x a interpolar.');
-            return;
-        }
-        
-        // Verificar si el valor a interpolar está dentro del rango de los puntos
-        const xMin = Math.min(...puntosSeleccionados.map(p => p.x));
-        const xMax = Math.max(...puntosSeleccionados.map(p => p.x));
-        
-        if (xInterpolar < xMin || xInterpolar > xMax) {
-            mostrarMensaje('warning', `El valor a interpolar debe estar dentro del rango [${xMin.toFixed(4)}, ${xMax.toFixed(4)}].`);
-            return;
-        }
-        
-        // Mostrar estado de carga
-        setLoadingState(true);
-        
-        // Realizar el cálculo con retraso para mostrar spinner
-        setTimeout(() => {
-            try {
-                const resultado = calcularSplineCubico(puntosSeleccionados, xInterpolar);
-                mostrarResultados(resultado);
-                mostrarMensaje('success', `Valor interpolado: S(${xInterpolar.toFixed(4)}) ≈ ${resultado.valorInterpolado.toFixed(6)}`);
-                
-                // Mostrar la sección de fórmulas
-                const formulaContainer = document.getElementById('formula-container');
-                if (formulaContainer) {
-                    formulaContainer.style.display = 'block';
-                }
-                
-                // Mostrar ecuaciones del trazador
-                mostrarEcuacionesTrazador(resultado, xInterpolar);
-            } catch (error) {
-                mostrarMensaje('danger', 'Error en el cálculo: ' + error.message);
-                console.error('Error detallado:', error);
-            } finally {
-                setLoadingState(false);
-            }
-        }, 500);
-    }
-    
-    function calcularSplineCubico(puntos, xInterpolar) {
-        // Asegurar que los puntos estén ordenados por x
-        puntos.sort((a, b) => a.x - b.x);
-        
-        const n = puntos.length;
-        
-        // Paso 1: Calcular las diferencias h_i = x_{i+1} - x_i
-        const h = [];
-        for (let i = 0; i < n - 1; i++) {
-            h.push(puntos[i + 1].x - puntos[i].x);
-        }
-        
-        // Paso 2: Construir sistema de ecuaciones para encontrar las segundas derivadas
-        // Crear matriz tridiagonal A y vector b
-        const A = Array(n).fill().map(() => Array(n).fill(0));
-        const b = Array(n).fill(0);
-        
-        // Primera y última ecuación (condiciones de contorno natural)
-        A[0][0] = 1;
-        A[n-1][n-1] = 1;
-        
-        // Ecuaciones intermedias
-        for (let i = 1; i < n - 1; i++) {
-            A[i][i-1] = h[i-1];                         // Coeficiente de M_{i-1}
-            A[i][i] = 2 * (h[i-1] + h[i]);              // Coeficiente de M_i
-            A[i][i+1] = h[i];                           // Coeficiente de M_{i+1}
-            
-            // Lado derecho de la ecuación
-            b[i] = 6 * (
-                (puntos[i+1].y - puntos[i].y) / h[i] - 
-                (puntos[i].y - puntos[i-1].y) / h[i-1]
-            );
-        }
-        
-        // Paso 3: Resolver el sistema para obtener M (segundas derivadas)
-        const M = resolverSistemaTridiagonal(A, b);
-        
-        // Paso 4: Calcular coeficientes de cada segmento del spline
-        const coeficientes = [];
-        for (let i = 0; i < n - 1; i++) {
-            const a = puntos[i].y;
-            const b = (puntos[i+1].y - puntos[i].y) / h[i] - h[i] * (2 * M[i] + M[i+1]) / 6;
-            const c = M[i] / 2;
-            const d = (M[i+1] - M[i]) / (6 * h[i]);
-            
-            coeficientes.push({ a, b, c, d });
-        }
-        
-        // Paso 5: Encontrar el segmento donde cae xInterpolar
-        let segmento = 0;
-        while (segmento < n - 1 && xInterpolar > puntos[segmento + 1].x) {
-            segmento++;
-        }
-        
-        // Paso 6: Calcular el valor interpolado
-        const coef = coeficientes[segmento];
-        const dx = xInterpolar - puntos[segmento].x;
-        const valorInterpolado = coef.a + coef.b * dx + coef.c * dx * dx + coef.d * dx * dx * dx;
-        
-        return {
-            puntos,
-            h,
-            M,
-            coeficientes,
-            segmento,
-            valorInterpolado
-        };
-    }
-    
-    function resolverSistemaTridiagonal(A, b) {
-        const n = A.length;
-        
-        // Crear arreglos para la solución
-        const d = [...b];  // Copiar b para no modificarlo
-        const c = Array(n).fill(0);
-        const m = Array(n).fill(0);
-        
-        // Eliminación hacia adelante
-        c[0] = A[0][1] / A[0][0];
-        d[0] = b[0] / A[0][0];
-        
-        for (let i = 1; i < n - 1; i++) {
-            m[i] = A[i][i] - A[i][i-1] * c[i-1];
-            c[i] = A[i][i+1] / m[i];
-            d[i] = (b[i] - A[i][i-1] * d[i-1]) / m[i];
-        }
-        
-        m[n-1] = A[n-1][n-1] - A[n-1][n-2] * c[n-2];
-        d[n-1] = (b[n-1] - A[n-1][n-2] * d[n-2]) / m[n-1];
-        
-        // Sustitución hacia atrás
-        const x = Array(n).fill(0);
-        x[n-1] = d[n-1];
-        
-        for (let i = n - 2; i >= 0; i--) {
-            x[i] = d[i] - c[i] * x[i+1];
-        }
-        
-        return x;
-    }
-    
-    function mostrarResultados(resultado) {
-        // Buscar o crear el contenedor de resultados
-        let resultsContainer = document.getElementById('results-container');
-        if (!resultsContainer) {
-            crearTablaResultadosSiNoExiste();
-            resultsContainer = document.getElementById('results-container');
-        }
-        
-        let resultsTable = document.getElementById('resultsTable');
-        if (!resultsTable) {
-            console.error('No se encontró la tabla de resultados');
-            return;
-        }
-        
-        let thead = resultsTable.getElementsByTagName('thead')[0];
-        let tbody = resultsTable.getElementsByTagName('tbody')[0];
-        
-        // Si no existen el encabezado o el cuerpo de la tabla, crearlos
-        if (!thead) {
-            thead = document.createElement('thead');
-            thead.className = 'table-light';
-            resultsTable.appendChild(thead);
-        }
-        
-        if (!tbody) {
-            tbody = document.createElement('tbody');
-            resultsTable.appendChild(tbody);
-        }
-        
-        // Limpiar tablas anteriores
-        thead.innerHTML = '';
-        tbody.innerHTML = '';
-        
-        // Crear encabezado dinámico para la tabla
-        const headerRow = document.createElement('tr');
-        headerRow.innerHTML = `
-            <th>i</th>
-            <th>x_i</th>
-            <th>f(x_i)</th>
-            <th>h_i</th>
-            <th>M_i</th>
-            <th>a_i</th>
-            <th>b_i</th>
-            <th>c_i</th>
-            <th>d_i</th>
-        `;
-        
-        thead.appendChild(headerRow);
-        
-        // Mostrar los coeficientes del trazador
-        for (let i = 0; i < resultado.puntos.length; i++) {
-            const tr = document.createElement('tr');
-            
-            // Índice
-            tr.innerHTML = `<td>${i}</td>`;
-            
-            // x_i y f(x_i)
-            tr.innerHTML += `<td>${resultado.puntos[i].x.toFixed(4)}</td>`;
-            tr.innerHTML += `<td>${resultado.puntos[i].y.toFixed(4)}</td>`;
-            
-            // h_i
-            if (i < resultado.h.length) {
-                tr.innerHTML += `<td>${resultado.h[i].toFixed(4)}</td>`;
-            } else {
-                tr.innerHTML += `<td>-</td>`;
-            }
-            
-            // M_i
-            tr.innerHTML += `<td>${resultado.M[i].toFixed(4)}</td>`;
-            
-            // Coeficientes a_i, b_i, c_i, d_i
-            if (i < resultado.coeficientes.length) {
-                const coef = resultado.coeficientes[i];
-                tr.innerHTML += `
+
+        function displayResults(result) {
+            document.getElementById("resultContainer").innerHTML = `
+                <div class="alert alert-success" role="alert">
+                    <h4>{% translate 'Interpolated Value' %}: ${result.value_interp.toFixed(6)}</h4>
+                </div>
+            `;
+            let coefHtml = `<h5>{% translate 'Coefficients of the segments' %}:</h5>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>{% translate 'Interval' %}</th>
+                            <th>a</th>
+                            <th>b</th>
+                            <th>c</th>
+                            <th>d</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+            result.coefficients.forEach((coef, i) => {
+                coefHtml += `<tr ${i === result.segment ? 'class="table-primary"' : ''}>
+                    <td>[${coef.x_i}, ${coef.x_i1}]</td>
                     <td>${coef.a.toFixed(4)}</td>
                     <td>${coef.b.toFixed(4)}</td>
                     <td>${coef.c.toFixed(4)}</td>
                     <td>${coef.d.toFixed(4)}</td>
-                `;
-            } else {
-                tr.innerHTML += `<td>-</td><td>-</td><td>-</td><td>-</td>`;
-            }
-            
-            tbody.appendChild(tr);
-        }
-        
-        // Marcar el segmento utilizado para la interpolación
-        if (tbody.rows.length > resultado.segmento) {
-            tbody.rows[resultado.segmento].classList.add('table-primary');
-        }
-        
-        // Mostrar la tabla de resultados
-        resultsContainer.style.display = 'block';
-    }
-    
-    function mostrarEcuacionesTrazador(resultado, xInterpolar) {
-        let formulaSteps = document.getElementById('formula-steps');
-        
-        if (!formulaSteps) {
-            console.error('No se encontró el contenedor de pasos de fórmula');
-            return;
-        }
-        
-        formulaSteps.innerHTML = '<h5>Ecuaciones del trazador cúbico:</h5>';
-        
-        let html = '<div class="mb-3">';
-        
-        // Mostrar ecuaciones para cada segmento
-        for (let i = 0; i < resultado.coeficientes.length; i++) {
-            const coef = resultado.coeficientes[i];
-            const x_i = resultado.puntos[i].x;
-            const x_i1 = resultado.puntos[i+1].x;
-            
-            html += `
-            <div class="formula-step p-2 bg-white rounded mt-2 ${i === resultado.segmento ? 'border border-primary' : ''}">
-                <strong>S_${i}(x)</strong> para x ∈ [${x_i.toFixed(4)}, ${x_i1.toFixed(4)}]:<br>
-                S_${i}(x) = ${coef.a.toFixed(6)} + ${coef.b.toFixed(6)}(x - ${x_i.toFixed(4)})`;
-            
-            if (coef.c !== 0) {
-                html += ` + ${coef.c.toFixed(6)}(x - ${x_i.toFixed(4)})^2`;
-            }
-            
-            if (coef.d !== 0) {
-                html += ` + ${coef.d.toFixed(6)}(x - ${x_i.toFixed(4)})^3`;
-            }
-            
-            html += `
-                ${i === resultado.segmento ? '<div class="mt-2 text-primary"><strong>⟵ Segmento utilizado para la interpolación</strong></div>' : ''}
-            </div>`;
-        }
-        
-        html += '</div>';
-        
-        // Mostrar ecuación utilizada para calcular el valor interpolado
-        if (resultado.segmento >= 0 && resultado.segmento < resultado.coeficientes.length) {
-            const coef = resultado.coeficientes[resultado.segmento];
-            const x_i = resultado.puntos[resultado.segmento].x;
-            const dx = xInterpolar - x_i;
-            
-            html += `
-            <div class="alert alert-info mt-3">
-                <strong>Cálculo del valor interpolado:</strong><br>
-                S(${xInterpolar.toFixed(4)}) = ${coef.a.toFixed(6)} + ${coef.b.toFixed(6)} · ${dx.toFixed(4)}`;
-            
-            if (coef.c !== 0) {
-                const dx2 = dx * dx;
-                html += ` + ${coef.c.toFixed(6)} · ${dx.toFixed(4)}^2`;
-            }
-            
-            if (coef.d !== 0) {
-                const dx3 = dx * dx * dx;
-                html += ` + ${coef.d.toFixed(6)} · ${dx.toFixed(4)}^3`;
-            }
-            
-            html += ` = ${resultado.valorInterpolado.toFixed(6)}
-            </div>`;
-        }
-        
-        formulaSteps.innerHTML += html;
-        
-        // Cargar MathJax para renderizar las fórmulas si está disponible
-        if (window.MathJax) {
-            MathJax.typesetPromise().then(() => {
-                console.log('MathJax renderizado correctamente');
-            }).catch((err) => {
-                console.error('Error al renderizar MathJax:', err);
+                </tr>`;
             });
+            coefHtml += `</tbody></table>`;
+            document.getElementById("coefficientsContainer").innerHTML = coefHtml;
+            document.getElementById("responseContainer").style.display = "block";
         }
-    }
-});
-            </script>
-    </div>
+
+        function showProcessSteps(steps) {
+            const stepsContainer = document.getElementById("stepsContainer");
+            if (!stepsContainer) {
+                console.error("No se encontró el contenedor 'stepsContainer'.");
+                return;
+            }
+            // Limpiar contenido previo
+            stepsContainer.innerHTML = "";
+
+            steps.forEach((step, index) => {
+                const stepDiv = document.createElement("div");
+                stepDiv.classList.add("mb-4", "p-3", "border-bottom");
+
+                stepDiv.innerHTML = `
+            <h5>Paso ${index + 1}:</h5>
+            <div class="my-3">
+                ${step.step}
+            </div>
+            <div class="text-muted">
+                <em>${step.intermediate_result}</em>
+            </div>
+        `;
+                stepsContainer.appendChild(stepDiv);
+            });
+
+            // Re-renderizar MathJax para procesar las fórmulas
+            if (window.MathJax) {
+                MathJax.typesetPromise().catch(err => console.error("Error en MathJax:", err));
+            }
+        }
+
+    </script>
+
 {% endblock %}

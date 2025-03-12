@@ -7,7 +7,7 @@ from .views.secant_method_view import calculate_secant_method, secant_method
 from .views.newton_raphson_method_view import newton_raphson, calculate_newton_raphson
 from .views.divided_differences_views import divided_differences
 from .views.neville_method_views import neville_method
-from .views.cubic_spline_views import cubic_spline
+from .views.cubic_spline_views import cubic_spline, calculate_cubic_spline_view
 
 urlpatterns = [
     path("", index, name="index"),
@@ -24,4 +24,5 @@ urlpatterns = [
     path("divided-differences/", divided_differences, name="divided_differences"),
     path("neville-method/", neville_method, name="neville_method"),
     path("cubic-spline/", cubic_spline, name="cubic_spline"),
+    path("calculate-cubic-spline/", calculate_cubic_spline_view, name="calculate_cubic_spline"),
 ]
