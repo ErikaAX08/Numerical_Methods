@@ -1,0 +1,442 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% translate 'Trazadores Cúbicos' %} - {% translate 'Métodos Numéricos' %}{% endblock %}
+{% block content %}
+    {% load static %}
+
+    <div class="container-sm p-5">
+        <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-lg-3">
+            <div class="col-lg-12">
+                <h2 class="display-4 fw-bold lh-1s">{% translate 'Trazadores Cúbicos' %}</h2>
+                <p class="lead py-5">
+                    {% translate 'Los trazadores cúbicos son una técnica de interpolación que utiliza polinomios de grado 3 en cada intervalo, asegurando la continuidad de la función, su primera y segunda derivada para obtener una curva suave que pase por todos los puntos.' %}
+                </p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
+                    <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
+                            onclick="showCalculator()">{% translate 'Graphing Calculator' %}</button>
+                    <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">
+                        {% translate 'Explanation' %}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="py-3"></div>
+
+        <!-- Sección oculta de la calculadora -->
+        <div id="calculator" style="display: none;" class="mt-5">
+            <h3 class="mb-5">{% translate 'Calculadora de Trazadores Cúbicos' %}</h3>
+            <div class="mb-5 p-4 bg-light rounded-3 shadow">
+
+                <h5>{% translate 'Add point' %}</h5>
+                <form class="mb-4" id="addPointForm">
+                    <div class="row">
+                        <div class="col-sm-5 mb-3">
+                            <label for="xValue" class="form-label">{% translate 'x value' %}:</label>
+                            <input type="number" class="form-control" id="xValue" step="any" required>
+                        </div>
+                        <div class="col-sm-5 mb-3">
+                            <label for="fxValue" class="form-label">{% translate 'f(x) values' %}:</label>
+                            <input type="number" class="form-control" id="fxValue" step="any" required>
+                        </div>
+
+                        <div class="col-sm-2 mb-3 d-flex justify-content-center">
+                            <button type="submit" class="btn btn-lg btn-primary mt-2" id="addPointButton">
+                                <span>{% translate 'Add point' %}</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <h5>{% translate 'Points table' %}</h5>
+                <table id="pointsTable" class="mb-2 table table-bordered rounded-5 table-striped">
+                    <thead>
+                    <tr>
+                        <th style="width:40%;">x</th>
+                        <th style="width:40%;">f(x)</th>
+                        <th style="width:20%;">{% translate 'Options' %}</th>
+                    </tr>
+                    </thead>
+                    <tbody id="bodyTablePoints">
+                    </tbody>
+                </table>
+
+                <div id="pointsMessageContainer" class="mb-5"></div>
+
+                <!-- Formulario para cálculo (sin el campo "degree") -->
+                <form id="calculateForm" class="mb-3">
+                    <div class="row">
+                        <div class="col-sm-6 mb-3">
+                            <label for="valueToInterpolate"
+                                   class="form-label">{% translate 'Value of x to interpolate' %}:</label>
+                            <input type="number" class="form-control" id="valueToInterpolate" step="any" required>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label for="boundary" class="form-label">{% translate 'Boundary Condition' %}:</label>
+                            <select class="form-control" id="boundary">
+                                <option value="natural">{% translate "Natural (second derivative = 0)" %}</option>
+                                <option value="clamped">{% translate "Clamped (specific first derivative)" %}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Campos extra para la condición Clamped -->
+                    <div id="clampedFields" style="display: none;">
+                        <div class="row">
+                            <div class="col-sm-6 mb-3">
+                                <label for="derivStart" class="form-label">{% translate "f'(x₀)" %}:</label>
+                                <input type="number" class="form-control" id="derivStart" step="any" value="0">
+                            </div>
+                            <div class="col-sm-6 mb-3">
+                                <label for="derivEnd" class="form-label">{% translate "f'(xₙ)" %}:</label>
+                                <input type="number" class="form-control" id="derivEnd" step="any" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-lg btn-primary mt-2" id="calculateButton">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;"
+                              id="loadingSpinner"></span>
+                        <span id="buttonText">{% translate 'Calculate' %}</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Contenedor para los resultados -->
+            <div id="responseContainer" class="mt-5" style="display: none;">
+                <div id="resultContainer" class="mt-5"></div>
+                <div id="coefficientsContainer" class="mt-5"></div>
+                <div id="stepsContainer" class="p-4 mt-3 bg-light rounded-3 shadow"></div>
+            </div>
+        </div>
+
+        <!-- Sección de explicación -->
+        <div id="explanation" class="mt-4 rounded-3 lead">
+            <h3 class="pb-3">{% translate "Explanation of Cubic Spline Interpolation" %}</h3>
+            <p class="lead">
+                {% translate "<strong>1. Concepto básico:</strong><br><br>" %}
+                {% translate "El método de trazadores cúbicos (spline cúbico) consiste en construir un polinomio cúbico para cada intervalo entre puntos dados, de manera que la curva resultante sea continua y suave. Para un conjunto de puntos \( (x_0, y_0), (x_1, y_1), ..., (x_n, y_n) \), se crean \( n \) polinomios, uno para cada intervalo \( [x_i, x_{i+1}] \).<br><br>" %}
+
+                {% translate "<strong>2. Forma del trazador cúbico:</strong><br><br>" %}
+                {% translate "Cada trazador cúbico \( S_i(x) \) en el intervalo \( [x_i, x_{i+1}] \) tiene la forma:<br>" %}
+                \[
+                S_i(x) = a_i + b_i(x - x_i) + c_i(x - x_i)^2 + d_i(x - x_i)^3
+                \]
+                {% translate "donde \( a_i, b_i, c_i, d_i \) son coeficientes a determinar.<br><br>" %}
+
+                {% translate "<strong>3. Condiciones que deben cumplir los trazadores:</strong><br><br>" %}
+                {% translate "Para obtener una interpolación suave y continua, los trazadores deben cumplir estas condiciones:<br>" %}
+
+                {% translate "<ul>" %}
+                {% translate "<li>Cada trazador debe pasar por los puntos que delimitan su intervalo:<br>" %}
+                \[
+                S_i(x_i) = y_i \quad \text{y} \quad S_i(x_{i+1}) = y_{i+1}
+                \]
+                {% translate "</li>" %}
+
+                {% translate "<li>La primera derivada debe ser continua en los nodos internos:<br>" %}
+                \[
+                S_i'(x_{i+1}) = S_{i+1}'(x_{i+1})
+                \]
+                {% translate "</li>" %}
+
+                {% translate "<li>La segunda derivada debe ser continua en los nodos internos:<br>" %}
+                \[
+                S_i''(x_{i+1}) = S_{i+1}''(x_{i+1})
+                \]
+                {% translate "</li>" %}
+                {% translate "</ul>" %}
+
+                {% translate "<strong>4. Condiciones de frontera:</strong><br><br>" %}
+                {% translate "Para completar el sistema de ecuaciones, se necesitan condiciones adicionales en los extremos. Las más comunes son:<br>" %}
+
+                {% translate "<ul>" %}
+                {% translate "<li>Spline natural: La segunda derivada es cero en los extremos:<br>" %}
+                \[
+                S_0''(x_0) = 0 \quad \text{y} \quad S_{n-1}''(x_n) = 0
+                \]
+                {% translate "</li>" %}
+
+                {% translate "<li>Spline sujeto: Se especifican valores para la primera derivada en los extremos:<br>" %}
+                \[
+                S_0'(x_0) = f'_0 \quad \text{y} \quad S_{n-1}'(x_n) = f'_n
+                \]
+                {% translate "</li>" %}
+                {% translate "</ul>" %}
+
+                {% translate "<strong>5. Resolución del sistema:</strong><br><br>" %}
+                {% translate "Al aplicar todas estas condiciones, se obtiene un sistema de ecuaciones lineales que permite calcular los coeficientes \( a_i, b_i, c_i, d_i \) para cada trazador. El resultado es una función continua con primera y segunda derivadas continuas, lo que proporciona una interpolación visualmente suave entre los puntos dados." %}
+            </p>
+        </div>
+
+    </div>
+
+    <script>
+        // Array to store points; each point is an object { x, fx, selected }
+        const points = [];
+
+        function showCalculator() {
+            document.getElementById('explanation').style.display = 'none';
+            document.getElementById('calculator').style.display = 'block';
+        }
+
+        function showExplanation() {
+            document.getElementById('calculator').style.display = 'none';
+            document.getElementById('explanation').style.display = 'block';
+        }
+
+        // Mostrar u ocultar campos extra según condición de frontera
+        document.getElementById('boundary').addEventListener('change', function () {
+            document.getElementById('clampedFields').style.display = this.value === 'clamped' ? 'block' : 'none';
+        });
+
+        // Agregar punto
+        document.getElementById("addPointForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            addPoint();
+        });
+
+        // Calcular interpolación
+        document.getElementById("calculateForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            calculate();
+        });
+
+        function setLoadingState(isLoading) {
+            const button = document.getElementById("calculateButton");
+            const spinner = document.getElementById("loadingSpinner");
+            const buttonText = document.getElementById("buttonText");
+
+            button.disabled = isLoading;
+            spinner.style.display = isLoading ? "inline-block" : "none";
+            buttonText.textContent = isLoading ? "{% translate 'Calculating...' %}" : "{% translate 'Calculate' %}";
+        }
+
+        function addPoint() {
+            const x = document.getElementById("xValue").value;
+            const fx = document.getElementById("fxValue").value;
+            const messageContainer = document.getElementById("pointsMessageContainer");
+
+            // Verificar que no exista ya un punto con ese valor de x
+            if (points.some(item => item.x === x)) {
+                messageContainer.innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        {% translate 'The value of x has already been added' %}
+                    </div>
+                `;
+                return;
+            }
+
+            points.push({x, fx, selected: true});
+            renderPoints();
+            document.getElementById("xValue").value = "";
+            document.getElementById("fxValue").value = "";
+            document.getElementById("xValue").focus();
+            messageContainer.innerHTML = `
+                    <div class="alert alert-success" role="alert">
+                        {% translate 'Point added successfully.' %}
+                    </div>
+                `;
+            updateCalculateButtonState();
+        }
+
+        function renderPoints() {
+            const tbody = document.getElementById("bodyTablePoints");
+            tbody.innerHTML = "";
+            // Ordenar puntos por x
+            points.sort((a, b) => a.x - b.x);
+            points.forEach((p, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${p.x}</td>
+                    <td>${p.fx}</td>
+                    <td style="display: flex; align-items: center;">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="deletePoint(${index})">
+                            {% translate 'Delete' %}
+                        </button>
+                        <div class="form-check ms-2">
+                            <input type="checkbox" class="form-check-input select-point" id="point-${index}" data-index="${index}" ${p.selected ? 'checked' : ''}>
+                            <label class="form-check-label" for="point-${index}">{% translate 'Selected' %}</label>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            // Asignar evento a cada checkbox para actualizar la propiedad "selected"
+            document.querySelectorAll('.select-point').forEach(checkbox => {
+                checkbox.addEventListener('change', function () {
+                    const idx = parseInt(this.getAttribute('data-index'));
+                    points[idx].selected = this.checked;
+                    updateCalculateButtonState();
+                });
+            });
+        }
+
+        function deletePoint(index) {
+            points.splice(index, 1);
+            const tbody = document.getElementById("bodyTablePoints");
+            tbody.innerHTML = "";
+            points.forEach((p, i) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${p.x}</td>
+                    <td>${p.fx}</td>
+                    <td style="display: flex; align-items: center;">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="deletePoint(${i})">
+                            {% translate 'Delete' %}
+                        </button>
+                        <div class="form-check ms-2">
+                            <input type="checkbox" class="form-check-input select-point" id="point-${i}" data-index="${i}" ${p.selected ? 'checked' : ''}>
+                            <label class="form-check-label" for="point-${i}">{% translate 'Selected' %}</label>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            updateCalculateButtonState();
+        }
+
+        function updateCalculateButtonState() {
+            const selectedPoints = points.filter(point => point.selected);
+            const calculateButton = document.getElementById("calculateButton");
+            const messageContainer = document.getElementById("pointsMessageContainer");
+
+            if (selectedPoints.length < 3) {
+                calculateButton.disabled = true;
+                messageContainer.innerHTML = `
+                    <div class="alert alert-warning" role="alert">
+                        {% translate 'At least 3 selected points are required for cubic spline interpolation.' %}
+                        {% translate 'Currently selected' %}: ${selectedPoints.length}
+                    </div>
+                `;
+            } else {
+                calculateButton.disabled = false;
+                messageContainer.innerHTML = `
+                    <div class="alert alert-success" role="alert">
+                        {% translate 'Ready to calculate with' %} ${selectedPoints.length} {% translate 'selected points.' %}
+                    </div>
+                `;
+            }
+        }
+
+        function calculate() {
+            const messageContainer = document.getElementById("pointsMessageContainer");
+            const selectedPoints = points.filter(point => point.selected);
+
+            if (selectedPoints.length < 3) {
+                messageContainer.innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        {% translate 'At least 3 selected points are required for cubic spline interpolation.' %}
+                    </div>
+                `;
+                return;
+            }
+
+            messageContainer.innerHTML = "";
+            setLoadingState(true);
+
+            const pointsData = selectedPoints.map(point => ({x: point.x, fx: point.fx}));
+            const valueToInterpolate = document.getElementById("valueToInterpolate").value;
+            const boundary = document.getElementById("boundary").value;
+            const derivStart = document.getElementById("derivStart").value;
+            const derivEnd = document.getElementById("derivEnd").value;
+            const params = new URLSearchParams({
+                points: JSON.stringify(pointsData),
+                x_interp: valueToInterpolate,
+                boundary: boundary,
+                deriv_start: derivStart,
+                deriv_end: derivEnd
+            });
+            fetch(`/calculate-cubic-spline/?${params.toString()}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        messageContainer.innerHTML = `
+                            <div class="alert alert-danger" role="alert">
+                                ${data.error}
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    console.log(data)
+                    displayResults(data.result);
+                    showProcessSteps(data.result.process_steps);
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    messageContainer.innerHTML = `
+                        <div class="alert alert-danger" role="alert">
+                            {% translate 'An error occurred during calculation' %}: ${error}
+                        </div>
+                    `;
+                })
+                .finally(() => {
+                    setLoadingState(false);
+                });
+        }
+
+        function displayResults(result) {
+            document.getElementById("resultContainer").innerHTML = `
+                <div class="alert alert-success" role="alert">
+                    <h4>{% translate 'Interpolated Value' %}: ${result.value_interp.toFixed(6)}</h4>
+                </div>
+            `;
+            let coefHtml = `<h5>{% translate 'Coefficients of the segments' %}:</h5>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>{% translate 'Interval' %}</th>
+                            <th>a</th>
+                            <th>b</th>
+                            <th>c</th>
+                            <th>d</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+            result.coefficients.forEach((coef, i) => {
+                coefHtml += `<tr ${i === result.segment ? 'class="table-primary"' : ''}>
+                    <td>[${coef.x_i}, ${coef.x_i1}]</td>
+                    <td>${coef.a.toFixed(4)}</td>
+                    <td>${coef.b.toFixed(4)}</td>
+                    <td>${coef.c.toFixed(4)}</td>
+                    <td>${coef.d.toFixed(4)}</td>
+                </tr>`;
+            });
+            coefHtml += `</tbody></table>`;
+            document.getElementById("coefficientsContainer").innerHTML = coefHtml;
+            document.getElementById("responseContainer").style.display = "block";
+        }
+
+        function showProcessSteps(steps) {
+            const stepsContainer = document.getElementById("stepsContainer");
+            if (!stepsContainer) {
+                console.error("No se encontró el contenedor 'stepsContainer'.");
+                return;
+            }
+            // Limpiar contenido previo
+            stepsContainer.innerHTML = "";
+
+            steps.forEach((step, index) => {
+                const stepDiv = document.createElement("div");
+                stepDiv.classList.add("mb-4", "p-3", "border-bottom");
+
+                stepDiv.innerHTML = `
+            <h5>Paso ${index + 1}:</h5>
+            <div class="my-3">
+                ${step.step}
+            </div>
+            <div class="text-muted">
+                <em>${step.intermediate_result}</em>
+            </div>
+        `;
+                stepsContainer.appendChild(stepDiv);
+            });
+
+            // Re-renderizar MathJax para procesar las fórmulas
+            if (window.MathJax) {
+                MathJax.typesetPromise().catch(err => console.error("Error en MathJax:", err));
+            }
+        }
+
+    </script>
+
+{% endblock %}
