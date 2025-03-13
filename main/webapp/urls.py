@@ -8,6 +8,7 @@ from .views.newton_raphson_method_view import newton_raphson, calculate_newton_r
 from .views.divided_differences_views import divided_differences
 from .views.neville_method_views import neville_method
 from .views.cubic_spline_views import cubic_spline, calculate_cubic_spline_view
+from .views.lagrange_views import lagrange, calculate_lagrange
 
 urlpatterns = [
     path("", index, name="index"),
@@ -21,6 +22,8 @@ urlpatterns = [
     path("calculate-secant-method/", calculate_secant_method, name="calculate_secant_method"),
     path("newton-raphson-method/", newton_raphson, name="newton_raphson_method"),
     path("calculate-newton-raphson-method/", calculate_newton_raphson, name="calculate_newton_raphson_method"),
+    path("lagrange/", lagrange, name="lagrange"),
+    path("calculate-lagrange/", calculate_lagrange, name="calculate_lagrange"),
     path("divided-differences/", divided_differences, name="divided_differences"),
     path("neville-method/", neville_method, name="neville_method"),
     path("cubic-spline/", cubic_spline, name="cubic_spline"),
