@@ -26,6 +26,23 @@
         <!-- Sección oculta de la calculadora -->
         <div id="calculator" style="display: none;" class="mt-5">
             <h3 class="mb-5">{% translate 'Calculadora de Trazadores Cúbicos' %}</h3>
+
+            <!-- Ejemplos predefinidos -->
+            <div class="mb-4">
+                <h5>{% translate 'Predefined Examples' %}</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-outline-primary" onclick="addExamplePoints('exponential')">
+                        {% translate 'Exponential Function' %}
+                    </button>
+                    <button class="btn btn-outline-primary" onclick="addExamplePoints('sinusoidal')">
+                        {% translate 'Sinusoidal Function' %}
+                    </button>
+                    <button class="btn btn-outline-primary" onclick="addExamplePoints('polynomial')">
+                        {% translate 'Quadratic Function' %}
+                    </button>
+                </div>
+            </div>
+
             <div class="mb-5 p-4 bg-light rounded-3 shadow">
 
                 <h5>{% translate 'Add point' %}</h5>
@@ -63,7 +80,7 @@
 
                 <div id="pointsMessageContainer" class="mb-5"></div>
 
-                <!-- Formulario para cálculo (sin el campo "degree") -->
+                <!-- Formulario para cálculo con todos los tipos de splines -->
                 <form id="calculateForm" class="mb-3">
                     <div class="row">
                         <div class="col-sm-6 mb-3">
@@ -76,10 +93,13 @@
                             <select class="form-control" id="boundary">
                                 <option value="natural">{% translate "Natural (second derivative = 0)" %}</option>
                                 <option value="clamped">{% translate "Clamped (specific first derivative)" %}</option>
+                                <option value="not-a-knot">{% translate "Not-a-knot (continuous third derivative)" %}</option>
+                                <option value="periodic">{% translate "Periodic (cyclic conditions)" %}</option>
                             </select>
                         </div>
                     </div>
-                    <!-- Campos extra para la condición Clamped -->
+
+                    <!-- Campos para condición Clamped -->
                     <div id="clampedFields" style="display: none;">
                         <div class="row">
                             <div class="col-sm-6 mb-3">
@@ -92,6 +112,19 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Campo para spline periódico -->
+                    <div id="periodicFields" style="display: none;">
+                        <div class="alert alert-info">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="periodicCheck">
+                                <label class="form-check-label" for="periodicCheck">
+                                    {% translate "Adjust end values to ensure f(x₀) = f(xₙ) (required for periodic spline)" %}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
                     <button type="submit" class="btn btn-lg btn-primary mt-2" id="calculateButton">
                         <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;"
                               id="loadingSpinner"></span>
@@ -111,60 +144,117 @@
         <!-- Sección de explicación -->
         <div id="explanation" class="mt-4 rounded-3 lead">
             <h3 class="pb-3">{% translate "Explanation of Cubic Spline Interpolation" %}</h3>
-            <p class="lead">
-                {% translate "<strong>1. Concepto básico:</strong><br><br>" %}
-                {% translate "El método de trazadores cúbicos (spline cúbico) consiste en construir un polinomio cúbico para cada intervalo entre puntos dados, de manera que la curva resultante sea continua y suave. Para un conjunto de puntos \( (x_0, y_0), (x_1, y_1), ..., (x_n, y_n) \), se crean \( n \) polinomios, uno para cada intervalo \( [x_i, x_{i+1}] \).<br><br>" %}
+            <div class="lead">
+                <p>
+                    <strong>1. Concepto básico:</strong><br><br>
+                    El método de trazadores cúbicos (spline cúbico) consiste en construir un polinomio cúbico para cada
+                    intervalo entre puntos dados, de manera que la curva resultante sea continua y suave. Para un
+                    conjunto de puntos \( (x_0, y_0), (x_1, y_1), ..., (x_n, y_n) \), se crean \( n \) polinomios, uno
+                    para cada intervalo \( [x_i, x_{i+1}] \).<br><br>
+                </p>
 
-                {% translate "<strong>2. Forma del trazador cúbico:</strong><br><br>" %}
-                {% translate "Cada trazador cúbico \( S_i(x) \) en el intervalo \( [x_i, x_{i+1}] \) tiene la forma:<br>" %}
-                \[
-                S_i(x) = a_i + b_i(x - x_i) + c_i(x - x_i)^2 + d_i(x - x_i)^3
-                \]
-                {% translate "donde \( a_i, b_i, c_i, d_i \) son coeficientes a determinar.<br><br>" %}
+                <p>
+                    <strong>2. Forma del trazador cúbico:</strong><br><br>
+                    Cada trazador cúbico \( S_i(x) \) en el intervalo \( [x_i, x_{i+1}] \) tiene la forma:<br>
+                    \[
+                    S_i(x) = a_i + b_i(x - x_i) + c_i(x - x_i)^2 + d_i(x - x_i)^3
+                    \]
+                    donde \( a_i, b_i, c_i, d_i \) son coeficientes a determinar.<br><br>
+                </p>
 
-                {% translate "<strong>3. Condiciones que deben cumplir los trazadores:</strong><br><br>" %}
-                {% translate "Para obtener una interpolación suave y continua, los trazadores deben cumplir estas condiciones:<br>" %}
+                <p>
+                    <strong>3. Condiciones que deben cumplir los trazadores:</strong><br><br>
+                    Para obtener una interpolación suave y continua, los trazadores deben cumplir estas condiciones:<br>
 
-                {% translate "<ul>" %}
-                {% translate "<li>Cada trazador debe pasar por los puntos que delimitan su intervalo:<br>" %}
-                \[
-                S_i(x_i) = y_i \quad \text{y} \quad S_i(x_{i+1}) = y_{i+1}
-                \]
-                {% translate "</li>" %}
+                <ul>
+                    <li>Cada trazador debe pasar por los puntos que delimitan su intervalo:<br>
+                        \[
+                        S_i(x_i) = y_i \quad \text{y} \quad S_i(x_{i+1}) = y_{i+1}
+                        \]
+                    </li>
 
-                {% translate "<li>La primera derivada debe ser continua en los nodos internos:<br>" %}
-                \[
-                S_i'(x_{i+1}) = S_{i+1}'(x_{i+1})
-                \]
-                {% translate "</li>" %}
+                    <li>La primera derivada debe ser continua en los nodos internos:<br>
+                        \[
+                        S_i'(x_{i+1}) = S_{i+1}'(x_{i+1})
+                        \]
+                    </li>
 
-                {% translate "<li>La segunda derivada debe ser continua en los nodos internos:<br>" %}
-                \[
-                S_i''(x_{i+1}) = S_{i+1}''(x_{i+1})
-                \]
-                {% translate "</li>" %}
-                {% translate "</ul>" %}
+                    <li>La segunda derivada debe ser continua en los nodos internos:<br>
+                        \[
+                        S_i''(x_{i+1}) = S_{i+1}''(x_{i+1})
+                        \]
+                    </li>
+                </ul>
+                </p>
 
-                {% translate "<strong>4. Condiciones de frontera:</strong><br><br>" %}
-                {% translate "Para completar el sistema de ecuaciones, se necesitan condiciones adicionales en los extremos. Las más comunes son:<br>" %}
+                <p>
+                    <strong>4. Condiciones de frontera:</strong><br><br>
+                    Para completar el sistema de ecuaciones, se necesitan condiciones adicionales en los extremos. Los
+                    tipos más comunes son:<br>
 
-                {% translate "<ul>" %}
-                {% translate "<li>Spline natural: La segunda derivada es cero en los extremos:<br>" %}
-                \[
-                S_0''(x_0) = 0 \quad \text{y} \quad S_{n-1}''(x_n) = 0
-                \]
-                {% translate "</li>" %}
+                <ul>
+                    <li><strong>Spline Natural:</strong> La segunda derivada es cero en los extremos:<br>
+                        \[
+                        S_0''(x_0) = 0 \quad \text{y} \quad S_{n-1}''(x_n) = 0
+                        \]
+                        <p>Esta condición es la más sencilla matemáticamente y produce buenos resultados en muchos
+                            casos. Es ideal cuando no se tiene información adicional sobre el comportamiento de la
+                            función en los extremos.</p>
+                    </li>
 
-                {% translate "<li>Spline sujeto: Se especifican valores para la primera derivada en los extremos:<br>" %}
-                \[
-                S_0'(x_0) = f'_0 \quad \text{y} \quad S_{n-1}'(x_n) = f'_n
-                \]
-                {% translate "</li>" %}
-                {% translate "</ul>" %}
+                    <li><strong>Spline Sujeto (Clamped):</strong> Se especifican valores para la primera derivada en los
+                        extremos:<br>
+                        \[
+                        S_0'(x_0) = f'_0 \quad \text{y} \quad S_{n-1}'(x_n) = f'_n
+                        \]
+                        <p>Esta condición es útil cuando se conoce la pendiente de la función en los extremos.
+                            Proporciona mayor precisión cuando estas derivadas son conocidas o pueden estimarse con
+                            precisión.</p>
+                    </li>
 
-                {% translate "<strong>5. Resolución del sistema:</strong><br><br>" %}
-                {% translate "Al aplicar todas estas condiciones, se obtiene un sistema de ecuaciones lineales que permite calcular los coeficientes \( a_i, b_i, c_i, d_i \) para cada trazador. El resultado es una función continua con primera y segunda derivadas continuas, lo que proporciona una interpolación visualmente suave entre los puntos dados." %}
-            </p>
+                    <li><strong>Spline No-a-Nudo (Not-a-Knot):</strong> La tercera derivada es continua en \(x_1\) y
+                        \(x_{n-1}\):<br>
+                        \[
+                        S_0'''(x_1) = S_1'''(x_1) \quad \text{y} \quad S_{n-2}'''(x_{n-1}) = S_{n-1}'''(x_{n-1})
+                        \]
+                        <p>Esta condición elimina efectivamente los "nudos" en \(x_1\) y \(x_{n-1}\), haciendo que el
+                            spline sea un único polinomio cúbico en los intervalos \([x_0, x_2]\) y \([x_{n-2}, x_n]\).
+                            Suele proporcionar mejores resultados que el spline natural cuando la función tiene
+                            comportamientos complejos cerca de los extremos.</p>
+                    </li>
+
+                    <li><strong>Spline Periódico:</strong> Se impone que la función y sus derivadas coincidan en los
+                        extremos:<br>
+                        \[
+                        f(x_0) = f(x_n), \quad S_0'(x_0) = S_{n-1}'(x_n), \quad S_0''(x_0) = S_{n-1}''(x_n)
+                        \]
+                        <p>Esta condición es ideal para interpolar funciones periódicas como ondas o ciclos. Garantiza
+                            una transición perfectamente suave al "cerrar el ciclo" entre el primer y último punto.</p>
+                    </li>
+                </ul>
+                </p>
+
+                <p>
+                    <strong>5. Resolución del sistema:</strong><br><br>
+                    Al aplicar todas estas condiciones, se obtiene un sistema de ecuaciones lineales que permite
+                    calcular los coeficientes \( a_i, b_i, c_i, d_i \) para cada trazador. El resultado es una función
+                    continua con primera y segunda derivadas continuas, lo que proporciona una interpolación visualmente
+                    suave entre los puntos dados.
+                </p>
+
+                <p>
+                    <strong>6. Aplicaciones:</strong><br><br>
+                    Los trazadores cúbicos tienen numerosas aplicaciones en:
+                <ul>
+                    <li>Diseño asistido por computadora (CAD)</li>
+                    <li>Gráficos por computadora y animación</li>
+                    <li>Análisis de datos científicos</li>
+                    <li>Aproximación de funciones complejas</li>
+                    <li>Reconstrucción de superficies</li>
+                    <li>Modelado de fenómenos físicos</li>
+                </ul>
+                </p>
+            </div>
         </div>
 
     </div>
@@ -186,6 +276,7 @@
         // Mostrar u ocultar campos extra según condición de frontera
         document.getElementById('boundary').addEventListener('change', function () {
             document.getElementById('clampedFields').style.display = this.value === 'clamped' ? 'block' : 'none';
+            document.getElementById('periodicFields').style.display = this.value === 'periodic' ? 'block' : 'none';
         });
 
         // Agregar punto
@@ -272,25 +363,7 @@
 
         function deletePoint(index) {
             points.splice(index, 1);
-            const tbody = document.getElementById("bodyTablePoints");
-            tbody.innerHTML = "";
-            points.forEach((p, i) => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${p.x}</td>
-                    <td>${p.fx}</td>
-                    <td style="display: flex; align-items: center;">
-                        <button type="button" class="btn btn-danger btn-sm" onclick="deletePoint(${i})">
-                            {% translate 'Delete' %}
-                        </button>
-                        <div class="form-check ms-2">
-                            <input type="checkbox" class="form-check-input select-point" id="point-${i}" data-index="${i}" ${p.selected ? 'checked' : ''}>
-                            <label class="form-check-label" for="point-${i}">{% translate 'Selected' %}</label>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
+            renderPoints();
             updateCalculateButtonState();
         }
 
@@ -298,12 +371,20 @@
             const selectedPoints = points.filter(point => point.selected);
             const calculateButton = document.getElementById("calculateButton");
             const messageContainer = document.getElementById("pointsMessageContainer");
+            const boundary = document.getElementById("boundary").value;
 
-            if (selectedPoints.length < 3) {
+            let minPoints = 3;
+            if (boundary === "not-a-knot") {
+                minPoints = 4; // Not-a-knot requiere al menos 4 puntos
+            }
+
+            if (selectedPoints.length < minPoints) {
                 calculateButton.disabled = true;
                 messageContainer.innerHTML = `
                     <div class="alert alert-warning" role="alert">
-                        {% translate 'At least 3 selected points are required for cubic spline interpolation.' %}
+                        ${boundary === "not-a-knot"
+                    ? "{% translate 'At least 4 selected points are required for not-a-knot spline.' %}"
+                    : "{% translate 'At least 3 selected points are required for cubic spline interpolation.' %}"}
                         {% translate 'Currently selected' %}: ${selectedPoints.length}
                     </div>
                 `;
@@ -317,17 +398,41 @@
             }
         }
 
+        // Añadir listener para el tipo de spline
+        document.getElementById('boundary').addEventListener('change', updateCalculateButtonState);
+
         function calculate() {
             const messageContainer = document.getElementById("pointsMessageContainer");
             const selectedPoints = points.filter(point => point.selected);
+            const boundary = document.getElementById("boundary").value;
 
-            if (selectedPoints.length < 3) {
+            let minPoints = 3;
+            if (boundary === "not-a-knot") {
+                minPoints = 4; // Not-a-knot requiere al menos 4 puntos
+            }
+
+            if (selectedPoints.length < minPoints) {
                 messageContainer.innerHTML = `
                     <div class="alert alert-danger" role="alert">
-                        {% translate 'At least 3 selected points are required for cubic spline interpolation.' %}
+                        ${boundary === "not-a-knot"
+                    ? "{% translate 'At least 4 selected points are required for not-a-knot spline.' %}"
+                    : "{% translate 'At least 3 selected points are required for cubic spline interpolation.' %}"}
                     </div>
                 `;
                 return;
+            }
+
+            // Verificar condición periódica si es necesario
+            if (boundary === "periodic") {
+                const periodicCheck = document.getElementById("periodicCheck").checked;
+                if (!periodicCheck && Math.abs(selectedPoints[0].fx - selectedPoints[selectedPoints.length - 1].fx) > 1e-10) {
+                    messageContainer.innerHTML = `
+                        <div class="alert alert-danger" role="alert">
+                            {% translate 'For periodic spline, the first and last y-values must be equal. Enable "Adjust end values" or modify your points.' %}
+                        </div>
+                    `;
+                    return;
+                }
             }
 
             messageContainer.innerHTML = "";
@@ -335,16 +440,19 @@
 
             const pointsData = selectedPoints.map(point => ({x: point.x, fx: point.fx}));
             const valueToInterpolate = document.getElementById("valueToInterpolate").value;
-            const boundary = document.getElementById("boundary").value;
-            const derivStart = document.getElementById("derivStart").value;
-            const derivEnd = document.getElementById("derivEnd").value;
+            const deriv_start = document.getElementById("derivStart").value;
+            const deriv_end = document.getElementById("derivEnd").value;
+            const periodicCheck = document.getElementById("periodicCheck")?.checked || false;
+
             const params = new URLSearchParams({
                 points: JSON.stringify(pointsData),
                 x_interp: valueToInterpolate,
                 boundary: boundary,
-                deriv_start: derivStart,
-                deriv_end: derivEnd
+                deriv_start: deriv_start,
+                deriv_end: deriv_end,
+                periodic_check: periodicCheck
             });
+
             fetch(`/calculate-cubic-spline/?${params.toString()}`)
                 .then(response => response.json())
                 .then(data => {
@@ -375,11 +483,32 @@
         }
 
         function displayResults(result) {
+            // Mostrar tipo de spline usado
+            let splineTypeText = "";
+            switch (result.boundary_type) {
+                case "natural":
+                    splineTypeText = "Natural Spline";
+                    break;
+                case "clamped":
+                    splineTypeText = "Clamped Spline";
+                    break;
+                case "not-a-knot":
+                    splineTypeText = "Not-a-knot Spline";
+                    break;
+                case "periodic":
+                    splineTypeText = "Periodic Spline";
+                    break;
+                default:
+                    splineTypeText = "Cubic Spline";
+            }
+
             document.getElementById("resultContainer").innerHTML = `
                 <div class="alert alert-success" role="alert">
                     <h4>{% translate 'Interpolated Value' %}: ${result.value_interp.toFixed(6)}</h4>
+                    <p class="mb-0">{% translate 'Using' %}: ${splineTypeText}</p>
                 </div>
             `;
+
             let coefHtml = `<h5>{% translate 'Coefficients of the segments' %}:</h5>
                 <table class="table table-bordered">
                     <thead>
@@ -389,16 +518,20 @@
                             <th>b</th>
                             <th>c</th>
                             <th>d</th>
+                            <th>{% translate 'Polynomial' %}</th>
                         </tr>
                     </thead>
                     <tbody>`;
             result.coefficients.forEach((coef, i) => {
+                const formula = `S<sub>${i}</sub>(x) = ${coef.a.toFixed(4)} + ${coef.b.toFixed(4)}(x - ${coef.x_i.toFixed(4)}) + ${coef.c.toFixed(4)}(x - ${coef.x_i.toFixed(4)})² + ${coef.d.toFixed(4)}(x - ${coef.x_i.toFixed(4)})³`;
+
                 coefHtml += `<tr ${i === result.segment ? 'class="table-primary"' : ''}>
-                    <td>[${coef.x_i}, ${coef.x_i1}]</td>
+                    <td>[${coef.x_i.toFixed(4)}, ${coef.x_i1.toFixed(4)}]</td>
                     <td>${coef.a.toFixed(4)}</td>
                     <td>${coef.b.toFixed(4)}</td>
                     <td>${coef.c.toFixed(4)}</td>
                     <td>${coef.d.toFixed(4)}</td>
+                    <td>${formula}</td>
                 </tr>`;
             });
             coefHtml += `</tbody></table>`;
@@ -413,21 +546,28 @@
                 return;
             }
             // Limpiar contenido previo
-            stepsContainer.innerHTML = "";
+            stepsContainer.innerHTML = "<h4>{% translate 'Detailed Step-by-Step Process' %}</h4>";
 
             steps.forEach((step, index) => {
                 const stepDiv = document.createElement("div");
                 stepDiv.classList.add("mb-4", "p-3", "border-bottom");
 
-                stepDiv.innerHTML = `
-            <h5>Paso ${index + 1}:</h5>
-            <div class="my-3">
-                ${step.step}
-            </div>
-            <div class="text-muted">
-                <em>${step.intermediate_result}</em>
-            </div>
-        `;
+                // Agregar paso
+                let stepHtml = `<h5>${step.step}</h5>`;
+
+                // Agregar explicación si existe
+                if (step.explanation) {
+                    stepHtml += `<div class="my-3 text-muted">
+                        <p>${step.explanation}</p>
+                    </div>`;
+                }
+
+                // Agregar resultado intermedio
+                stepHtml += `<div class="my-3 bg-light p-3 rounded">
+                    <p>${step.intermediate_result}</p>
+                </div>`;
+
+                stepDiv.innerHTML = stepHtml;
                 stepsContainer.appendChild(stepDiv);
             });
 
@@ -437,6 +577,143 @@
             }
         }
 
+        // Agregar ejemplos predefinidos
+        function addExamplePoints(exampleSet) {
+            // Limpiar puntos existentes
+            points.length = 0;
+
+            // Agregar puntos según el ejemplo seleccionado
+            if (exampleSet === 'exponential') {
+                points.push({x: "0.0", fx: "1.0", selected: true});
+                points.push({x: "0.5", fx: "1.64872", selected: true});
+                points.push({x: "1.0", fx: "2.71828", selected: true});
+                points.push({x: "2.0", fx: "7.38906", selected: true});
+            } else if (exampleSet === 'sinusoidal') {
+                points.push({x: "0.0", fx: "0.0", selected: true});
+                points.push({x: "1.57", fx: "1.0", selected: true});
+                points.push({x: "3.14", fx: "0.0", selected: true});
+                points.push({x: "4.71", fx: "-1.0", selected: true});
+                points.push({x: "6.28", fx: "0.0", selected: true});
+            } else if (exampleSet === 'polynomial') {
+                points.push({x: "-2.0", fx: "4.0", selected: true});
+                points.push({x: "-1.0", fx: "1.0", selected: true});
+                points.push({x: "0.0", fx: "0.0", selected: true});
+                points.push({x: "1.0", fx: "1.0", selected: true});
+                points.push({x: "2.0", fx: "4.0", selected: true});
+            }
+
+            renderPoints();
+            updateCalculateButtonState();
+        }
     </script>
 
+{% endblock %}
+
+{% block extra_css %}
+    <!-- Estilos adicionales para mejorar la presentación de LaTeX -->
+    <style>
+        /* Estilos para mejorar la visualización de fórmulas LaTeX */
+        .math-container {
+            overflow-x: auto;
+            margin: 10px 0;
+            padding: 10px;
+            max-width: 100%;
+        }
+
+        /* Para ecuaciones inline */
+        .math-inline {
+            white-space: nowrap;
+            overflow-x: auto;
+            max-width: 100%;
+            display: inline-block;
+            vertical-align: middle;
+            scrollbar-width: thin;
+        }
+
+        /* Para bloques de ecuaciones */
+        .math-block {
+            overflow-x: auto;
+            max-width: 100%;
+            padding: 10px 0;
+            scrollbar-width: thin;
+        }
+
+        /* Personalización de scrollbars para fórmulas */
+        .math-container::-webkit-scrollbar,
+        .math-inline::-webkit-scrollbar,
+        .math-block::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .math-container::-webkit-scrollbar-thumb,
+        .math-inline::-webkit-scrollbar-thumb,
+        .math-block::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 10px;
+        }
+
+        /* Mejoras para los pasos */
+        .step-box {
+            border-left: 4px solid #0d6efd;
+            padding-left: 15px;
+            margin-bottom: 30px;
+        }
+
+        .step-title {
+            font-weight: bold;
+            color: #0d6efd;
+            margin-bottom: 15px;
+        }
+
+        .step-explanation {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            color: #495057;
+        }
+
+        .step-result {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Resaltado para spline seleccionado */
+        .selected-segment {
+            background-color: #e0f7fa !important;
+            border-left: 5px solid #00b0ff;
+        }
+
+        /* Mejoras para los coeficientes */
+        .coefficients-table th {
+            background-color: #e9ecef;
+            position: sticky;
+            top: 0;
+        }
+
+        /* Tooltip para explicaciones de parámetros */
+        .param-tooltip {
+            cursor: help;
+            border-bottom: 1px dotted #666;
+            position: relative;
+        }
+
+        .param-tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            background: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            z-index: 1000;
+            font-size: 14px;
+            max-width: 300px;
+            white-space: normal;
+        }
+    </style>
 {% endblock %}
