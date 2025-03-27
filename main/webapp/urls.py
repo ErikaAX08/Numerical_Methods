@@ -9,6 +9,7 @@ from .views.divided_differences_views import divided_differences
 from .views.neville_method_views import neville_method
 from .views.cubic_spline_views import cubic_spline, calculate_cubic_spline_view
 from .views.lagrange_views import lagrange, calculate_lagrange
+from .views.gauss_back_substitution_view import gauss_back_substitution, calculate_gauss_back_substitution_view
 
 urlpatterns = [
     path("", index, name="index"),
@@ -28,4 +29,7 @@ urlpatterns = [
     path("neville-method/", neville_method, name="neville_method"),
     path("cubic-spline/", cubic_spline, name="cubic_spline"),
     path("calculate-cubic-spline/", calculate_cubic_spline_view, name="calculate_cubic_spline"),
+    path("gauss_back_substitution/", gauss_back_substitution, name="gauss_back_substitution"),
+    path("calculate_gauss_back_substitution/", calculate_gauss_back_substitution_view,
+         name="calculate_gauss_back_substitution"),
 ]
