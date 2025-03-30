@@ -10,7 +10,9 @@
             <div class="col-lg-12">
                 <h2 class="display-4 fw-bold lh-1s">{% translate 'Gaussian elimination with back replacement' %}</h2>
                 <p class="lead py-5">
-                    {% translate 'Descripcion Corta' %}
+                    El método de Gauss con back replacement (sustitución hacia atrás) es una técnica para resolver sistemas de ecuaciones lineales. Consiste en dos etapas: <br><br>
+                    <strong>1.Eliminación de Gauss</strong>: Transformar la matriz aumentada del sistema en una forma escalonada (triangular superior) mediante operaciones elementales de fila.<br><br>
+                    <strong>2.Sustitución hacia atrás</strong>: Resolver el sistema desde la última ecuación hacia arriba, despejando las incógnitas en orden inverso
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
@@ -104,7 +106,50 @@
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3 lead" style="display: none !important;">
             <h3 class="pb-3">{% translate "Explicación de Gaussian elimination with back replacement" %}</h3>
-            <p>Aqui la expliacion extensa</p>
+            <p>
+                {% translate 'El método de Gauss con sustitución hacia atrás (también conocido como eliminación gaussiana) es un algoritmo fundamental en álgebra lineal para resolver sistemas de ecuaciones lineales de la forma: '%}'
+                \[
+                \left\{
+                \begin{array}{l}
+                a_{11}x_1 + a_{12}x_2 + \cdots + a_{1n}x_n = b_1 \\
+                a_{21}x_1 + a_{22}x_2 + \cdots + a_{2n}x_n = b_2 \\
+                \vdots \\
+                a_{m1}x_1 + a_{m2}x_2 + \cdots + a_{mn}x_n = b_m
+                \end{array}
+                \right.
+                \]
+                {% translate 'El método consiste en dos fases principales:<br><br>'%}
+                {% translate '<strong>1.Eliminación de Gauss (Triangularización)</strong>: El objetivo es convertir la matriz aumentada [A|b] en una matriz triangular superior mediante operaciones elementales de fila: '%}
+                \[
+                \begin{bmatrix}
+                a_{11} & a_{12} & \cdots & a_{1n} & \vert & b_1 \\
+                a_{21} & a_{22} & \cdots & a_{2n} & \vert & b_2 \\
+                \vdots & \vdots & \ddots & \vdots & \vert & \vdots \\
+                a_{m1} & a_{m2} & \cdots & a_{mn} & \vert & b_m
+                \end{bmatrix}
+                \quad \longrightarrow \quad
+                \begin{bmatrix}
+                a'_{11} & a'_{12} & \cdots & a'_{1n} & \vert & b'_1 \\
+                0 & a'_{22} & \cdots & a'_{2n} & \vert & b'_2 \\
+                \vdots & \vdots & \ddots & \vdots & \vert & \vdots \\
+                0 & 0 & \cdots & a'_{mn} & \vert & b'_m
+                \end{bmatrix}
+                \]
+                {% translate '<strong>Pasos de la eliminación</strong>:<br><br>' %}
+                {% translate '<strong>a)Pivoteo parcial</strong>: Seleccionar la fila con el mayor elemento en la columna actual para evitar división por cero o inestabilidad numérica.<br><br>' %}
+                {% translate '<strong>b)Eliminación hacia adelante</strong>: Para cada fila i desde 1 hasta n - 1:<br><br>' %}
+                {% translate '<strong>2.Sustitución hacia atrás</strong>: Una vez obtenida la matriz triangular superior, se resuelve el sistema desde la última ecuación hacia arriba:<br><br>' %}
+                \[
+                \left\{
+                \begin{array}{l}
+                a'_{11}x_1 + a'_{12}x_2 + \cdots + a'_{1n}x_n = b'_1 \\
+                a'_{21}x_2 + \cdots +  a'_{2n}x_n = b'_2 \\
+                \vdots \\
+                a'_{nm}x_n  = b'_n
+                \end{array}
+                \right.
+                \]
+            </p> 
         </div>
 
         <script>
