@@ -49,8 +49,8 @@ def calculate_gauss_back_substitution_view(request):
 
 def gauss_elimination_with_back_substitution(matrix, vector):
     """
-    Implementation of Gaussian elimination with back substitution
-    Returns the solution vector and steps for visualization
+    Implementation of Gauss-Jordan elimination (full reduction)
+    Returns the solution vector and detailed steps for visualization
     """
     n = len(matrix)
     augmented_matrix = []
@@ -85,7 +85,7 @@ def gauss_elimination_with_back_substitution(matrix, vector):
 
         # Make pivot element 1
         pivot = augmented_matrix[i][i]
-        if pivot == 0:
+        if abs(pivot) < 1e-10:
             raise ValueError("Matrix is singular, cannot solve system")
 
         for j in range(i, n + 1):
@@ -99,23 +99,44 @@ def gauss_elimination_with_back_substitution(matrix, vector):
         # Eliminate elements below pivot
         for k in range(i + 1, n):
             factor = augmented_matrix[k][i]
-            for j in range(i, n + 1):
-                augmented_matrix[k][j] -= factor * augmented_matrix[i][j]
+            if abs(factor) > 1e-10:  # Solo realizar la eliminación si el factor no es cero
+                for j in range(i, n + 1):
+                    augmented_matrix[k][j] -= factor * augmented_matrix[i][j]
+                steps.append({
+                    "step": f"Eliminate below pivot in row {k+1} using row {i+1} (factor: {factor})",
+                    "matrix": [row.copy() for row in augmented_matrix]
+                })
 
+        # Mostrar la matriz después de eliminar todos los elementos debajo del pivote
         steps.append({
-            "step": f"Elimination below pivot in column {i+1}",
+            "step": f"Completion of elimination below pivot in column {i+1}",
             "matrix": [row.copy() for row in augmented_matrix]
         })
 
-    # Back substitution phase
-    x = [0] * n
-    for i in range(n - 1, -1, -1):
-        x[i] = augmented_matrix[i][n]
-        for j in range(i + 1, n):
-            x[i] -= augmented_matrix[i][j] * x[j]
+    # Back substitution phase (continuando con la eliminación hacia arriba - Gauss-Jordan)
+    for i in range(n-1, -1, -1):
+        # Eliminate elements above pivot (which is now 1)
+        for k in range(i-1, -1, -1):
+            factor = augmented_matrix[k][i]
+            if abs(factor) > 1e-10:  # Solo realizar la eliminación si el factor no es cero
+                for j in range(i, n + 1):
+                    augmented_matrix[k][j] -= factor * augmented_matrix[i][j]
+                steps.append({
+                    "step": f"Eliminate above pivot in row {k+1} using row {i+1} (factor: {factor})",
+                    "matrix": [row.copy() for row in augmented_matrix]
+                })
+
+        # Mostrar la matriz después de eliminar todos los elementos arriba del pivote
+        steps.append({
+            "step": f"Completion of elimination above pivot in column {i+1}",
+            "matrix": [row.copy() for row in augmented_matrix]
+        })
+
+    # Extract solution (no need for back substitution in Gauss-Jordan)
+    x = [row[n] for row in augmented_matrix]
 
     steps.append({
-        "step": "Final result after back substitution",
+        "step": "Final result (solution vector)",
         "solution": x.copy()
     })
 

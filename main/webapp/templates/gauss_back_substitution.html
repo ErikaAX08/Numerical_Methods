@@ -516,9 +516,33 @@
 
 
 
-        function formatMatrixToLatex(matrix) {
-            const rows = matrix.map(row => row.join(" & ")).join(" \\\\ ");
-            return `\\begin{bmatrix} ${rows} \\end{bmatrix}`;
+        function formatMatrixToLatex(matrix, decimals = 4) {
+            if (!matrix || matrix.length === 0) {
+                return "\\text{Empty matrix}";
+            }
+            
+            const numCols = matrix[0].length;
+            // Crea un formato de columnas con una línea vertical antes de la última columna
+            // Por ejemplo, para una matriz 3x4, sería "ccc|c"
+            let columnFormat = "";
+            for (let i = 0; i < numCols; i++) {
+                columnFormat += "c";
+                // Añade la línea vertical antes de la última columna
+                if (i === numCols - 2) {
+                    columnFormat += "|";
+                }
+            }
+            
+            const rows = matrix.map(row => {
+                return row.map(val => {
+                    if (typeof val === 'number') {
+                        return val.toFixed(decimals);
+                    }
+                    return val;
+                }).join(" & ");
+            }).join(" \\\\ ");
+            
+            return "\\left[ \\begin{array}{" + columnFormat + "} " + rows + " \\end{array} \\right]";
         }
 
 
