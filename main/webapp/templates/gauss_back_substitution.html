@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% block title %}{% translate 'Gaussian elimination with back replacement' %} -
-    {% translate 'Métodos Numéricos' %}{% endblock %}
+{% translate 'Métodos Numéricos' %}{% endblock %}
 {% block content %}
-    {% load static %}
+{% load static %}
+{% csrf_token %}
 
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
@@ -168,12 +169,11 @@
             // Matrix buttons
             const rowsInput = document.getElementById('inputM');
             const colsInput = document.getElementById('inputN');
-            const clearBtn = document.getElementById('clearBtn');
-            const solveBtn = document.getElementById('solveBtn');
             const matrixBody = document.getElementById('matrixBody');
-
-            rowsInput.value = 3;
-            colsInput.value = 4;
+            const solveBtn = document.getElementById('solveBtn');
+            const responseContainer = document.getElementById('responseContainer');
+            const resultContainer = document.getElementById('resultContainer');
+            const clearBtn = document.getElementById('clearBtn');
 
             // Generate Matrix Function
             function generateMatrix() {
@@ -373,64 +373,152 @@
                 alertContainer.appendChild(alertDiv);
             }
 
-            function calculate() {
-
-                setLoadingState(true);
-
-                // Pasar parametros necesarios
-                const url = `/calculate_gauss_back_substitution/? `;
-
-                fetch(url)
-                    .then((response) => response.json())
-                    .then((data) => {
-                        if (data.error) {
-                            messageContainer.innerHTML = `
-                    <div class="alert alert-danger" role="alert">
-                        ${data.error}
-                    </div>
-                `;
-                            return;
-                        }
-
-                        showResult(data.result);
-                        showProcessSteps(data.process_steps);
-                    })
-                    .catch((error) => {
-                        console.error("Error:", error);
-                        messageContainer.innerHTML = `
-                <div class="alert alert-danger" role="alert">
-                    {% translate 'An error occurred during calculation' %}: ${error}
-                </div>
-            `;
-                    })
-                    .finally(() => {
-                        setLoadingState(false);
-                    });
+            function getCSRFToken() {
+                // Buscar el token CSRF en las cookies
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    const [name, value] = cookie.trim().split('=');
+                    if (name === 'csrftoken') {
+                         return value;
+                    }
+                }
+    
+                // Alternativamente, buscar el token en el input del formulario
+                const tokenInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+                if (tokenInput) {
+                    return tokenInput.value;
+                }
+    
+                return '';
             }
 
+            function calculate() {
+                setLoadingState(true);
+
+                const rows = parseInt(rowsInput.value);
+                const cols = parseInt(colsInput.value);
+
+                const matrix = [];
+                const vector = [];
+
+                // Extract the matrix and vector from the inputs
+                for (let i = 0; i < rows; i++) {
+                    const rowValues = [];
+                    for (let j = 0; j < cols - 1; j++) {
+                        const input = document.querySelector(`.matrix-input[data-row="${i}"][data-col="${j}"]`);
+                        const value = parseFloat(input.value);
+                        if (isNaN(value)) {
+                            showAlert(`Por favor, ingresa un valor numérico en la posición [${i + 1}, ${j + 1}]`, 'warning');
+                            setLoadingState(false);
+                            return;
+                        }
+                        rowValues.push(value);
+                    }
+
+                    matrix.push(rowValues);
+        
+                    // Extract the b values (last column) for the vector
+                    const bInput = document.querySelector(`.matrix-input[data-row="${i}"][data-col="${cols-1}"]`);
+                    const bValue = parseFloat(bInput.value);
+                    if (isNaN(bValue)) {
+                        showAlert(`Por favor, ingresa un valor numérico para b${i+1}`, 'warning');
+                        setLoadingState(false);
+                        return;
+                    }
+                    vector.push(bValue);
+                }
+
+                fetch('http://127.0.0.1:8000/calculate_gauss_back_substitution/', {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCSRFToken(), // Si usas CSRF Protection en Django
+                    },
+                    body: JSON.stringify({ matrix: matrix, vector: vector }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showAlert(data.error, 'danger');
+                        return;
+                    }
+
+                    showResult(data.solution);
+                    if (data.process_steps) {
+                        showProcessSteps(data.process_steps);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    showAlert(`Error en la conexión con el servidor: ${error}`, 'danger');
+                })
+                .finally(() => {
+                    setLoadingState(false);
+                });
+            }
+
+
             function showResult(result) {
-                const responseContainer = document.getElementById("responseContainer")
-                responseContainer.style.display = "block"
+                const responseContainer = document.getElementById("responseContainer");
+                responseContainer.style.display = "block";
 
                 const resultContainer = document.getElementById("resultContainer");
+                
+                // Format the solution array nicely
+                let solutionHTML = "<ul class='list-group list-group-flush'>";
+                for (let i = 0; i < result.length; i++) {
+                    solutionHTML += `<li class="list-group-item">x${i+1} = ${result[i].toFixed(4)}</li>`;
+                }
+                solutionHTML += "</ul>";
+                
                 resultContainer.innerHTML = `
                     <div class="alert alert-success" role="alert">
-                      <h4>{% translate 'Solution of the equation' %}: ${result}</h4>
+                    <h4>{% translate 'Solution of the equation' %}:</h4>
+                    ${solutionHTML}
                     </div>
                 `;
             }
 
             function showProcessSteps(steps) {
+                console.log("Datos recibidos para los pasos:", steps);
+
                 const stepsContainer = document.getElementById("stepsContainer");
                 stepsContainer.innerHTML = ""; // Limpiar pasos anteriores
 
-                /**
-                 * Aqui se muestran los pasos
-                 */
+                steps.forEach((stepObj, index) => {
+                    console.log(`Paso ${index + 1}:`, stepObj);
+
+                    // Si el paso contiene una matriz, la convertimos a LaTeX
+                    let stepContent = "";
+                    if (stepObj.matrix) {
+                        const latexMatrix = formatMatrixToLatex(stepObj.matrix);
+                        stepContent = `<p>$$${latexMatrix}$$</p>`;
+                    } else if (stepObj.solution) {
+                        // Si es el paso final, mostramos la solución
+                        stepContent = `<p>Solución: ${JSON.stringify(stepObj.solution)}</p>`;
+                    }
+
+                    const stepElement = document.createElement("div");
+                    stepElement.innerHTML = `
+                        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
+                            <strong>Paso ${index + 1}:</strong> ${stepObj.step}
+                            ${stepContent}
+                        </div>
+                    `;
+
+                    stepsContainer.appendChild(stepElement);
+                });
 
                 // Re-renderizar el contenido LaTeX usando MathJax
                 MathJax.typeset();
             }
+
+
+        function formatMatrixToLatex(matrix) {
+            const rows = matrix.map(row => row.join(" & ")).join(" \\\\ ");
+            return `\\begin{bmatrix} ${rows} \\end{bmatrix}`;
+        }
+
 
         </script>
 
