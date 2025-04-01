@@ -17,7 +17,7 @@
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
-                            onclick="showCalculator()">{% translate 'Graphing Calculator' %}
+                            onclick="showCalculator()">{% translate 'Calculadora' %}
                     </button>
                     <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">
                         {% translate 'Explanation' %}
@@ -42,14 +42,14 @@
                         <form class="form d-flex align-items-center">
                             <div class="input-group">
                                 <span class="input-group-text" id="basic-addon1">M</span>
-                                <input id="inputM" type="text" class="form-control" placeholder="Username"
+                                <input id="inputM" type="text" class="form-control" placeholder="Filas"
                                        aria-label="Username"
                                        aria-describedby="basic-addon1">
                             </div>
                             <span class="fw-bolder" style="margin: 0 10px;">x</span>
                             <div class="input-group">
                                 <span class="input-group-text" id="basic-addon1">N</span>
-                                <input id="inputN" type="text" class="form-control" placeholder="Username"
+                                <input id="inputN" type="text" class="form-control" placeholder="Columnas"
                                        aria-label="Username"
                                        aria-describedby="basic-addon1">
                             </div>
@@ -182,7 +182,7 @@
 
                 // Validaciones
                 if (isNaN(rows) || rows < 1 || isNaN(cols) || cols < 2) {
-                    showAlert('Por favor, ingresa valores válidos para M y N (M ≥ 1, N ≥ 2)', 'warning');
+                    showAlert('Por favor, ingresa valores válidos', 'warning');
                     return;
                 }
 
@@ -282,7 +282,7 @@
                 }
 
                 // Mostrar mensaje de éxito
-                showAlert('Matriz cargada correctamente. Procesando...', 'success');
+                showAlert('Matriz cargada correctamente.', 'success');
 
                 // Aquí se llamaría a la función que resuelve el sistema
                 console.log('Matriz a resolver:', matrix);
@@ -488,14 +488,15 @@
                 steps.forEach((stepObj, index) => {
                     console.log(`Paso ${index + 1}:`, stepObj);
 
-                    // Si el paso contiene una matriz, la convertimos a LaTeX
                     let stepContent = "";
+
                     if (stepObj.matrix) {
-                        const latexMatrix = formatMatrixToLatex(stepObj.matrix);
+                        const latexMatrix = formatMatrixToLatex(stepObj.matrix, 4); // Formato con 4 decimales
                         stepContent = `<p>$$${latexMatrix}$$</p>`;
                     } else if (stepObj.solution) {
-                        // Si es el paso final, mostramos la solución
-                        stepContent = `<p>Solución: ${JSON.stringify(stepObj.solution)}</p>`;
+                        // Formateamos la solución final para que muestre los valores de x, y, z directamente
+                        const formattedSolution = stepObj.solution.map((val, i) => `x_${i + 1} = ${val.toFixed(4)}`).join(", ");
+                        stepContent = `<p><strong>Solución final:</strong> ${formattedSolution}</p>`;
                     }
 
                     const stepElement = document.createElement("div");
@@ -512,6 +513,7 @@
                 // Re-renderizar el contenido LaTeX usando MathJax
                 MathJax.typeset();
             }
+
 
 
         function formatMatrixToLatex(matrix) {
