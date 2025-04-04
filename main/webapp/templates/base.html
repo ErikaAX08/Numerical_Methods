@@ -96,11 +96,11 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item"
-                               href="#">{% translate 'Gaussian elimination with back replacement' %}</a></li>
+                               href="{% url 'gauss_back_substitution' %}">{% translate 'Gaussian elimination with back replacement' %}</a></li>
                         <li><a class="dropdown-item"
-                               href="#">{% translate 'Gaussian Elimination with Maximum Column Pivoting' %}</a></li>
+                               href="{%  url 'gauss_maximum_column_pivoting' %}">{% translate 'Gaussian Elimination with Maximum Column Pivoting' %}</a></li>
                         <li><a class="dropdown-item"
-                               href="#">{% translate 'Gaussian Elimination with Column-Scaled Pivoting' %}</a></li>
+                               href="{%  url 'gauss_column_scaled_pivoting' %}">{% translate 'Gaussian Elimination with Column-Scaled Pivoting' %}</a></li>
                     </ul>
                 </li>
             </ul>
