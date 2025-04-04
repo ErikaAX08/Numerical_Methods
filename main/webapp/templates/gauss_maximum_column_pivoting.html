@@ -10,7 +10,13 @@
             <div class="col-lg-12">
                 <h2 class="display-4 fw-bold lh-1s">{% translate 'Gaussian Elimination with Maximum Column Pivoting.' %}</h2>
                 <p class="lead py-5">
-                    El método de eliminación gaussiana con máxima columna de pivoteo es una técnica para resolver sistemas de ecuaciones lineales. Consiste en transformar una matriz en su forma escalonada utilizando operaciones elementales, pero con una variación: en cada paso, se selecciona la fila con el valor absoluto más grande en la columna que está siendo procesada (el pivote). Este proceso ayuda a mejorar la estabilidad numérica y reducir los errores de redondeo, especialmente en matrices mal condicionadas. Después de obtener la matriz escalonada, se aplica la sustitución hacia atrás para encontrar las soluciones.
+                    El método de eliminación gaussiana con máxima columna de pivoteo es una técnica para resolver
+                    sistemas de ecuaciones lineales. Consiste en transformar una matriz en su forma escalonada
+                    utilizando operaciones elementales, pero con una variación: en cada paso, se selecciona la fila con
+                    el valor absoluto más grande en la columna que está siendo procesada (el pivote). Este proceso ayuda
+                    a mejorar la estabilidad numérica y reducir los errores de redondeo, especialmente en matrices mal
+                    condicionadas. Después de obtener la matriz escalonada, se aplica la sustitución hacia atrás para
+                    encontrar las soluciones.
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
@@ -105,47 +111,62 @@
         <div id="explanation" class="mt-4 rounded-3 lead" style="display: none !important;">
             <h3 class="pb-3">Explicación de Eliminación Gaussiana con Pivoteo Máximo de Columnas</h3>
             <p>
-                La <strong>Eliminación Gaussiana con Pivoteo Máximo de Columnas</strong> es un método numérico utilizado para resolver sistemas de ecuaciones lineales de la forma:
+                La <strong>Eliminación Gaussiana con Pivoteo Máximo de Columnas</strong> es un método numérico utilizado
+                para resolver sistemas de ecuaciones lineales de la forma:
                 \[
                 A \mathbf{x} = \mathbf{b}
                 \]
                 Donde:
-                <ul>
-                    <li>\( A \) es una matriz cuadrada \( n \times n \).</li>
-                    <li>\( \mathbf{x} \) es el vector de incógnitas.</li>
-                    <li>\( \mathbf{b} \) es el vector de términos independientes.</li>
-                </ul>
+            <ul>
+                <li>\( A \) es una matriz cuadrada \( n \times n \).</li>
+                <li>\( \mathbf{x} \) es el vector de incógnitas.</li>
+                <li>\( \mathbf{b} \) es el vector de términos independientes.</li>
+            </ul>
             </p>
             <p>
-                El método consiste en realizar operaciones elementales sobre las filas de la matriz \( A \), con el objetivo de transformarla en una matriz triangular superior y posteriormente triangular inferior (Gauss-Jordan).
+                El método consiste en realizar operaciones elementales sobre las filas de la matriz \( A \), con el
+                objetivo de transformarla en una matriz triangular superior y posteriormente triangular inferior
+                (Gauss-Jordan).
             </p>
             <p>
-                El <strong>pivoteo máximo por columnas</strong> se utiliza para mejorar la precisión numérica, intercambiando filas de tal manera que en cada columna se elija el elemento de mayor valor absoluto como pivote.
+                El <strong>pivoteo máximo por columnas</strong> se utiliza para mejorar la precisión numérica,
+                intercambiando filas de tal manera que en cada columna se elija el elemento de mayor valor absoluto como
+                pivote.
             </p>
             <p>
                 Las operaciones elementales son:
-                <ul>
-                    <li>Intercambio de filas: \( R_i \leftrightarrow R_j \).</li>
-                    <li>Multiplicación de una fila por un escalar distinto de cero: \( R_i \leftarrow \frac{R_i}{\text{pivote}} \).</li>
-                    <li>Suma o resta de un múltiplo de una fila a otra: \( R_j \leftarrow R_j - m R_i \), donde \( m \) es un escalar.</li>
-                </ul>
+            <ul>
+                <li>Intercambio de filas: \( R_i \leftrightarrow R_j \).</li>
+                <li>Multiplicación de una fila por un escalar distinto de cero: \( R_i \leftarrow
+                    \frac{R_i}{\text{pivote}} \).
+                </li>
+                <li>Suma o resta de un múltiplo de una fila a otra: \( R_j \leftarrow R_j - m R_i \), donde \( m \) es
+                    un escalar.
+                </li>
+            </ul>
             </p>
             <p>
                 Proceso del método:
-                <ol>
-                    <li><strong>Formación de la matriz aumentada:</strong> \( [A|b] \).</li>
-                    <li><strong>Pivoteo máximo:</strong> En cada columna se busca el mayor valor absoluto y se intercambian filas si es necesario.</li>
-                    <li><strong>Eliminación hacia adelante:</strong> Se anulan todos los elementos por debajo del pivote de la columna actual.</li>
-                    <li><strong>Eliminación hacia atrás (opcional):</strong> Para obtener la matriz identidad mediante Gauss-Jordan.</li>
-                </ol>
+            <ol>
+                <li><strong>Formación de la matriz aumentada:</strong> \( [A|b] \).</li>
+                <li><strong>Pivoteo máximo:</strong> En cada columna se busca el mayor valor absoluto y se intercambian
+                    filas si es necesario.
+                </li>
+                <li><strong>Eliminación hacia adelante:</strong> Se anulan todos los elementos por debajo del pivote de
+                    la columna actual.
+                </li>
+                <li><strong>Eliminación hacia atrás (opcional):</strong> Para obtener la matriz identidad mediante
+                    Gauss-Jordan.
+                </li>
+            </ol>
             </p>
             <p>
-                Finalmente, el sistema se resuelve obteniendo el vector solución \( \mathbf{x} \). 
+                Finalmente, el sistema se resuelve obteniendo el vector solución \( \mathbf{x} \).
             </p>
             <p>
                 Ejemplo de un sistema lineal con su matriz aumentada inicial:
                 \[
-                \begin{bmatrix} 
+                \begin{bmatrix}
                 2 & 1 & -1 & | & 8 \\
                 -3 & -1 & 2 & | & -11 \\
                 -2 & 1 & 2 & | & -3
@@ -153,7 +174,7 @@
                 \]
             </p>
         </div>
-        
+
         <script>
             const points = [];
 
@@ -375,65 +396,225 @@
                 alertContainer.appendChild(alertDiv);
             }
 
-            function calculate() {
+            // Función para limpiar todas las alertas existentes
+            function clearAlerts() {
+                const alertContainer = document.getElementById('alertContainer');
+                if (alertContainer) {
+                    alertContainer.innerHTML = '';
+                }
+            }
 
+            // Función para realizar el cálculo
+            function calculate() {
                 setLoadingState(true);
 
-                // Pasar parametros necesarios
-                const url = `/calculate_gauss_maximum_column_pivoting/? `;
+                // Mostrar mensaje de procesamiento
+                showAlert('Matriz cargada correctamente. Procesando...', 'success');
 
-                fetch(url)
-                    .then((response) => response.json())
-                    .then((data) => {
-                        if (data.error) {
-                            messageContainer.innerHTML = `
-                    <div class="alert alert-danger" role="alert">
-                        ${data.error}
-                    </div>
-                `;
+                // Obtener dimensiones de la matriz
+                const rows = parseInt(rowsInput.value);
+                const cols = parseInt(colsInput.value);
+
+                // Crear la matriz para enviar al servidor
+                const matrix = [];
+                for (let i = 0; i < rows; i++) {
+                    const rowValues = [];
+                    for (let j = 0; j < cols; j++) {
+                        const input = document.querySelector(`.matrix-input[data-row="${i}"][data-col="${j}"]`);
+                        const value = parseFloat(input.value);
+
+                        if (isNaN(value)) {
+                            showAlert(`Por favor, ingresa un valor numérico en la posición [${i + 1}, ${j + 1}]`, 'warning');
+                            setLoadingState(false);
                             return;
                         }
+                        rowValues.push(value);
+                    }
+                    matrix.push(rowValues);
+                }
 
-                        showResult(data.result);
-                        showProcessSteps(data.process_steps);
+                // Realizar la petición al servidor usando POST
+                fetch('/calculate-gauss-maximum-column-pivoting/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCsrfToken()
+                    },
+                    body: JSON.stringify({matrix: matrix})
+                })
+                    .then(response => {
+                        if (!response.ok && response.status !== 400) {
+                            throw new Error('Error en la comunicación con el servidor. Código: ' + response.status);
+                        }
+                        return response.json();
                     })
-                    .catch((error) => {
-                        console.error("Error:", error);
-                        messageContainer.innerHTML = `
-                <div class="alert alert-danger" role="alert">
-                    {% translate 'An error occurred during calculation' %}: ${error}
-                </div>
+                    .then(data => {
+                        // Limpiar alertas (incluyendo el mensaje de procesamiento)
+                        clearAlerts();
+
+                        // Resetear los contenedores de resultados
+                        const resultContainer = document.getElementById("resultContainer");
+                        resultContainer.innerHTML = '';
+
+                        // Si hay un error, mostrarlo primero
+                        if (data.error) {
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'alert alert-warning';
+                            errorDiv.innerHTML = `
+                <h4 class="alert-heading">Aviso importante:</h4>
+                <p>${data.error}</p>
             `;
+                            resultContainer.appendChild(errorDiv);
+                        }
+
+                        // Si hay resultado, mostrarlo
+                        if (data.result) {
+                            showResult(data.result);
+                        }
+
+                        // Mostrar los pasos del proceso siempre que estén disponibles
+                        if (data.process_steps && data.process_steps.length > 0) {
+                            showProcessSteps(data.process_steps);
+                        }
+
+                        // Mostrar el contenedor de respuesta
+                        document.getElementById('responseContainer').style.display = 'block';
+
+                        // Desplazarse hasta los resultados
+                        document.getElementById('responseContainer').scrollIntoView({behavior: 'smooth'});
+                    })
+                    .catch(error => {
+                        // Limpiar alertas (incluyendo el mensaje de procesamiento)
+                        clearAlerts();
+
+                        console.error("Error:", error);
+                        showAlert(`Error: ${error.message}`, 'danger');
                     })
                     .finally(() => {
                         setLoadingState(false);
                     });
             }
 
-            function showResult(result) {
-                const responseContainer = document.getElementById("responseContainer")
-                responseContainer.style.display = "block"
+            // Función para obtener el token CSRF
+            function getCsrfToken() {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    const [name, value] = cookie.trim().split('=');
+                    if (name === 'csrftoken') {
+                        return value;
+                    }
+                }
+                return null;
+            }
 
+            function showResult(result) {
                 const resultContainer = document.getElementById("resultContainer");
-                resultContainer.innerHTML = `
-                    <div class="alert alert-success" role="alert">
-                      <h4>{% translate 'Solution of the equation' %}: ${result}</h4>
-                    </div>
-                `;
+
+                // Crear el contenedor de la solución
+                const solutionDiv = document.createElement('div');
+                solutionDiv.className = 'alert alert-success mt-4';
+
+                // Título de la solución
+                const title = document.createElement('h4');
+                title.className = 'alert-heading mb-3';
+                title.textContent = 'Solución del Sistema';
+                solutionDiv.appendChild(title);
+
+                // Contenedor para las variables
+                const varContainer = document.createElement('div');
+                varContainer.className = 'solution-container';
+
+                // Añadir cada variable con su valor
+                for (let i = 0; i < result.length; i++) {
+                    const varDiv = document.createElement('p');
+                    varDiv.className = 'mb-2';
+                    varDiv.innerHTML = `x<sub>${i + 1}</sub> = ${parseFloat(result[i].toFixed(6))}`;
+                    varContainer.appendChild(varDiv);
+                }
+
+                solutionDiv.appendChild(varContainer);
+                resultContainer.appendChild(solutionDiv);
             }
 
             function showProcessSteps(steps) {
+                if (!steps || steps.length === 0) {
+                    return;
+                }
+
                 const stepsContainer = document.getElementById("stepsContainer");
-                stepsContainer.innerHTML = ""; // Limpiar pasos anteriores
+                stepsContainer.innerHTML = '<h4 class="mb-4">Pasos del Proceso:</h4>';
 
-                /**
-                 * Aqui se muestran los pasos
-                 */
+                // Crear un contenedor para los pasos
+                const stepsWrapper = document.createElement('div');
+                stepsWrapper.className = 'steps-wrapper';
 
-                // Re-renderizar el contenido LaTeX usando MathJax
-                MathJax.typeset();
+                steps.forEach((stepData, index) => {
+                    const stepDiv = document.createElement('div');
+                    stepDiv.className = 'step-item mb-4 p-3 border rounded';
+
+                    // Añadir título del paso
+                    const stepTitle = document.createElement('h5');
+                    stepTitle.className = 'step-title mb-3';
+                    stepTitle.textContent = `Paso ${index + 1}: ${stepData.step}`;
+                    stepDiv.appendChild(stepTitle);
+
+                    // Comprobar si existe una solución final
+                    if (stepData.solution) {
+                        const solutionDiv = document.createElement('div');
+                        solutionDiv.className = 'solution-display p-2';
+
+                        let solutionLatex = '\\begin{aligned} ';
+                        for (let i = 0; i < stepData.solution.length; i++) {
+                            const value = parseFloat(stepData.solution[i].toFixed(6));
+                            solutionLatex += `x_{${i + 1}} &= ${value} \\\\`;
+                        }
+                        solutionLatex += '\\end{aligned}';
+
+                        solutionDiv.innerHTML = `<p>$$${solutionLatex}$$</p>`;
+                        stepDiv.appendChild(solutionDiv);
+                    }
+                    // Si hay una matriz para mostrar
+                    else if (stepData.matrix) {
+                        const matrixDiv = document.createElement('div');
+                        matrixDiv.className = 'matrix-display p-2';
+
+                        // Crear representación LaTeX de la matriz
+                        let matrixLatex = '\\begin{bmatrix} ';
+                        for (let i = 0; i < stepData.matrix.length; i++) {
+                            const row = stepData.matrix[i];
+                            for (let j = 0; j < row.length; j++) {
+                                // Formato para evitar demasiados decimales
+                                const value = parseFloat(row[j].toFixed(6));
+                                matrixLatex += value;
+
+                                // Agregar separador entre coeficientes y términos independientes
+                                if (j === row.length - 2) {
+                                    matrixLatex += ' & | & ';
+                                } else if (j < row.length - 1) {
+                                    matrixLatex += ' & ';
+                                }
+                            }
+
+                            if (i < stepData.matrix.length - 1) {
+                                matrixLatex += ' \\\\ ';
+                            }
+                        }
+                        matrixLatex += ' \\end{bmatrix}';
+
+                        matrixDiv.innerHTML = `<p>$$${matrixLatex}$$</p>`;
+                        stepDiv.appendChild(matrixDiv);
+                    }
+
+                    stepsWrapper.appendChild(stepDiv);
+                });
+
+                stepsContainer.appendChild(stepsWrapper);
+
+                // Renderizar las fórmulas LaTeX
+                if (typeof MathJax !== 'undefined') {
+                    MathJax.typeset();
+                }
             }
-
         </script>
 
     </div>
