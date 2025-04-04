@@ -32,7 +32,7 @@ urlpatterns = [
     path("neville-method/", neville_method, name="neville_method"),
     path("cubic-spline/", cubic_spline, name="cubic_spline"),
     path("calculate-cubic-spline/", calculate_cubic_spline_view, name="calculate_cubic_spline"),
-    path("gauss-maximum-column-pivoting/", gauss_maximum_column_pivoting, name="cubic_spline"),
+    path("gauss-maximum-column-pivoting/", gauss_maximum_column_pivoting, name="gauss_maximum_column_pivoting"),
     path("calculate-gauss-maximum-column-pivoting/", calculate_gauss_maximum_column_pivoting,
-         name="calculate_cubic_spline"),
+         name="calculate_gauss_maximum_column_pivoting"),
 ]
