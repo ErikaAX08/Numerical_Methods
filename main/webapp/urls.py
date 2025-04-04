@@ -11,6 +11,8 @@ from .views.divided_differences_views import divided_differences
 from .views.neville_method_views import neville_method
 from .views.cubic_spline_views import cubic_spline, calculate_cubic_spline_view
 from .views.lagrange_views import lagrange, calculate_lagrange
+from .views.gauss_column_scaled_pivoting_views import gauss_column_scaled_pivoting, \
+    calculate_gauss_column_scaled_pivoting
 from .views.gauss_back_substitution_view import gauss_back_substitution, calculate_gauss_back_substitution_view
 from .views.gauss_maximum_column_pivoting_views import gauss_maximum_column_pivoting, \
     calculate_gauss_maximum_column_pivoting
@@ -33,6 +35,9 @@ urlpatterns = [
     path("neville-method/", neville_method, name="neville_method"),
     path("cubic-spline/", cubic_spline, name="cubic_spline"),
     path("calculate-cubic-spline/", calculate_cubic_spline_view, name="calculate_cubic_spline"),
+    path("gauss-column-scaled-pivoting/", gauss_column_scaled_pivoting, name="gauss_column_scaled_pivoting"),
+    path("calculate-gauss-column-scaled-pivoting/", calculate_gauss_column_scaled_pivoting,
+         name="calculate_gauss_column_scaled_pivoting"),
     path("gauss_back_substitution/", gauss_back_substitution, name="gauss_back_substitution"),
     path("calculate_gauss_back_substitution/", calculate_gauss_back_substitution_view,
          name="calculate_gauss_back_substitution"),
