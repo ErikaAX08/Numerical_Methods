@@ -103,12 +103,57 @@
 
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3 lead" style="display: none !important;">
-            <h3 class="pb-3">{% translate "Explicación de Gaussian Elimination with Maximum Column Pivoting" %}</h3>
+            <h3 class="pb-3">Explicación de Eliminación Gaussiana con Pivoteo Máximo de Columnas</h3>
             <p>
-                Explicación extensa
+                La <strong>Eliminación Gaussiana con Pivoteo Máximo de Columnas</strong> es un método numérico utilizado para resolver sistemas de ecuaciones lineales de la forma:
+                \[
+                A \mathbf{x} = \mathbf{b}
+                \]
+                Donde:
+                <ul>
+                    <li>\( A \) es una matriz cuadrada \( n \times n \).</li>
+                    <li>\( \mathbf{x} \) es el vector de incógnitas.</li>
+                    <li>\( \mathbf{b} \) es el vector de términos independientes.</li>
+                </ul>
+            </p>
+            <p>
+                El método consiste en realizar operaciones elementales sobre las filas de la matriz \( A \), con el objetivo de transformarla en una matriz triangular superior y posteriormente triangular inferior (Gauss-Jordan).
+            </p>
+            <p>
+                El <strong>pivoteo máximo por columnas</strong> se utiliza para mejorar la precisión numérica, intercambiando filas de tal manera que en cada columna se elija el elemento de mayor valor absoluto como pivote.
+            </p>
+            <p>
+                Las operaciones elementales son:
+                <ul>
+                    <li>Intercambio de filas: \( R_i \leftrightarrow R_j \).</li>
+                    <li>Multiplicación de una fila por un escalar distinto de cero: \( R_i \leftarrow \frac{R_i}{\text{pivote}} \).</li>
+                    <li>Suma o resta de un múltiplo de una fila a otra: \( R_j \leftarrow R_j - m R_i \), donde \( m \) es un escalar.</li>
+                </ul>
+            </p>
+            <p>
+                Proceso del método:
+                <ol>
+                    <li><strong>Formación de la matriz aumentada:</strong> \( [A|b] \).</li>
+                    <li><strong>Pivoteo máximo:</strong> En cada columna se busca el mayor valor absoluto y se intercambian filas si es necesario.</li>
+                    <li><strong>Eliminación hacia adelante:</strong> Se anulan todos los elementos por debajo del pivote de la columna actual.</li>
+                    <li><strong>Eliminación hacia atrás (opcional):</strong> Para obtener la matriz identidad mediante Gauss-Jordan.</li>
+                </ol>
+            </p>
+            <p>
+                Finalmente, el sistema se resuelve obteniendo el vector solución \( \mathbf{x} \). 
+            </p>
+            <p>
+                Ejemplo de un sistema lineal con su matriz aumentada inicial:
+                \[
+                \begin{bmatrix} 
+                2 & 1 & -1 & | & 8 \\
+                -3 & -1 & 2 & | & -11 \\
+                -2 & 1 & 2 & | & -3
+                \end{bmatrix}
+                \]
             </p>
         </div>
-
+        
         <script>
             const points = [];
 
