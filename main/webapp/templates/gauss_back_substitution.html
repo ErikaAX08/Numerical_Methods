@@ -416,7 +416,7 @@
                     }
 
                     matrix.push(rowValues);
-        
+
                     // Extract the b values (last column) for the vector
                     const bInput = document.querySelector(`.matrix-input[data-row="${i}"][data-col="${cols-1}"]`);
                     const bValue = parseFloat(bInput.value);
@@ -443,10 +443,13 @@
                         return;
                     }
 
-                    showResult(data.solution);
+                    // Mostrar los pasos del proceso siempre
                     if (data.process_steps) {
                         showProcessSteps(data.process_steps);
                     }
+
+                    // Mostrar el resultado según el tipo de solución
+                    showResultBasedOnStatus(data);
                 })
                 .catch(error => {
                     console.error("Error:", error);
@@ -456,6 +459,79 @@
                     setLoadingState(false);
                 });
             }
+
+            function showResultBasedOnStatus(data) {
+                const responseContainer = document.getElementById("responseContainer");
+                responseContainer.style.display = "block";
+
+                const resultContainer = document.getElementById("resultContainer");
+                
+                // Determinar el tipo de resultado y mostrar el mensaje apropiado
+                if (data.status === "success") {
+                    // Sistema con solución única
+                    let solutionHTML = "<ul class='list-group list-group-flush'>";
+                    for (let i = 0; i < data.solution.length; i++) {
+                        solutionHTML += `<li class="list-group-item">x${i+1} = ${data.solution[i].toFixed(4)}</li>`;
+                    }
+                    solutionHTML += "</ul>";
+                    
+                    resultContainer.innerHTML = `
+                        <div class="alert alert-success" role="alert">
+                        <h4>{% translate 'Solution of the equation' %}:</h4>
+                        ${solutionHTML}
+                        </div>
+                    `;
+                } 
+                else if (data.status === "no_solution") {
+                    // Sistema sin solución (inconsistente)
+                    let detailsHTML = "";
+                    if (data.details && data.details.explanation) {
+                        detailsHTML = "<ul class='list-group list-group-flush'>";
+                        data.details.explanation.forEach(explanation => {
+                            detailsHTML += `<li class="list-group-item">${explanation}</li>`;
+                        });
+                        detailsHTML += "</ul>";
+                    }
+                    
+                    resultContainer.innerHTML = `
+                        <div class="alert alert-danger" role="alert">
+                        <h4>{% translate 'No solution' %}:</h4>
+                        <p>${data.message}</p>
+                        ${detailsHTML}
+                        </div>
+                    `;
+                } 
+                else if (data.status === "infinite_solutions") {
+                    // Sistema con infinitas soluciones
+                    let detailsHTML = "";
+                    if (data.details) {
+                        detailsHTML = `
+                            <p>Rango de la matriz: ${data.details.rank}</p>
+                            <p>Número de variables: ${data.details.variables}</p>
+                            <p>Variables libres: ${data.details.free_variables.join(', ')}</p>
+                            <p>${data.details.description}</p>
+                        `;
+                    }
+                    
+                    resultContainer.innerHTML = `
+                        <div class="alert alert-warning" role="alert">
+                        <h4>{% translate 'Infinite solutions' %}:</h4>
+                        <p>${data.message}</p>
+                        ${detailsHTML}
+                        </div>
+                    `;
+                }
+                else {
+                    // Estado desconocido, mostrar información general
+                    resultContainer.innerHTML = `
+                        <div class="alert alert-info" role="alert">
+                        <h4>Resultado del cálculo:</h4>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            }
+
 
 
             function showResult(result) {
@@ -480,39 +556,58 @@
             }
 
             function showProcessSteps(steps) {
-                console.log("Datos recibidos para los pasos:", steps);
+    console.log("Datos recibidos para los pasos:", steps);
 
-                const stepsContainer = document.getElementById("stepsContainer");
-                stepsContainer.innerHTML = ""; // Limpiar pasos anteriores
+    const stepsContainer = document.getElementById("stepsContainer");
+    stepsContainer.innerHTML = "<h4>Desarrollo del proceso:</h4>"; // Limpiar pasos anteriores y agregar título
 
-                steps.forEach((stepObj, index) => {
-                    console.log(`Paso ${index + 1}:`, stepObj);
+    steps.forEach((stepObj, index) => {
+        console.log(`Paso ${index + 1}:`, stepObj);
 
-                    let stepContent = "";
+        let stepContent = "";
 
-                    if (stepObj.matrix) {
-                        const latexMatrix = formatMatrixToLatex(stepObj.matrix, 4); // Formato con 4 decimales
-                        stepContent = `<p>$$${latexMatrix}$$</p>`;
-                    } else if (stepObj.solution) {
-                        // Formateamos la solución final para que muestre los valores de x, y, z directamente
-                        const formattedSolution = stepObj.solution.map((val, i) => `x_${i + 1} = ${val.toFixed(4)}`).join(", ");
-                        stepContent = `<p><strong>Solución final:</strong> ${formattedSolution}</p>`;
-                    }
-
-                    const stepElement = document.createElement("div");
-                    stepElement.innerHTML = `
-                        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
-                            <strong>Paso ${index + 1}:</strong> ${stepObj.step}
-                            ${stepContent}
-                        </div>
-                    `;
-
-                    stepsContainer.appendChild(stepElement);
+        if (stepObj.matrix) {
+            const latexMatrix = formatMatrixToLatex(stepObj.matrix, 4); // Formato con 4 decimales
+            stepContent = `<p>$$${latexMatrix}$$</p>`;
+            
+            // Agregar información adicional si está presente
+            if (stepObj.inconsistent_rows) {
+                stepContent += `<p class="text-danger"><strong>Filas inconsistentes detectadas:</strong></p>`;
+                stepObj.inconsistent_rows.forEach(row => {
+                    stepContent += `<p class="text-danger">Fila ${row.row_index} sugiere: 0 = ${row.row_values[row.row_values.length - 1]}</p>`;
                 });
-
-                // Re-renderizar el contenido LaTeX usando MathJax
-                MathJax.typeset();
             }
+            
+            if (stepObj.rank) {
+                stepContent += `<p><strong>Rango de la matriz:</strong> ${stepObj.rank}</p>`;
+            }
+            
+            if (stepObj.free_variables) {
+                stepContent += `<p><strong>Variables libres:</strong> ${stepObj.free_variables.join(', ')}</p>`;
+            }
+        } 
+        else if (stepObj.solution) {
+            // Formateamos la solución final para que muestre los valores de x_1, x_2, x_3 directamente
+            const formattedSolution = stepObj.solution.map((val, i) => `x_${i + 1} = ${val.toFixed(4)}`).join(", ");
+            stepContent = `<p><strong>Solución final:</strong> ${formattedSolution}</p>`;
+        }
+
+        const stepElement = document.createElement("div");
+        stepElement.innerHTML = `
+            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
+                <strong>Paso ${index + 1}:</strong> ${stepObj.step}
+                ${stepContent}
+            </div>
+        `;
+
+        stepsContainer.appendChild(stepElement);
+    });
+
+    // Re-renderizar el contenido LaTeX usando MathJax
+    if (typeof MathJax !== 'undefined') {
+        MathJax.typeset();
+    }
+}
 
 
 
