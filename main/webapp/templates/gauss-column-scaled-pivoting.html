@@ -10,7 +10,7 @@
             <div class="col-lg-12">
                 <h2 class="display-4 fw-bold lh-1s">{% translate 'Gaussian Elimination with Column-Scaled Pivoting.' %}</h2>
                 <p class="lead py-5">
-                    Explicación
+                    {% translate 'El método de eliminación gaussiana con pivoteo escalado de columna es una técnica para resolver sistemas de ecuaciones lineales. Este método mejora la estabilidad numérica al seleccionar los pivotes basados en factores de escala, lo que reduce los errores de redondeo y mejora la precisión en sistemas de ecuaciones mal condicionados.' %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
@@ -103,10 +103,73 @@
 
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3 lead" style="display: none !important;">
-            <h3 class="pb-3">{% translate "Explicación de Gaussian Elimination with Maximum Column Pivoting" %}</h3>
-            <p>
-                Explicación extensa
-            </p>
+            <h3 class="pb-3">{% translate "Explicación de Gaussian Elimination with Column-Scaled Pivoting" %}</h3>
+
+            <div class="mt-4">
+                <h4>Concepto General</h4>
+                <p>
+                    El método de eliminación gaussiana con pivoteo escalado de columna es una variante mejorada del
+                    método
+                    de eliminación gaussiana estándar. Este método aborda problemas de estabilidad numérica que pueden
+                    surgir cuando trabajamos con sistemas de ecuaciones con coeficientes de magnitudes muy diferentes.
+                </p>
+            </div>
+
+            <div class="mt-4">
+                <h4>Proceso del algoritmo</h4>
+                <ol>
+                    <li><strong>Cálculo de factores de escala:</strong> Para cada fila, se determina el coeficiente de
+                        mayor
+                        magnitud. Este valor se usa como factor de escala para esa fila.
+                    </li>
+                    <li><strong>Selección del pivote:</strong> Para cada columna, se selecciona como pivote el elemento
+                        que
+                        tenga la mayor proporción respecto a su factor de escala, no simplemente el mayor valor
+                        absoluto.
+                    </li>
+                    <li><strong>Intercambio de filas:</strong> Si es necesario, se intercambian filas para colocar el
+                        pivote
+                        en la posición diagonal.
+                    </li>
+                    <li><strong>Eliminación:</strong> Se realizan operaciones de fila para eliminar los coeficientes
+                        debajo
+                        del pivote.
+                    </li>
+                    <li><strong>Sustitución hacia atrás:</strong> Una vez que la matriz está en forma triangular
+                        superior,
+                        se realiza la sustitución hacia atrás para encontrar los valores de las incógnitas.
+                    </li>
+                </ol>
+            </div>
+
+            <div class="mt-4">
+                <h4>Ventajas</h4>
+                <ul>
+                    <li>Mejora significativa en la estabilidad numérica comparado con la eliminación gaussiana simple.
+                    </li>
+                    <li>Reduce el error de redondeo al seleccionar los pivotes óptimos.</li>
+                    <li>Especialmente útil para sistemas mal condicionados donde los coeficientes tienen magnitudes muy
+                        diferentes.
+                    </li>
+                    <li>Evita la amplificación de errores durante el proceso de eliminación.</li>
+                </ul>
+            </div>
+
+            <div class="mt-4">
+                <h4>Aplicaciones</h4>
+                <p>
+                    Este método es particularmente útil en diversos campos de la ciencia e ingeniería donde se
+                    encuentran
+                    sistemas de ecuaciones lineales con coeficientes de magnitudes muy variadas, como en:
+                </p>
+                <ul>
+                    <li>Análisis estructural</li>
+                    <li>Simulaciones de circuitos eléctricos</li>
+                    <li>Problemas de dinámica de fluidos</li>
+                    <li>Ajuste de curvas y análisis de regresión</li>
+                    <li>Ecuaciones diferenciales resueltas numéricamente</li>
+                </ul>
+            </div>
         </div>
 
         <script>
@@ -331,38 +394,84 @@
             }
 
             function calculate() {
-
                 setLoadingState(true);
 
-                // Pasar parametros necesarios
-                const url = `/calculate_gauss_back_substitution/? `;
+                const rows = parseInt(rowsInput.value);
+                const cols = parseInt(colsInput.value);
 
-                fetch(url)
-                    .then((response) => response.json())
-                    .then((data) => {
+                // Crear matriz para almacenar los valores
+                const matrix = [];
+
+                // Obtener valores de la matriz
+                for (let i = 0; i < rows; i++) {
+                    const rowValues = [];
+                    for (let j = 0; j < cols; j++) {
+                        const input = document.querySelector(`.matrix-input[data-row="${i}"][data-col="${j}"]`);
+                        const value = parseFloat(input.value);
+
+                        if (isNaN(value)) {
+                            showAlert(`Por favor, ingresa un valor numérico en la posición [${i + 1}, ${j + 1}]`, 'warning');
+                            setLoadingState(false);
+                            return;
+                        }
+
+                        rowValues.push(value);
+                    }
+                    matrix.push(rowValues);
+                }
+
+                // Mostrar mensaje de éxito
+                showAlert('Matriz cargada correctamente. Procesando...', 'success');
+
+                // Preparar los datos como parámetros de URL (como en el ejemplo de cubic_spline)
+                const params = new URLSearchParams({
+                    matrix: JSON.stringify(matrix)
+                });
+
+                // Usar la URL correcta según el archivo urls.py
+                fetch(`/calculate-gauss-column-scaled-pivoting/?${params.toString()}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(errorData => {
+                                throw new Error(`Error en la respuesta del servidor: ${response.status} - ${errorData.error || 'Sin detalles'}`);
+                            }).catch(e => {
+                                if (e.message.includes('Unexpected token')) {
+                                    throw new Error(`Error en la respuesta del servidor: ${response.status} - No se pudo decodificar la respuesta`);
+                                }
+                                throw e;
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
                         if (data.error) {
-                            messageContainer.innerHTML = `
-                    <div class="alert alert-danger" role="alert">
-                        ${data.error}
-                    </div>
-                `;
+                            if (data.is_math_error) {
+                                // Muestra error matemático como alerta informativa
+                                showAlert(data.error, 'info');
+                                // Muestra los pasos de proceso si están disponibles
+                                if (data.process_steps && data.process_steps.length > 0) {
+                                    showProcessSteps(data.process_steps);
+                                }
+                            } else {
+                                // Muestra otros errores como advertencia
+                                showAlert(data.error, 'danger');
+                            }
                             return;
                         }
 
                         showResult(data.result);
                         showProcessSteps(data.process_steps);
                     })
-                    .catch((error) => {
+                    .catch(error => {
                         console.error("Error:", error);
-                        messageContainer.innerHTML = `
-                <div class="alert alert-danger" role="alert">
-                    {% translate 'An error occurred during calculation' %}: ${error}
-                </div>
-            `;
+                        showAlert(`Ocurrió un error durante el cálculo: ${error.message}`, 'danger');
                     })
                     .finally(() => {
                         setLoadingState(false);
                     });
+
+                // Mostrar el contenedor de respuesta
+                document.getElementById('responseContainer').style.display = 'block';
             }
 
             function showResult(result) {
@@ -381,14 +490,76 @@
                 const stepsContainer = document.getElementById("stepsContainer");
                 stepsContainer.innerHTML = ""; // Limpiar pasos anteriores
 
-                /**
-                 * Aqui se muestran los pasos
-                 */
+                if (!steps || steps.length === 0) {
+                    stepsContainer.innerHTML = `<div class="alert alert-info">No hay pasos disponibles para mostrar.</div>`;
+                    return;
+                }
 
-                // Re-renderizar el contenido LaTeX usando MathJax
-                MathJax.typeset();
+                // Crear el encabezado para los pasos
+                const header = document.createElement("h4");
+                header.className = "mb-4";
+                header.textContent = "Pasos del proceso:";
+                stepsContainer.appendChild(header);
+
+                // Crear un contenedor para los pasos
+                const stepsListContainer = document.createElement("div");
+                stepsListContainer.className = "steps-list";
+                stepsContainer.appendChild(stepsListContainer);
+
+                // Iterar a través de cada paso y crear su representación
+                steps.forEach((step, index) => {
+                    const stepContainer = document.createElement("div");
+                    stepContainer.className = "step-container mb-4 p-3 border-bottom";
+
+                    // Título del paso
+                    const stepTitle = document.createElement("h5");
+                    stepTitle.className = "step-title";
+                    stepTitle.textContent = `Paso ${index + 1}: ${step.description}`;
+                    stepContainer.appendChild(stepTitle);
+
+                    // Detalles adicionales si existen
+                    if (step.details) {
+                        const detailsElement = document.createElement("div");
+                        detailsElement.className = "step-details my-2";
+                        detailsElement.innerHTML = `<p>${step.details}</p>`;
+                        stepContainer.appendChild(detailsElement);
+                    }
+
+                    // Ecuación si existe (para pasos de sustitución hacia atrás)
+                    if (step.equation) {
+                        const equationElement = document.createElement("div");
+                        equationElement.className = "step-equation my-2";
+                        // Usar innerHTML en lugar de textContent para renderizar correctamente
+                        equationElement.innerHTML = `<div class="math-display">$$${step.equation}$$</div>`;
+                        stepContainer.appendChild(equationElement);
+                    }
+
+                    // Matriz si existe
+                    if (step.matrix) {
+                        const matrixElement = document.createElement("div");
+                        matrixElement.className = "step-matrix my-3";
+                        // Usar innerHTML en lugar de textContent para renderizar correctamente
+                        matrixElement.innerHTML = `<div class="math-display">$$${step.matrix}$$</div>`;
+                        stepContainer.appendChild(matrixElement);
+                    }
+
+                    stepsListContainer.appendChild(stepContainer);
+                });
+
+                // Usar setTimeout para dar tiempo a que los elementos se agreguen al DOM
+                setTimeout(() => {
+                    if (window.MathJax) {
+                        try {
+                            // Usar typeset para procesar todas las fórmulas
+                            window.MathJax.typeset();
+                        } catch (e) {
+                            console.error("Error al procesar MathJax:", e);
+                        }
+                    } else {
+                        console.warn("MathJax no está disponible");
+                    }
+                }, 100);
             }
-
         </script>
 
     </div>
