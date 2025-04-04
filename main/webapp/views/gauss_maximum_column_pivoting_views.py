@@ -6,6 +6,7 @@ import json
 
 
 def gauss_maximum_column_pivoting(request):
+
     """
     Renderiza la plantilla con la calculadora de eliminación gaussiana
     """
@@ -88,3 +89,4 @@ def calculate_gauss_maximum_column_pivoting(request):
     except Exception as error:
         print("Error en el cálculo:", error)
         return JsonResponse({'error': str(error)}, status=500)
+
