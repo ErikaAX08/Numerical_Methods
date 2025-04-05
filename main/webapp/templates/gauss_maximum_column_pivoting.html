@@ -510,30 +510,72 @@
             function showResult(result) {
                 const resultContainer = document.getElementById("resultContainer");
 
-                // Crear el contenedor de la solución
-                const solutionDiv = document.createElement('div');
-                solutionDiv.className = 'alert alert-success mt-4';
+                // Limpiar el contenedor de resultados anteriores
+                resultContainer.innerHTML = '';
 
-                // Título de la solución
-                const title = document.createElement('h4');
-                title.className = 'alert-heading mb-3';
-                title.textContent = 'Solución del Sistema';
-                solutionDiv.appendChild(title);
+                // Verificar si el resultado es un array (solución) o una cadena (mensaje de error)
+                if (Array.isArray(result)) {
+                    // Es una solución válida
+                    const solutionDiv = document.createElement('div');
+                    solutionDiv.className = 'alert alert-success mt-4';
 
-                // Contenedor para las variables
-                const varContainer = document.createElement('div');
-                varContainer.className = 'solution-container';
+                    // Título de la solución
+                    const title = document.createElement('h4');
+                    title.className = 'alert-heading mb-3';
+                    title.textContent = 'Solución del Sistema';
+                    solutionDiv.appendChild(title);
 
-                // Añadir cada variable con su valor
-                for (let i = 0; i < result.length; i++) {
-                    const varDiv = document.createElement('p');
-                    varDiv.className = 'mb-2';
-                    varDiv.innerHTML = `x<sub>${i + 1}</sub> = ${parseFloat(result[i].toFixed(6))}`;
-                    varContainer.appendChild(varDiv);
+                    // Contenedor para las variables
+                    const varContainer = document.createElement('div');
+                    varContainer.className = 'solution-container';
+
+                    // Añadir cada variable con su valor
+                    for (let i = 0; i < result.length; i++) {
+                        const varDiv = document.createElement('p');
+                        varDiv.className = 'mb-2';
+
+                        // Formatear el valor numérico para eliminar ceros finales innecesarios
+                        const value = parseFloat(result[i].toFixed(6));
+                        const formattedValue = value.toString().replace(/\.?0+$/, "");
+
+                        varDiv.innerHTML = `x<sub>${i + 1}</sub> = ${formattedValue}`;
+                        varContainer.appendChild(varDiv);
+                    }
+
+                    solutionDiv.appendChild(varContainer);
+                    resultContainer.appendChild(solutionDiv);
+                } else {
+                    // Es un mensaje (probablemente un error o información)
+                    const messageDiv = document.createElement('div');
+
+                    // Determinar el tipo de alerta basado en el contenido del mensaje
+                    let alertType = 'info';
+                    if (typeof result === 'string') {
+                        if (result.includes('no tiene solución') ||
+                            result.includes('inconsistente') ||
+                            result.includes('singular') ||
+                            result.includes('infinitas')) {
+                            alertType = 'info';
+                        } else if (result.includes('Error')) {
+                            alertType = 'danger';
+                        }
+                    }
+
+                    messageDiv.className = `alert alert-${alertType} mt-4`;
+
+                    // Título del mensaje
+                    const title = document.createElement('h4');
+                    title.className = 'alert-heading mb-3';
+                    title.textContent = alertType === 'info' ? 'Información del Sistema' : 'Error';
+                    messageDiv.appendChild(title);
+
+                    // Contenido del mensaje
+                    const content = document.createElement('p');
+                    content.textContent = result;
+                    messageDiv.appendChild(content);
+
+                    resultContainer.appendChild(messageDiv);
                 }
-
-                solutionDiv.appendChild(varContainer);
-                resultContainer.appendChild(solutionDiv);
             }
 
             function showProcessSteps(steps) {
@@ -563,14 +605,20 @@
                         const solutionDiv = document.createElement('div');
                         solutionDiv.className = 'solution-display p-2';
 
-                        let solutionLatex = '\\begin{aligned} ';
-                        for (let i = 0; i < stepData.solution.length; i++) {
-                            const value = parseFloat(stepData.solution[i].toFixed(6));
-                            solutionLatex += `x_{${i + 1}} &= ${value} \\\\`;
-                        }
-                        solutionLatex += '\\end{aligned}';
+                        // Asegurarse de que solution sea un array
+                        if (Array.isArray(stepData.solution)) {
+                            let solutionLatex = '\\begin{aligned} ';
+                            for (let i = 0; i < stepData.solution.length; i++) {
+                                const value = parseFloat(stepData.solution[i].toFixed(6));
+                                solutionLatex += `x_{${i + 1}} &= ${value} \\\\`;
+                            }
+                            solutionLatex += '\\end{aligned}';
 
-                        solutionDiv.innerHTML = `<p>$$${solutionLatex}$$</p>`;
+                            solutionDiv.innerHTML = `<p>$$${solutionLatex}$$</p>`;
+                        } else {
+                            // Si no es un array, podría ser un mensaje de error o texto
+                            solutionDiv.innerHTML = `<p class="alert alert-info">${stepData.solution}</p>`;
+                        }
                         stepDiv.appendChild(solutionDiv);
                     }
                     // Si hay una matriz para mostrar
@@ -578,30 +626,60 @@
                         const matrixDiv = document.createElement('div');
                         matrixDiv.className = 'matrix-display p-2';
 
-                        // Crear representación LaTeX de la matriz
-                        let matrixLatex = '\\begin{bmatrix} ';
-                        for (let i = 0; i < stepData.matrix.length; i++) {
-                            const row = stepData.matrix[i];
-                            for (let j = 0; j < row.length; j++) {
-                                // Formato para evitar demasiados decimales
-                                const value = parseFloat(row[j].toFixed(6));
-                                matrixLatex += value;
+                        try {
+                            // Validar que la matriz sea un array bidimensional
+                            if (!Array.isArray(stepData.matrix) || stepData.matrix.length === 0 || !Array.isArray(stepData.matrix[0])) {
+                                throw new Error("Formato de matriz inválido");
+                            }
 
-                                // Agregar separador entre coeficientes y términos independientes
-                                if (j === row.length - 2) {
-                                    matrixLatex += ' & | & ';
-                                } else if (j < row.length - 1) {
-                                    matrixLatex += ' & ';
+                            // Crear representación LaTeX de la matriz
+                            let matrixLatex = '\\begin{bmatrix} ';
+
+                            for (let i = 0; i < stepData.matrix.length; i++) {
+                                const row = stepData.matrix[i];
+
+                                // Determinar si es la última columna (términos independientes)
+                                const lastColIndex = row.length - 1;
+
+                                for (let j = 0; j < row.length; j++) {
+                                    // Asegurarse de que el valor sea numérico
+                                    const cellValue = row[j];
+                                    let formattedValue;
+
+                                    if (isNaN(cellValue)) {
+                                        formattedValue = "?";
+                                    } else {
+                                        // Formato para evitar demasiados decimales
+                                        formattedValue = parseFloat(cellValue.toFixed(6));
+                                        // Eliminar ceros finales después del punto decimal
+                                        formattedValue = formattedValue.toString().replace(/\.?0+$/, "");
+                                    }
+
+                                    matrixLatex += formattedValue;
+
+                                    // Agregar separador entre columnas
+                                    if (j === lastColIndex - 1) {
+                                        // Separador especial antes de la columna de términos independientes
+                                        matrixLatex += ' & | & ';
+                                    } else if (j < lastColIndex) {
+                                        matrixLatex += ' & ';
+                                    }
+                                }
+
+                                // Agregar salto de línea entre filas
+                                if (i < stepData.matrix.length - 1) {
+                                    matrixLatex += ' \\\\ ';
                                 }
                             }
+                            matrixLatex += ' \\end{bmatrix}';
 
-                            if (i < stepData.matrix.length - 1) {
-                                matrixLatex += ' \\\\ ';
-                            }
+                            matrixDiv.innerHTML = `<p>$$${matrixLatex}$$</p>`;
+                        } catch (error) {
+                            console.error("Error al formatear matriz:", error);
+                            // Si hay un error al formatear la matriz, mostrar un mensaje en su lugar
+                            matrixDiv.innerHTML = `<p class="alert alert-warning">No se pudo renderizar la matriz correctamente</p>`;
                         }
-                        matrixLatex += ' \\end{bmatrix}';
 
-                        matrixDiv.innerHTML = `<p>$$${matrixLatex}$$</p>`;
                         stepDiv.appendChild(matrixDiv);
                     }
 
@@ -610,10 +688,16 @@
 
                 stepsContainer.appendChild(stepsWrapper);
 
-                // Renderizar las fórmulas LaTeX
-                if (typeof MathJax !== 'undefined') {
-                    MathJax.typeset();
-                }
+                // Renderizar las fórmulas LaTeX (con tiempo de espera para asegurar que el DOM esté listo)
+                setTimeout(() => {
+                    if (typeof MathJax !== 'undefined') {
+                        try {
+                            MathJax.typeset();
+                        } catch (e) {
+                            console.error("Error al procesar MathJax:", e);
+                        }
+                    }
+                }, 100);
             }
         </script>
 
