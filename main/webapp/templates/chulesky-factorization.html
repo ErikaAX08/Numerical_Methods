@@ -464,6 +464,7 @@
                 return '';
             }
 
+            // 1. Corrigamos el problema principal con path incorrectos
             function calculate() {
                 setLoadingState(true);
 
@@ -488,6 +489,7 @@
                     matrix.push(rowValues);
                 }
 
+                // Asegurarse de que la URL es correcta - puede necesitar ajustarse según la configuración de tu proyecto
                 fetch('/calculate-chulesky-factorization/', {
                     method: "POST",
                     headers: {
@@ -496,13 +498,18 @@
                     },
                     body: JSON.stringify({matrix: matrix}),
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.error) {
-                            showAlert(data.error, 'danger');
-                            return;
+                    .then(response => {
+                        if (!response.ok) {
+                            if (response.status === 400) {
+                                return response.json().then(data => {
+                                    throw new Error(data.error || 'Error en la solicitud');
+                                });
+                            }
+                            throw new Error('Error en la comunicación con el servidor. Código: ' + response.status);
                         }
-
+                        return response.json();
+                    })
+                    .then(data => {
                         // Mostrar los pasos del proceso siempre
                         if (data.process_steps) {
                             showProcessSteps(data.process_steps);
@@ -513,11 +520,154 @@
                     })
                     .catch(error => {
                         console.error("Error:", error);
-                        showAlert(`Error en la conexión con el servidor: ${error}`, 'danger');
+                        showAlert(`Error: ${error.message}`, 'danger');
                     })
                     .finally(() => {
                         setLoadingState(false);
                     });
+            }
+
+            // 2. Mejora en la función showProcessSteps para evitar errores de DOM
+            function showProcessSteps(steps) {
+                if (!steps || steps.length === 0) {
+                    return;
+                }
+
+                const stepsContainer = document.getElementById("stepsContainer");
+                // Limpiar el contenedor
+                stepsContainer.innerHTML = "<h4>Desarrollo del proceso:</h4>";
+
+                steps.forEach((stepObj, index) => {
+                    let stepContent = "";
+                    let stepTitle = `<strong>Paso ${index + 1}:</strong> ${stepObj.step || ''}`;
+
+                    // Para matrices aumentadas [A|b]
+                    if (stepObj.matrix) {
+                        try {
+                            const latexMatrix = formatMatrixToLatex(stepObj.matrix, 4);
+                            stepContent += `<p>$$${latexMatrix}$$</p>`;
+                        } catch (e) {
+                            console.error("Error al formatear matriz:", e);
+                            stepContent += `<p class="text-danger">Error al formatear matriz</p>`;
+                        }
+                    }
+
+                    // Para matrices L y L^T
+                    if (stepObj.L && stepObj.LT) {
+                        try {
+                            const latexL = formatMatrixToLatex(stepObj.L, 4, false);
+                            const latexLT = formatMatrixToLatex(stepObj.LT, 4, false);
+
+                            stepContent += `<p>Matriz L (triangular inferior):</p>
+                              <p>$$${latexL}$$</p>
+                              <p>Matriz L^T (triangular superior):</p>
+                              <p>$$${latexLT}$$</p>`;
+                        } catch (e) {
+                            console.error("Error al formatear matrices L y LT:", e);
+                            stepContent += `<p class="text-danger">Error al formatear matrices de factorización</p>`;
+                        }
+                    }
+
+                    // Para verificación A = L*L^T
+                    if (stepObj.A && stepObj.LLT) {
+                        try {
+                            const latexA = formatMatrixToLatex(stepObj.A, 4, false);
+                            const latexLLT = formatMatrixToLatex(stepObj.LLT, 4, false);
+
+                            stepContent += `<p>Matriz A original:</p>
+                              <p>$$${latexA}$$</p>
+                              <p>Matriz L*L^T calculada:</p>
+                              <p>$$${latexLLT}$$</p>`;
+
+                            if (stepObj.is_valid !== undefined) {
+                                stepContent += `<p class="${stepObj.is_valid ? 'text-success' : 'text-danger'}">
+                                  <strong>Factorización ${stepObj.is_valid ? 'válida' : 'no válida'}</strong>
+                                  </p>`;
+                            }
+                        } catch (e) {
+                            console.error("Error al formatear matrices de verificación:", e);
+                            stepContent += `<p class="text-danger">Error al formatear matrices de verificación</p>`;
+                        }
+                    }
+
+                    // Para el sistema Ly = b
+                    if (stepObj.L && stepObj.b && stepObj.y) {
+                        try {
+                            const latexL = formatMatrixToLatex(stepObj.L, 4, false);
+                            const latexB = formatVectorToLatex(stepObj.b, 4);
+                            const latexY = formatVectorToLatex(stepObj.y, 4);
+
+                            stepContent += `<p>Resolviendo Ly = b:</p>
+                              <p>$$${latexL} \\cdot ${latexY} = ${latexB}$$</p>`;
+                        } catch (e) {
+                            console.error("Error al formatear sistema Ly=b:", e);
+                            stepContent += `<p class="text-danger">Error al formatear sistema de ecuaciones</p>`;
+                        }
+                    }
+
+                    // Para el sistema L^T x = y
+                    if (stepObj.LT && stepObj.y && stepObj.x) {
+                        try {
+                            const latexLT = formatMatrixToLatex(stepObj.LT, 4, false);
+                            const latexY = formatVectorToLatex(stepObj.y, 4);
+                            const latexX = formatVectorToLatex(stepObj.x, 4);
+
+                            stepContent += `<p>Resolviendo L^T x = y:</p>
+                              <p>$$${latexLT} \\cdot ${latexX} = ${latexY}$$</p>`;
+                        } catch (e) {
+                            console.error("Error al formatear sistema L^Tx=y:", e);
+                            stepContent += `<p class="text-danger">Error al formatear sistema de ecuaciones</p>`;
+                        }
+                    }
+
+                    // Para la solución final
+                    if (stepObj.solution) {
+                        try {
+                            const formattedSolution = stepObj.solution.map((val, i) => `x_{${i + 1}} = ${val.toFixed(4)}`).join(", ");
+                            stepContent += `<p><strong>Solución final:</strong> $$${formattedSolution}$$</p>`;
+                        } catch (e) {
+                            console.error("Error al formatear solución final:", e);
+                            stepContent += `<p class="text-danger">Error al formatear la solución final</p>`;
+                        }
+                    }
+
+                    // Para información de análisis de rango
+                    if (stepObj.rank !== undefined) {
+                        stepContent += `<p><strong>Rango de la matriz:</strong> ${stepObj.rank}</p>`;
+                        if (stepObj.variables !== undefined) {
+                            stepContent += `<p><strong>Número de variables:</strong> ${stepObj.variables}</p>`;
+                        }
+                        if (stepObj.free_variables !== undefined && Array.isArray(stepObj.free_variables)) {
+                            stepContent += `<p><strong>Variables libres:</strong> ${stepObj.free_variables.join(', ')}</p>`;
+                        }
+                        if (stepObj.description !== undefined) {
+                            stepContent += `<p><strong>${stepObj.description}</strong></p>`;
+                        }
+                    }
+
+                    const stepElement = document.createElement("div");
+                    stepElement.innerHTML = `
+            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
+                ${stepTitle}
+                ${stepContent}
+            </div>
+        `;
+
+                    stepsContainer.appendChild(stepElement);
+                });
+
+                // Re-renderizar el contenido LaTeX usando MathJax
+                setTimeout(() => {
+                    if (typeof MathJax !== 'undefined') {
+                        try {
+                            MathJax.typeset();
+                        } catch (e) {
+                            console.error("Error al procesar MathJax:", e);
+                        }
+                    } else {
+                        console.warn("MathJax no está disponible. Las fórmulas matemáticas no se renderizarán correctamente.");
+                    }
+                }, 100);
             }
 
             function showResultBasedOnStatus(data) {
@@ -579,135 +729,41 @@
                 }
             }
 
-            function showProcessSteps(steps) {
-                console.log("Datos recibidos para los pasos:", steps);
-
-                const stepsContainer = document.getElementById("stepsContainer");
-                stepsContainer.innerHTML = "<h4>Desarrollo del proceso:</h4>"; // Limpiar pasos anteriores y agregar título
-
-                steps.forEach((stepObj, index) => {
-                    console.log(`Paso ${index + 1}:`, stepObj);
-
-                    let stepContent = "";
-                    let stepTitle = `<strong>Paso ${index + 1}:</strong> ${stepObj.step}`;
-
-                    // Para matrices aumentadas [A|b]
-                    if (stepObj.matrix) {
-                        const latexMatrix = formatMatrixToLatex(stepObj.matrix, 4);
-                        stepContent += `<p>$${latexMatrix}$</p>`;
-                    }
-
-                    // Para matrices L y L^T
-                    if (stepObj.L && stepObj.LT) {
-                        const latexL = formatMatrixToLatex(stepObj.L, 4, false);
-                        const latexLT = formatMatrixToLatex(stepObj.LT, 4, false);
-
-                        stepContent += `<p>Matriz L (triangular inferior):</p>
-                                      <p>$${latexL}$</p>
-                                      <p>Matriz L^T (triangular superior):</p>
-                                      <p>$${latexLT}$</p>`;
-                    }
-
-                    // Para verificación A = L*L^T
-                    if (stepObj.A && stepObj.LLT) {
-                        const latexA = formatMatrixToLatex(stepObj.A, 4, false);
-                        const latexLLT = formatMatrixToLatex(stepObj.LLT, 4, false);
-
-                        stepContent += `<p>Matriz A original:</p>
-                                      <p>$${latexA}$</p>
-                                      <p>Matriz L*L^T calculada:</p>
-                                      <p>$${latexLLT}$</p>`;
-
-                        if (stepObj.is_valid !== undefined) {
-                            stepContent += `<p class="${stepObj.is_valid ? 'text-success' : 'text-danger'}">
-                                          <strong>Factorización ${stepObj.is_valid ? 'válida' : 'no válida'}</strong>
-                                          </p>`;
-                        }
-                    }
-
-                    // Para el sistema Ly = b
-                    if (stepObj.L && stepObj.b && stepObj.y) {
-                        const latexL = formatMatrixToLatex(stepObj.L, 4, false);
-                        const latexB = formatVectorToLatex(stepObj.b, 4);
-                        const latexY = formatVectorToLatex(stepObj.y, 4);
-
-                        stepContent += `<p>Resolviendo Ly = b:</p>
-                                      <p>$${latexL} \\cdot ${latexY} = ${latexB}$</p>`;
-                    }
-
-                    // Para el sistema L^T x = y
-                    if (stepObj.LT && stepObj.y && stepObj.x) {
-                        const latexLT = formatMatrixToLatex(stepObj.LT, 4, false);
-                        const latexY = formatVectorToLatex(stepObj.y, 4);
-                        const latexX = formatVectorToLatex(stepObj.x, 4);
-
-                        stepContent += `<p>Resolviendo L^T x = y:</p>
-                                      <p>$${latexLT} \\cdot ${latexX} = ${latexY}$</p>`;
-                    }
-
-                    // Para la solución final
-                    if (stepObj.solution) {
-                        const formattedSolution = stepObj.solution.map((val, i) => `x_{${i + 1}} = ${val.toFixed(4)}`).join(", ");
-                        stepContent += `<p><strong>Solución final:</strong> $${formattedSolution}$</p>`;
-                    }
-
-                    // Para información de análisis de rango
-                    if (stepObj.rank !== undefined) {
-                        stepContent += `<p><strong>Rango de la matriz:</strong> ${stepObj.rank}</p>`;
-                        if (stepObj.variables !== undefined) {
-                            stepContent += `<p><strong>Número de variables:</strong> ${stepObj.variables}</p>`;
-                        }
-                        if (stepObj.free_variables !== undefined) {
-                            stepContent += `<p><strong>Variables libres:</strong> ${stepObj.free_variables.join(', ')}</p>`;
-                        }
-                        if (stepObj.description !== undefined) {
-                            stepContent += `<p><strong>${stepObj.description}</strong></p>`;
-                        }
-                    }
-
-                    const stepElement = document.createElement("div");
-                    stepElement.innerHTML = `
-                        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
-                            ${stepTitle}
-                            ${stepContent}
-                        </div>
-                    `;
-
-                    stepsContainer.appendChild(stepElement);
-                });
-
-                // Re-renderizar el contenido LaTeX usando MathJax
-                if (typeof MathJax !== 'undefined') {
-                    MathJax.typeset();
-                }
-            }
-
+            // 3. Funciones de formato mejoradas
             function formatMatrixToLatex(matrix, decimals = 4, augmented = true) {
                 if (!matrix || matrix.length === 0) {
                     return "\\text{Empty matrix}";
                 }
 
-                const numCols = matrix[0].length;
-                // Crear formato de columnas con una línea vertical antes de la última columna si es matriz aumentada
-                let columnFormat = "";
-                for (let i = 0; i < numCols; i++) {
-                    columnFormat += "c";
-                    // Añade la línea vertical antes de la última columna solo si es matriz aumentada
-                    if (augmented && i === numCols - 2) {
-                        columnFormat += "|";
-                    }
-                }
-
-                const rows = matrix.map(row => {
-                    return row.map(val => {
-                        if (typeof val === 'number') {
-                            return val.toFixed(decimals);
+                try {
+                    const numCols = matrix[0].length;
+                    // Crear formato de columnas con una línea vertical antes de la última columna si es matriz aumentada
+                    let columnFormat = "";
+                    for (let i = 0; i < numCols; i++) {
+                        columnFormat += "c";
+                        // Añade la línea vertical antes de la última columna solo si es matriz aumentada
+                        if (augmented && i === numCols - 2) {
+                            columnFormat += "|";
                         }
-                        return val;
-                    }).join(" & ");
-                }).join(" \\\\ ");
+                    }
 
-                return "\\left[ \\begin{array}{" + columnFormat + "} " + rows + " \\end{array} \\right]";
+                    const rows = matrix.map(row => {
+                        return row.map(val => {
+                            if (typeof val === 'number') {
+                                // Formatear el número para evitar problemas con valores muy pequeños o NaN
+                                if (isNaN(val)) return "?";
+                                if (Math.abs(val) < 1e-10) return "0";
+                                return val.toFixed(decimals);
+                            }
+                            return val;
+                        }).join(" & ");
+                    }).join(" \\\\ ");
+
+                    return "\\left[ \\begin{array}{" + columnFormat + "} " + rows + " \\end{array} \\right]";
+                } catch (e) {
+                    console.error("Error en formatMatrixToLatex:", e);
+                    return "\\text{Error al formatear matriz}";
+                }
             }
 
             function formatVectorToLatex(vector, decimals = 4) {
@@ -715,14 +771,22 @@
                     return "\\text{Empty vector}";
                 }
 
-                const elements = vector.map(val => {
-                    if (typeof val === 'number') {
-                        return val.toFixed(decimals);
-                    }
-                    return val;
-                }).join(" \\\\ ");
+                try {
+                    const elements = vector.map(val => {
+                        if (typeof val === 'number') {
+                            // Formatear el número para evitar problemas con valores muy pequeños o NaN
+                            if (isNaN(val)) return "?";
+                            if (Math.abs(val) < 1e-10) return "0";
+                            return val.toFixed(decimals);
+                        }
+                        return val;
+                    }).join(" \\\\ ");
 
-                return "\\begin{bmatrix} " + elements + " \\end{bmatrix}";
+                    return "\\begin{bmatrix} " + elements + " \\end{bmatrix}";
+                } catch (e) {
+                    console.error("Error en formatVectorToLatex:", e);
+                    return "\\text{Error al formatear vector}";
+                }
             }
         </script>
 

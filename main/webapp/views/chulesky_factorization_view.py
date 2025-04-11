@@ -1,8 +1,10 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from ..utils.chulesky_factorization import cholesky_factorization_method
 import json
 from django.views.decorators.csrf import csrf_exempt
+
+# Asegúrate de que esta ruta sea correcta para tu proyecto
+from ..utils.chulesky_factorization import cholesky_factorization_method
 
 
 def chulesky_factorization(request):
@@ -46,13 +48,14 @@ def calculate_chulesky_factorization(request):
         # Ejecutar el método de factorización de Cholesky
         result, steps = cholesky_factorization_method(matrix)
 
-        # Verificar si hubo un error
+        # Verificar si hubo un error (resultado es string)
         if isinstance(result, str):
             return JsonResponse({
                 'status': 'error',
                 'message': result,
                 'process_steps': steps
             })
+        # Verificar si hay infinitas soluciones (resultado es diccionario)
         elif isinstance(result, dict) and result.get('status') == 'infinite_solutions':
             return JsonResponse({
                 'status': 'infinite_solutions',
