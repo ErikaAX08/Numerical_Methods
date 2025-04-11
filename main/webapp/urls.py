@@ -16,6 +16,7 @@ from .views.gauss_column_scaled_pivoting_views import gauss_column_scaled_pivoti
 from .views.gauss_back_substitution_view import gauss_back_substitution, calculate_gauss_back_substitution_view
 from .views.gauss_maximum_column_pivoting_views import gauss_maximum_column_pivoting, \
     calculate_gauss_maximum_column_pivoting
+from .views.chulesky_factorization_view import chulesky_factorization, calculate_chulesky_factorization
 from .views.lu_factorization_view import lu_factorization, calculate_lu_factorization
 
 urlpatterns = [
@@ -45,7 +46,9 @@ urlpatterns = [
     path("gauss-maximum-column-pivoting/", gauss_maximum_column_pivoting, name="gauss_maximum_column_pivoting"),
     path("calculate-gauss-maximum-column-pivoting/", calculate_gauss_maximum_column_pivoting,
          name="calculate_gauss_maximum_column_pivoting"),
-
+    path("chulesky-factorization/", chulesky_factorization, name="chulesky_factorization"),
+    path("calculate-chulesky-factorization/", calculate_chulesky_factorization,
+         name="calculate_chulesky_factorization"),
     path("lu-factorization/", lu_factorization, name="lu_factorization"),
     path("calculate-lu-factorization/", calculate_lu_factorization,
          name="calculate_lu_factorization"),
