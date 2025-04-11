@@ -95,20 +95,20 @@ def resolver_ux_y(U, y):
     n = len(U)
     x = [0.0] * n
     steps = []
-    variables = ['a', 'b', 'c']
+    # Cambiamos a variables x1, x2, x3 para mayor claridad
+    variables = [f'x{i+1}' for i in range(n)]
 
     for i in range(n-1, -1, -1):  # Iniciamos desde la última fila hacia la primera
         suma = sum(U[i][j] * x[j] for j in range(i+1, n))
         x[i] = (y[i] - suma) / U[i][i]
 
+        sum_terms = " + ".join(
+            [f"U[{i+1}][{j+1}]*{variables[j]}" for j in range(i+1, n)]) if i < n-1 else "0"
+
         steps.append({
-            "step": f"Paso {n-i}",
-            "description": f"Resolviendo para {variables[i]}",
-            "details": [
-                f"Fórmula: {variables[i]} = (y[{i+1}] - suma) / U[{i+1},{i+1}]",
-                f"Suma de productos posteriores: {suma}",
-                f"{variables[i]} = ({y[i]} - {suma}) / {U[i][i]} = {x[i]}"
-            ]
+            "step": f"Cálculo de {variables[i]}",
+            "description": f"Resolviendo para {variables[i]} usando sustitución hacia atrás",
+            "calculation": f"{variables[i]} = (y[{i+1}] - {sum_terms}) / U[{i+1}][{i+1}] = ({y[i]} - {suma}) / {U[i][i]} = {x[i]:.4f}"
         })
 
     return x, steps
@@ -142,7 +142,9 @@ def lu_decomposition_method(matrix, vector):
     x, ux_steps = resolver_ux_y(U, y)
     steps.append({
         "step": "Resolución de Ux = y",
-        "description": "Se resuelve el sistema Ux = y usando sustitución hacia atrás"
+        "description": "Se resuelve el sistema Ux = y usando sustitución hacia atrás",
+        "matrix_U": copy.deepcopy(U),
+        "vector_y": copy.deepcopy(y)
     })
     steps.extend(ux_steps)
 

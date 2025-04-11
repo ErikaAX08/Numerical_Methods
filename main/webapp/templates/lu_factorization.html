@@ -415,7 +415,8 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    console.log("Datos recibidos: ", data);
+                    console.log("Respuesta completa del servidor: ", data);
+
                     if (data.error) {
                         showAlert(data.error, 'danger');
                         return;
@@ -427,7 +428,13 @@
                     }
 
                     // Mostrar el resultado según el tipo de solución
-                    showResultBasedOnStatus(data);
+                    if (data.vectors && data.vectors.x) {
+                        showResult(data.vectors.x);
+                    } else if (data.solution) {
+                        showResult(data.solution);
+                    } else {
+                        showResultBasedOnStatus(data);
+                    }
                 })
                 .catch(error => {
                     console.error("Error:", error);
@@ -551,7 +558,7 @@
                     
                     // Mostrar cálculos específicos
                     if (stepObj.calculation) {
-                        stepContent += `<p class="text-primary"><strong>Cálculo:</strong> ${stepObj.calculation}</p>`;
+                        stepContent += `<p><strong>Cálculo:</strong> ${stepObj.calculation}</p>`;
                     }
 
                     // Matrices A, L, U
@@ -645,19 +652,18 @@
 
 
 
-        function formatMatrixToLatex(matrix, decimals = 4) {
+        function formatMatrixToLatex(matrix, decimals = 4, addSeparator = false) {
             if (!matrix || matrix.length === 0) {
                 return "\\text{Empty matrix}";
             }
             
             const numCols = matrix[0].length;
-            // Crea un formato de columnas con una línea vertical antes de la última columna
-            // Por ejemplo, para una matriz 3x4, sería "ccc|c"
+            // Crea un formato de columnas, con opción de añadir o no la línea vertical
             let columnFormat = "";
             for (let i = 0; i < numCols; i++) {
                 columnFormat += "c";
-                // Añade la línea vertical antes de la última columna
-                if (i === numCols - 2) {
+                // Añade la línea vertical antes de la última columna solo si se solicita
+                if (addSeparator && i === numCols - 2) {
                     columnFormat += "|";
                 }
             }
