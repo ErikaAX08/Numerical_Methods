@@ -9,9 +9,12 @@
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
             <div class="col-lg-12">
-                <h2 class="display-4 fw-bold lh-1s">{% translate 'Chulesky Factorization' %}</h2>
+                <h2 class="display-4 fw-bold lh-1s">{% translate 'Cholesky Factorization' %}</h2>
                 <p class="lead py-5">
-                    EXPLICACION SENCILLA
+                    La factorización de Cholesky es un método eficiente para resolver sistemas de ecuaciones lineales
+                    cuando la matriz de coeficientes es simétrica y definida positiva.
+                    Esta factorización descompone la matriz A en el producto de una matriz triangular inferior L y su
+                    transpuesta L^T, de manera que A = L × L^T.
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
@@ -104,11 +107,125 @@
 
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3 lead" style="display: none !important;">
-            <h3 class="pb-3">{% translate "Explicación de Chulesky Factorization" %}</h3>
+            <h3 class="pb-3">{% translate "Explicación de Factorización de Cholesky" %}</h3>
+
+            <h4 class="mt-4">Descripción General</h4>
             <p>
-                explicacion extensa
+                La <strong>factorización de Cholesky</strong> es un método especializado para resolver sistemas de
+                ecuaciones lineales.
+                A diferencia de otros métodos de eliminación gaussiana, Cholesky es aplicable únicamente cuando la
+                matriz de coeficientes
+                cumple dos condiciones específicas: debe ser <strong>simétrica</strong> (igual a su transpuesta) y
+                <strong>definida positiva</strong>
+                (todos sus autovalores son positivos).
+            </p>
+
+            <h4 class="mt-4">Fundamentos Matemáticos</h4>
+            <p>
+                Dada una matriz simétrica y definida positiva \(A\), la factorización de Cholesky descompone \(A\) en:
+                \[A = L \cdot L^T\]
+                donde:
+            <ul>
+                <li>\(L\) es una matriz triangular inferior con elementos positivos en la diagonal</li>
+                <li>\(L^T\) es la transpuesta de \(L\), siendo una matriz triangular superior</li>
+            </ul>
+            </p>
+
+            <h4 class="mt-4">Algoritmo de Factorización</h4>
+            <p>
+                Para una matriz \(A\) de dimensión \(n \times n\), los elementos de \(L\) se calculan de la siguiente
+                manera:
+
+            <ul>
+                <li>Para los elementos diagonales (\(i = j\)):
+                    \[L_{ii} = \sqrt{A_{ii} - \sum_{k=1}^{i-1} L_{ik}^2}\]
+                </li>
+                <li>Para los elementos debajo de la diagonal (\(i > j\)):
+                    \[L_{ij} = \frac{A_{ij} - \sum_{k=1}^{j-1} L_{ik} \cdot L_{jk}}{L_{jj}}\]
+                </li>
+                <li>Los elementos encima de la diagonal son cero:
+                    \[L_{ij} = 0 \text{ para } i < j\]
+                </li>
+            </ul>
+            </p>
+
+            <h4 class="mt-4">Proceso de Resolución del Sistema</h4>
+            <p>
+                Una vez obtenida la factorización \(A = L \cdot L^T\), para resolver el sistema \(A \cdot x = b\) se
+                siguen estos pasos:
+
+            <ol>
+                <li>Resolver el sistema triangular inferior \(L \cdot y = b\) para encontrar \(y\) mediante sustitución
+                    hacia adelante
+                </li>
+                <li>Resolver el sistema triangular superior \(L^T \cdot x = y\) para encontrar \(x\) mediante
+                    sustitución hacia atrás
+                </li>
+            </ol>
+            </p>
+
+            <h4 class="mt-4">Ventajas de la Factorización de Cholesky</h4>
+            <p>
+            <ul>
+                <li>Es aproximadamente dos veces más eficiente que la factorización LU para matrices simétricas y
+                    definidas positivas
+                </li>
+                <li>Es numéricamente estable sin necesidad de pivoteo</li>
+                <li>Requiere aproximadamente la mitad de almacenamiento que otros métodos</li>
+                <li>Es especialmente útil para resolver sistemas con múltiples vectores \(b\) y una misma matriz \(A\)
+                </li>
+            </ul>
+            </p>
+
+            <h4 class="mt-4">Aplicaciones Prácticas</h4>
+            <p>
+                La factorización de Cholesky es ampliamente utilizada en:
+            <ul>
+                <li>Optimización numérica y método de mínimos cuadrados</li>
+                <li>Simulación de procesos estocásticos</li>
+                <li>Problemas de elementos finitos</li>
+                <li>Estadística computacional (por ejemplo, en la simulación Monte Carlo)</li>
+                <li>Procesamiento digital de señales</li>
+            </ul>
+            </p>
+
+            <h4 class="mt-4">Ejemplo</h4>
+            <p>
+                Consideremos el sistema:
+                \[
+                \begin{bmatrix}
+                4 & 2 & 2 \\
+                2 & 5 & 1 \\
+                2 & 1 & 6
+                \end{bmatrix}
+                \begin{bmatrix}
+                x_1 \\
+                x_2 \\
+                x_3
+                \end{bmatrix}
+                =
+                \begin{bmatrix}
+                20 \\
+                19 \\
+                18
+                \end{bmatrix}
+                \]
+
+                La matriz es simétrica y definida positiva. Su factorización de Cholesky sería:
+                \[
+                L =
+                \begin{bmatrix}
+                2 & 0 & 0 \\
+                1 & 2 & 0 \\
+                1 & 0 & \sqrt{5}
+                \end{bmatrix}
+                \]
+
+                Mediante sustitución hacia adelante y hacia atrás, obtenemos la solución \(x_1 = 3\), \(x_2 = 2\), \(x_3
+                = 1\).
             </p>
         </div>
+
 
         <script>
             const points = [];
@@ -207,7 +324,7 @@
                 });
             });
 
-            // Evento para resolver el sistema (aquí solo recolectamos los datos)
+            // Evento para resolver el sistema
             solveBtn.addEventListener('click', function () {
                 // Limpiar alertas anteriores
                 const alertContainer = document.getElementById('alertContainer');
@@ -241,10 +358,8 @@
                 // Mostrar mensaje de éxito
                 showAlert('Matriz cargada correctamente.', 'success');
 
-                // Aquí se llamaría a la función que resuelve el sistema
-                console.log('Matriz a resolver:', matrix);
-
-                calculate()
+                // Llamar a la función que calcula la factorización
+                calculate();
 
                 // Mostrar el contenedor de respuesta
                 document.getElementById('responseContainer').style.display = 'block';
@@ -356,12 +471,11 @@
                 const cols = parseInt(colsInput.value);
 
                 const matrix = [];
-                const vector = [];
 
-                // Extract the matrix and vector from the inputs
+                // Extract the matrix values from the inputs
                 for (let i = 0; i < rows; i++) {
                     const rowValues = [];
-                    for (let j = 0; j < cols - 1; j++) {
+                    for (let j = 0; j < cols; j++) {
                         const input = document.querySelector(`.matrix-input[data-row="${i}"][data-col="${j}"]`);
                         const value = parseFloat(input.value);
                         if (isNaN(value)) {
@@ -371,27 +485,16 @@
                         }
                         rowValues.push(value);
                     }
-
                     matrix.push(rowValues);
-
-                    // Extract the b values (last column) for the vector
-                    const bInput = document.querySelector(`.matrix-input[data-row="${i}"][data-col="${cols - 1}"]`);
-                    const bValue = parseFloat(bInput.value);
-                    if (isNaN(bValue)) {
-                        showAlert(`Por favor, ingresa un valor numérico para b${i + 1}`, 'warning');
-                        setLoadingState(false);
-                        return;
-                    }
-                    vector.push(bValue);
                 }
 
-                fetch('http://127.0.0.1:8000/calculate_gauss_back_substitution/', {
+                fetch('/calculate-chulesky-factorization/', {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "X-CSRFToken": getCSRFToken(), // Si usas CSRF Protection en Django
+                        "X-CSRFToken": getCSRFToken(),
                     },
-                    body: JSON.stringify({matrix: matrix, vector: vector}),
+                    body: JSON.stringify({matrix: matrix}),
                 })
                     .then(response => response.json())
                     .then(data => {
@@ -438,22 +541,12 @@
                         ${solutionHTML}
                         </div>
                     `;
-                } else if (data.status === "no_solution") {
-                    // Sistema sin solución (inconsistente)
-                    let detailsHTML = "";
-                    if (data.details && data.details.explanation) {
-                        detailsHTML = "<ul class='list-group list-group-flush'>";
-                        data.details.explanation.forEach(explanation => {
-                            detailsHTML += `<li class="list-group-item">${explanation}</li>`;
-                        });
-                        detailsHTML += "</ul>";
-                    }
-
+                } else if (data.status === "error") {
+                    // Sistema sin solución o error
                     resultContainer.innerHTML = `
                         <div class="alert alert-danger" role="alert">
-                        <h4>{% translate 'No solution' %}:</h4>
+                        <h4>{% translate 'Error' %}:</h4>
                         <p>${data.message}</p>
-                        ${detailsHTML}
                         </div>
                     `;
                 } else if (data.status === "infinite_solutions") {
@@ -486,28 +579,6 @@
                 }
             }
 
-
-            function showResult(result) {
-                const responseContainer = document.getElementById("responseContainer");
-                responseContainer.style.display = "block";
-
-                const resultContainer = document.getElementById("resultContainer");
-
-                // Format the solution array nicely
-                let solutionHTML = "<ul class='list-group list-group-flush'>";
-                for (let i = 0; i < result.length; i++) {
-                    solutionHTML += `<li class="list-group-item">x${i + 1} = ${result[i].toFixed(4)}</li>`;
-                }
-                solutionHTML += "</ul>";
-
-                resultContainer.innerHTML = `
-                    <div class="alert alert-success" role="alert">
-                    <h4>{% translate 'Solution of the equation' %}:</h4>
-                    ${solutionHTML}
-                    </div>
-                `;
-            }
-
             function showProcessSteps(steps) {
                 console.log("Datos recibidos para los pasos:", steps);
 
@@ -518,39 +589,89 @@
                     console.log(`Paso ${index + 1}:`, stepObj);
 
                     let stepContent = "";
+                    let stepTitle = `<strong>Paso ${index + 1}:</strong> ${stepObj.step}`;
 
+                    // Para matrices aumentadas [A|b]
                     if (stepObj.matrix) {
-                        const latexMatrix = formatMatrixToLatex(stepObj.matrix, 4); // Formato con 4 decimales
-                        stepContent = `<p>$$${latexMatrix}$$</p>`;
+                        const latexMatrix = formatMatrixToLatex(stepObj.matrix, 4);
+                        stepContent += `<p>$${latexMatrix}$</p>`;
+                    }
 
-                        // Agregar información adicional si está presente
-                        if (stepObj.inconsistent_rows) {
-                            stepContent += `<p class="text-danger"><strong>Filas inconsistentes detectadas:</strong></p>`;
-                            stepObj.inconsistent_rows.forEach(row => {
-                                stepContent += `<p class="text-danger">Fila ${row.row_index} sugiere: 0 = ${row.row_values[row.row_values.length - 1]}</p>`;
-                            });
+                    // Para matrices L y L^T
+                    if (stepObj.L && stepObj.LT) {
+                        const latexL = formatMatrixToLatex(stepObj.L, 4, false);
+                        const latexLT = formatMatrixToLatex(stepObj.LT, 4, false);
+
+                        stepContent += `<p>Matriz L (triangular inferior):</p>
+                                      <p>$${latexL}$</p>
+                                      <p>Matriz L^T (triangular superior):</p>
+                                      <p>$${latexLT}$</p>`;
+                    }
+
+                    // Para verificación A = L*L^T
+                    if (stepObj.A && stepObj.LLT) {
+                        const latexA = formatMatrixToLatex(stepObj.A, 4, false);
+                        const latexLLT = formatMatrixToLatex(stepObj.LLT, 4, false);
+
+                        stepContent += `<p>Matriz A original:</p>
+                                      <p>$${latexA}$</p>
+                                      <p>Matriz L*L^T calculada:</p>
+                                      <p>$${latexLLT}$</p>`;
+
+                        if (stepObj.is_valid !== undefined) {
+                            stepContent += `<p class="${stepObj.is_valid ? 'text-success' : 'text-danger'}">
+                                          <strong>Factorización ${stepObj.is_valid ? 'válida' : 'no válida'}</strong>
+                                          </p>`;
                         }
+                    }
 
-                        if (stepObj.rank) {
-                            stepContent += `<p><strong>Rango de la matriz:</strong> ${stepObj.rank}</p>`;
+                    // Para el sistema Ly = b
+                    if (stepObj.L && stepObj.b && stepObj.y) {
+                        const latexL = formatMatrixToLatex(stepObj.L, 4, false);
+                        const latexB = formatVectorToLatex(stepObj.b, 4);
+                        const latexY = formatVectorToLatex(stepObj.y, 4);
+
+                        stepContent += `<p>Resolviendo Ly = b:</p>
+                                      <p>$${latexL} \\cdot ${latexY} = ${latexB}$</p>`;
+                    }
+
+                    // Para el sistema L^T x = y
+                    if (stepObj.LT && stepObj.y && stepObj.x) {
+                        const latexLT = formatMatrixToLatex(stepObj.LT, 4, false);
+                        const latexY = formatVectorToLatex(stepObj.y, 4);
+                        const latexX = formatVectorToLatex(stepObj.x, 4);
+
+                        stepContent += `<p>Resolviendo L^T x = y:</p>
+                                      <p>$${latexLT} \\cdot ${latexX} = ${latexY}$</p>`;
+                    }
+
+                    // Para la solución final
+                    if (stepObj.solution) {
+                        const formattedSolution = stepObj.solution.map((val, i) => `x_{${i + 1}} = ${val.toFixed(4)}`).join(", ");
+                        stepContent += `<p><strong>Solución final:</strong> $${formattedSolution}$</p>`;
+                    }
+
+                    // Para información de análisis de rango
+                    if (stepObj.rank !== undefined) {
+                        stepContent += `<p><strong>Rango de la matriz:</strong> ${stepObj.rank}</p>`;
+                        if (stepObj.variables !== undefined) {
+                            stepContent += `<p><strong>Número de variables:</strong> ${stepObj.variables}</p>`;
                         }
-
-                        if (stepObj.free_variables) {
+                        if (stepObj.free_variables !== undefined) {
                             stepContent += `<p><strong>Variables libres:</strong> ${stepObj.free_variables.join(', ')}</p>`;
                         }
-                    } else if (stepObj.solution) {
-                        // Formateamos la solución final para que muestre los valores de x_1, x_2, x_3 directamente
-                        const formattedSolution = stepObj.solution.map((val, i) => `x_${i + 1} = ${val.toFixed(4)}`).join(", ");
-                        stepContent = `<p><strong>Solución final:</strong> ${formattedSolution}</p>`;
+                        if (stepObj.description !== undefined) {
+                            stepContent += `<p><strong>${stepObj.description}</strong></p>`;
+                        }
                     }
 
                     const stepElement = document.createElement("div");
                     stepElement.innerHTML = `
-            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
-                <strong>Paso ${index + 1}:</strong> ${stepObj.step}
-                ${stepContent}
-            </div>
-        `;
+                        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
+                            ${stepTitle}
+                            ${stepContent}
+                        </div>
+                    `;
 
                     stepsContainer.appendChild(stepElement);
                 });
@@ -561,20 +682,18 @@
                 }
             }
 
-
-            function formatMatrixToLatex(matrix, decimals = 4) {
+            function formatMatrixToLatex(matrix, decimals = 4, augmented = true) {
                 if (!matrix || matrix.length === 0) {
                     return "\\text{Empty matrix}";
                 }
 
                 const numCols = matrix[0].length;
-                // Crea un formato de columnas con una línea vertical antes de la última columna
-                // Por ejemplo, para una matriz 3x4, sería "ccc|c"
+                // Crear formato de columnas con una línea vertical antes de la última columna si es matriz aumentada
                 let columnFormat = "";
                 for (let i = 0; i < numCols; i++) {
                     columnFormat += "c";
-                    // Añade la línea vertical antes de la última columna
-                    if (i === numCols - 2) {
+                    // Añade la línea vertical antes de la última columna solo si es matriz aumentada
+                    if (augmented && i === numCols - 2) {
                         columnFormat += "|";
                     }
                 }
@@ -591,7 +710,20 @@
                 return "\\left[ \\begin{array}{" + columnFormat + "} " + rows + " \\end{array} \\right]";
             }
 
+            function formatVectorToLatex(vector, decimals = 4) {
+                if (!vector || vector.length === 0) {
+                    return "\\text{Empty vector}";
+                }
 
+                const elements = vector.map(val => {
+                    if (typeof val === 'number') {
+                        return val.toFixed(decimals);
+                    }
+                    return val;
+                }).join(" \\\\ ");
+
+                return "\\begin{bmatrix} " + elements + " \\end{bmatrix}";
+            }
         </script>
 
     </div>

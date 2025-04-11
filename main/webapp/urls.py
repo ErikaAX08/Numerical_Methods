@@ -1,6 +1,5 @@
 from django.urls import path
 
-from .views.chulesky_factorization_view import chulesky_factorization
 from .views.gauss_maximum_column_pivoting_views import gauss_maximum_column_pivoting
 from .views.home_views import index
 from .views.taylor_series_views import calculate_taylor, taylor_series
