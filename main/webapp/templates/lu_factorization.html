@@ -11,7 +11,11 @@
             <div class="col-lg-12">
                 <h2 class="display-4 fw-bold lh-1s">{% translate 'LU Factorization' %}</h2>
                 <p class="lead py-5">
-                   EXPLICACION SENCILLA
+                   El método LU es una forma de resolver sistemas de ecuaciones usando una especie de "descomposición" de la matriz que representa el sistema. En lugar de resolver todas las ecuaciones directamente, se divide el problema en dos partes más simples.<br>
+
+                    Primero, se toma la matriz del sistema (la que contiene los coeficientes de las incógnitas) y se descompone en dos matrices: una que tiene solo ceros arriba de la diagonal (llamada matriz L) y otra que tiene solo ceros debajo de la diagonal (llamada matriz U).<br>
+
+                    Una vez que se tienen esas dos matrices, se resuelve primero un sistema más sencillo usando la matriz L, y luego otro con la matriz U. Esto es más fácil porque las matrices tienen una estructura que hace que resolver las ecuaciones sea más directo.
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
@@ -106,7 +110,23 @@
         <div id="explanation" class="mt-4 rounded-3 lead" style="display: none !important;">
             <h3 class="pb-3">{% translate "Explicación de LU Factorization" %}</h3>
             <p>
-             EXPLICACION EXTENSA
+             {% translate 'El método LU es una técnica que permite resolver un sistema de ecuaciones lineales de la forma: '%}'
+                \[
+                A \cdot x = b
+                \]
+                {% translate 'Donde A es una matriz cuadrada de coeficientes, x es el vector de incógnitas y b es el vector de resultados. '%}'
+                {% translate 'En lugar de resolver directamente este sistema, se descompone la matriz A en dos matrices: '%}'
+                \[
+                A = L \cdot U
+                \]
+                {% translate 'Donde L es una matriz triangular inferior (con 1s en la diagonal y ceros arriba) y U una matriz triangular superior (con ceros abajo de la diagonal).'%}
+                <br><br>
+                {% translate '¿Para qué sirve? Una vez que se tiene A = L * U, se sustituye en el sistema original: '%}
+                <br><br>
+                <h3><strong>Pasos para desarrollar el método </strong>:<br><br></h3>
+                {% translate "<strong>1. Resolver \(L \cdot y = b\)</strong>: Aquí \(y\) es un vector auxiliar. Como \(L\) es triangular inferior, se usa sustitución hacia adelante (de arriba hacia abajo)." %}
+                <br><br>
+                {% translate '<strong>2.Resolver \(U \cdot x = y\)</strong>: Una vez encontrado y, ahora se resuelve U * x = y, usando sustitución hacia atrás (de abajo hacia arriba), ya que U es triangular superior.'%}
             </p> 
         </div>
 
@@ -385,7 +405,7 @@
                     vector.push(bValue);
                 }
 
-                fetch('http://127.0.0.1:8000/calculate_gauss_back_substitution/', {
+                fetch('http://127.0.0.1:8000/calculate-lu-factorization/', {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -395,6 +415,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
+                    console.log("Datos recibidos: ", data);
                     if (data.error) {
                         showAlert(data.error, 'danger');
                         return;
@@ -513,58 +534,114 @@
             }
 
             function showProcessSteps(steps) {
-    console.log("Datos recibidos para los pasos:", steps);
+                console.log("Datos recibidos para los pasos:", steps);
 
-    const stepsContainer = document.getElementById("stepsContainer");
-    stepsContainer.innerHTML = "<h4>Desarrollo del proceso:</h4>"; // Limpiar pasos anteriores y agregar título
+                const stepsContainer = document.getElementById("stepsContainer");
+                stepsContainer.innerHTML = "<h4>Desarrollo del proceso:</h4>"; // Limpiar pasos anteriores y agregar título
 
-    steps.forEach((stepObj, index) => {
-        console.log(`Paso ${index + 1}:`, stepObj);
+                steps.forEach((stepObj, index) => {
+                    console.log(`Paso ${index + 1}:`, stepObj);
 
-        let stepContent = "";
+                    let stepContent = "";
+                    
+                    // Descripción del paso
+                    if (stepObj.description) {
+                        stepContent += `<p>${stepObj.description}</p>`;
+                    }
+                    
+                    // Mostrar cálculos específicos
+                    if (stepObj.calculation) {
+                        stepContent += `<p class="text-primary"><strong>Cálculo:</strong> ${stepObj.calculation}</p>`;
+                    }
 
-        if (stepObj.matrix) {
-            const latexMatrix = formatMatrixToLatex(stepObj.matrix, 4); // Formato con 4 decimales
-            stepContent = `<p>$$${latexMatrix}$$</p>`;
-            
-            // Agregar información adicional si está presente
-            if (stepObj.inconsistent_rows) {
-                stepContent += `<p class="text-danger"><strong>Filas inconsistentes detectadas:</strong></p>`;
-                stepObj.inconsistent_rows.forEach(row => {
-                    stepContent += `<p class="text-danger">Fila ${row.row_index} sugiere: 0 = ${row.row_values[row.row_values.length - 1]}</p>`;
+                    // Matrices A, L, U
+                    if (stepObj.matrix_A) {
+                        stepContent += `<p><strong>Matriz A:</strong></p>`;
+                        stepContent += `<p>$$${formatMatrixToLatex(stepObj.matrix_A, 4)}$$</p>`;
+                    }
+                    
+                    if (stepObj.matrix_L) {
+                        stepContent += `<p><strong>Matriz L (triangular inferior):</strong></p>`;
+                        stepContent += `<p>$$${formatMatrixToLatex(stepObj.matrix_L, 4)}$$</p>`;
+                    }
+                    
+                    if (stepObj.matrix_U) {
+                        stepContent += `<p><strong>Matriz U (triangular superior):</strong></p>`;
+                        stepContent += `<p>$$${formatMatrixToLatex(stepObj.matrix_U, 4)}$$</p>`;
+                    }
+                    
+                    if (stepObj.matrix_LU) {
+                        stepContent += `<p><strong>Matriz LU (producto L×U):</strong></p>`;
+                        stepContent += `<p>$$${formatMatrixToLatex(stepObj.matrix_LU, 4)}$$</p>`;
+                        
+                        if (stepObj.error_max !== undefined) {
+                            stepContent += `<p>Error máximo: ${stepObj.error_max.toExponential(2)}</p>`;
+                            stepContent += `<p class="${stepObj.is_valid ? 'text-success' : 'text-danger'}">
+                                <strong>${stepObj.is_valid ? '✓ A = LU verificado' : '✗ Error en la verificación de A = LU'}</strong>
+                            </p>`;
+                        }
+                    }
+                    
+                    // Vectores b, y, x
+                    if (stepObj.vector_b) {
+                        stepContent += `<p><strong>Vector b:</strong> [${stepObj.vector_b.map(v => v.toFixed(4)).join(', ')}]</p>`;
+                    }
+                    
+                    if (stepObj.vector_y || stepObj.vector_y_partial) {
+                        const vector = stepObj.vector_y || stepObj.vector_y_partial;
+                        stepContent += `<p><strong>Vector y${stepObj.vector_y_partial ? ' (parcial)' : ''}:</strong> [${vector.map(v => v !== null ? v.toFixed(4) : '?').join(', ')}]</p>`;
+                    }
+                    
+                    if (stepObj.vector_x || stepObj.vector_x_partial) {
+                        const vector = stepObj.vector_x || stepObj.vector_x_partial;
+                        stepContent += `<p><strong>Vector x${stepObj.vector_x_partial ? ' (parcial)' : ''}:</strong> [${vector.map(v => v !== null ? v.toFixed(4) : '?').join(', ')}]</p>`;
+                    }
+                    
+                    // Verificación de solución
+                    if (stepObj.verification) {
+                        stepContent += `<p><strong>Verificación de la solución:</strong></p>`;
+                        stepContent += `<ul class="list-group">`;
+                        stepObj.verification.forEach(v => {
+                            stepContent += `
+                                <li class="list-group-item ${v.is_valid ? 'list-group-item-success' : 'list-group-item-danger'}">
+                                    Ecuación ${v.equation}: ${v.left_side.toFixed(4)} ≈ ${v.right_side.toFixed(4)}
+                                    (Error: ${v.error.toExponential(2)})
+                                </li>`;
+                        });
+                        stepContent += `</ul>`;
+                        
+                        if (stepObj.is_valid !== undefined) {
+                            stepContent += `<p class="${stepObj.is_valid ? 'text-success' : 'text-danger'}">
+                                <strong>${stepObj.is_valid ? '✓ Solución verificada' : '✗ Error en la verificación de la solución'}</strong>
+                            </p>`;
+                        }
+                    }
+                    
+                    // Manejo de errores
+                    if (stepObj.error) {
+                        stepContent += `<p class="text-danger"><strong>Error:</strong> ${stepObj.error}</p>`;
+                    }
+
+                    const stepElement = document.createElement("div");
+                    stepElement.innerHTML = `
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <strong>Paso ${index + 1}:</strong> ${stepObj.step}
+                            </div>
+                            <div class="card-body">
+                                ${stepContent}
+                            </div>
+                        </div>
+                    `;
+
+                    stepsContainer.appendChild(stepElement);
                 });
-            }
-            
-            if (stepObj.rank) {
-                stepContent += `<p><strong>Rango de la matriz:</strong> ${stepObj.rank}</p>`;
-            }
-            
-            if (stepObj.free_variables) {
-                stepContent += `<p><strong>Variables libres:</strong> ${stepObj.free_variables.join(', ')}</p>`;
-            }
-        } 
-        else if (stepObj.solution) {
-            // Formateamos la solución final para que muestre los valores de x_1, x_2, x_3 directamente
-            const formattedSolution = stepObj.solution.map((val, i) => `x_${i + 1} = ${val.toFixed(4)}`).join(", ");
-            stepContent = `<p><strong>Solución final:</strong> ${formattedSolution}</p>`;
-        }
 
-        const stepElement = document.createElement("div");
-        stepElement.innerHTML = `
-            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
-                <strong>Paso ${index + 1}:</strong> ${stepObj.step}
-                ${stepContent}
-            </div>
-        `;
-
-        stepsContainer.appendChild(stepElement);
-    });
-
-    // Re-renderizar el contenido LaTeX usando MathJax
-    if (typeof MathJax !== 'undefined') {
-        MathJax.typeset();
-    }
-}
+                // Re-renderizar el contenido LaTeX usando MathJax
+                if (typeof MathJax !== 'undefined') {
+                    MathJax.typeset();
+                }
+            }
 
 
 
