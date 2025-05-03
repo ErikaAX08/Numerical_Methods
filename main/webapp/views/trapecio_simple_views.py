@@ -325,6 +325,7 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=10):
 def calculate_trapezoid(request):
     global x
     sym_func = None
+    x = symbols('x')
     if request.method == "GET":
         try:
             # Obtener los valores del formulario
@@ -354,10 +355,10 @@ def calculate_trapezoid(request):
                 # Intentar parsear una función personalizada
                 try:
                     sym_func = sympify(func)
-                except:
+                except Exception as e:
                     return JsonResponse({
                         "error": "Función no válida",
-                        "message": "No se puede interpretar la función ingresada."
+                        "message": "No se puede interpretar la función ingresada. Error: " + str(e)
                     }, status=400)
 
             # Generar gráficos
