@@ -18,6 +18,7 @@ from .views.gauss_maximum_column_pivoting_views import gauss_maximum_column_pivo
     calculate_gauss_maximum_column_pivoting
 from .views.chulesky_factorization_view import chulesky_factorization, calculate_chulesky_factorization
 from .views.lu_factorization_view import lu_factorization, calculate_lu_factorization
+from .views.trapecio_simple_views import trapecio_simple, calculate_trapezoid
 
 urlpatterns = [
     path("", index, name="index"),
@@ -52,4 +53,6 @@ urlpatterns = [
     path("lu-factorization/", lu_factorization, name="lu_factorization"),
     path("calculate-lu-factorization/", calculate_lu_factorization,
          name="calculate_lu_factorization"),
+    path("trapecio_simple/", trapecio_simple, name="trapecio_simple"),
+    path("calculate_trapezoid/", calculate_trapezoid, name="calculate_trapezoid")
 ]
