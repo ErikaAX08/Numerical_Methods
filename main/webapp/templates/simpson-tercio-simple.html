@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% translate 'Regla Simpson 1/3 Simple' %} - {% translate 'Numerical Methods' %}{% endblock %}
+{% block content %}
+    {% load static %}
+
+    <div class="container-sm p-5">
+        <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
+            <div class="col-lg-12">
+                <h2 class="display-4 fw-bold lh-1s">{% translate 'Simpson 1/3 Simple' %}</h2>
+                <p class="lead py-5">
+                    {% translate 'La regla de Simpson 1/3 simple es un método numérico utilizado para aproximar el valor de una integral definida. Se basa en la idea de reemplazar la función a integrar por un polinomio de segundo grado (parábola) que pasa por tres puntos: los extremos del intervalo y el punto medio. Esta técnica proporciona una aproximación exacta para polinomios de grado menor o igual a 2.' %}
+                </p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
+                    <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
+                            onclick="showCalculator()">{% translate 'Graphing Calculator' %}
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">
+                        {% translate 'Explanation' %}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="py-3"></div>
+
+        <!-- Hidden calculator section -->
+        <div id="calculator" style="display: none;" class="mt-5">
+            <h3 class="mb-5">{% translate 'Calculadora Regla Simpson 1/3 Simple' %}</h3>
+            <form class="mb-5 p-4 bg-light rounded-3 shadow" id="calculatorForm">
+                <div class="mb-3">
+                    <label for="functionSelect" class="form-label">{% translate 'Select Function' %}:</label>
+                    <select class="form-select" id="functionSelect" required>
+                        <option value="3*x**4 - 4*x**3 - 12*x**2 + 5">3x^4 - 4x^3 - 12x^2 + 5</option>
+                        <option value="cos(x)">cos(x)</option>
+                        <option value="sin(x)">sin(x)</option>
+                        <option value="8 + 3*sin(x)">8 + 3sin(x)</option>
+                        <option value="x*ln(x)">xln(x)</option>
+                        <option value="exp(2*x)*sin(3*x)">e^2x * sin(3x)</option>
+                        <option value="x / (x**2 + 4)">x / (x^2 + 4)</option>
+                        <option value="exp(x)*ln(x)">e^x * ln(x)</option>
+                        <option value="exp(x**2)">e^x^2</option>
+                        <option value="exp(x) / x">e^x / x</option>
+                    </select>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <label for="intervalA" class="form-label">{% translate 'Interval Start' %}:</label>
+                        <input type="number" class="form-control" id="intervalA" step="any" value="1" required>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <label for="intervalB" class="form-label">{% translate 'Interval End' %}:</label>
+                        <input type="number" class="form-control" id="intervalB" step="any" value="5" required>
+                    </div>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="showExactCheck" checked>
+                    <label class="form-check-label" for="showExactCheck">
+                        {% translate 'Calcular valor exacto y mostrar error' %}
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-lg btn-primary mt-2" id="calculateButton">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;"
+                          id="loadingSpinner"></span>
+                    <span id="buttonText">{% translate 'Calculate and Graph' %}</span>
+                </button>
+            </form>
+
+            <div id="graphs-container" class="mt-5 p-4 bg-light rounded-3 shadow" style="display: none;">
+                <div id="graph" class="mb-5 row justify-content-center">
+                    <img id="plotImage" src="" alt="Plot" class="img-fluid w-75 rounded-4">
+                </div>
+
+                <div class="rounded-5" id="plot-container" style="height: 600px;">
+                    <!-- Plotly chart will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Container for the results table -->
+            <div id="resultsTable" class="mt-5" style="display: none;">
+                <h4 class="mb-3">{% translate 'Results table' %}</h4>
+                <table id="dataTable" class="table table-bordered rounded-5 table-striped">
+                    <thead>
+                    <tr>
+                        <th>i</th>
+                        <th>x</th>
+                        <th>{% translate 'Original Function' %}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Error analysis section -->
+            <div id="errorAnalysis" class="mt-5 p-4 bg-light rounded-3 shadow" style="display: none;">
+                <h4 class="mb-3">{% translate 'Análisis de Error' %}</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-bordered rounded-5 table-striped">
+                            <thead>
+                                <tr>
+                                    <th>{% translate 'Métrica' %}</th>
+                                    <th>{% translate 'Valor' %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{% translate 'Valor aproximado (Simpson 1/3)' %}</td>
+                                    <td id="approxValue">-</td>
+                                </tr>
+                                <tr>
+                                    <td>{% translate 'Valor exacto' %}</td>
+                                    <td id="exactValue">-</td>
+                                </tr>
+                                <tr>
+                                    <td>{% translate 'Error absoluto' %}</td>
+                                    <td id="absError">-</td>
+                                </tr>
+                                <tr>
+                                    <td>{% translate 'Error relativo (%)' %}</td>
+                                    <td id="relError">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="alert alert-info">
+                            <p>{% translate 'La regla de Simpson 1/3 simple es exacta para polinomios de grado ≤ 3. Para funciones más complejas, el error depende de la cuarta derivada de la función y del tamaño del intervalo.' %}</p>
+                            <p id="errorFormula">
+                                {% translate 'Error teórico estimado:' %} E = -\frac{1}{90}(b-a)^5 f^{(4)}(\xi)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden extensive explanation section -->
+        <div id="explanation" class="mt-4 rounded-3" style="display: none;">
+            <h3 class="pb-3">{% translate "Explicación Regla de Simpson 1/3 Simple" %}</h3>
+            <p>
+                {% translate "<strong>Idea Principal</strong>: La regla de Simpson 1/3 simple reemplaza la función a integrar por un polinomio de segundo grado (parábola) que pasa por tres puntos: los extremos del intervalo y el punto medio.<br><br>" %}
+                {% translate "<strong>Paso 1 (Evaluación de puntos)</strong>: Evaluar la función en tres puntos: a, (a+b)/2, y b, donde [a,b] es el intervalo de integración.<br><br>" %}
+                {% translate "<strong>Paso 2 (Aplicar la fórmula)</strong>: La aproximación se calcula como:" %}
+                \[
+                \int_{a}^{b} f(x) \cdot dx \approx \frac{b-a}{6} \left[ f(a) + 4f\left(\frac{a+b}{2}\right) + f(b) \right]
+                \]
+                {% translate "<strong>Características</strong>:<br>" %}
+                {% translate "- Si f(x) es un polinomio de grado ≤ 2, la regla de Simpson 1/3 simple proporciona el valor exacto de la integral.<br>" %}
+                {% translate "- Para funciones más complejas, la regla simple proporciona una buena aproximación si el intervalo [a,b] es pequeño.<br>" %}
+                {% translate "- Para intervalos grandes o funciones con variaciones significativas, es recomendable utilizar la regla de Simpson 1/3 compuesta, que divide el intervalo en múltiples subintervalos y aplica la regla simple a cada par.<br><br>" %}
+                
+                {% translate "<strong>Error de aproximación</strong>:<br>" %}
+                {% translate "El error en la aproximación de la regla de Simpson 1/3 simple está dado por:" %}
+                \[
+                E = -\frac{1}{90}(b-a)^5 f^{(4)}(\xi)
+                \]
+                {% translate "donde ξ es algún punto en el intervalo [a,b] y f^{(4)} es la cuarta derivada de f.<br>" %}
+                {% translate "Esto significa que la regla de Simpson 1/3 simple es exacta para polinomios de grado menor o igual a 3." %}
+            </p>
+        </div>
+
+
+        <script>
+            function showCalculator() {
+                document.getElementById('explanation').style.display = 'none';
+                document.getElementById('calculator').style.display = 'block';
+            }
+
+            function showExplanation() {
+                document.getElementById('calculator').style.display = 'none';
+                document.getElementById('explanation').style.display = 'block';
+            }
+
+            document.getElementById("calculatorForm").addEventListener("submit", function (event) {
+                event.preventDefault();
+                calculateAndGraph();
+            });
+
+            function setLoadingState(isLoading) {
+                const button = document.getElementById("calculateButton");
+                const spinner = document.getElementById("loadingSpinner");
+                const buttonText = document.getElementById("buttonText");
+
+                button.disabled = isLoading;
+                spinner.style.display = isLoading ? "inline-block" : "none";
+                buttonText.textContent = isLoading ? "{% translate 'Calculating...' %}" : "{% translate 'Calculate and Graph' %}";
+            }
+
+            function calculateAndGraph() {
+                const func = document.getElementById("functionSelect").value;
+                const a = document.getElementById("intervalA").value;
+                const b = document.getElementById("intervalB").value;
+                const showExact = document.getElementById("showExactCheck").checked;
+
+                // show loading state
+                setLoadingState(true);
+
+                // Build url with query parameters
+                const url = `/calculate-simpson-tercio-simple/?func=${encodeURIComponent(func)}&a=${a}&b=${b}&exact=${showExact}`;
+
+                // Fetch the data from the server
+                fetch(url)
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data.error) {
+                            alert("Error: " + data.error);
+                            console.log(data.error);
+                            return;
+                        }
+
+                        // Show the graph with the plot image
+                        const plotImage = document.getElementById("plotImage");
+                        plotImage.src = `data:image/png;base64,${data.image}`;
+                        document.getElementById("graphs-container").style.display = "block";
+                        document.getElementById("graph").style.display = "flex";
+
+                        // Render Plotly chart
+                        const plotData = JSON.parse(data.plot_json);
+                        Plotly.newPlot('plot-container', plotData.data, plotData.layout, {
+                            responsive: true,
+                            displayModeBar: true
+                        });
+
+                        // Generate the results table
+                        generateTable(data.x_values, data.original_y_values);
+                        
+                        // Update error analysis if exact value is available
+                        if (data.exact !== undefined) {
+                            document.getElementById("errorAnalysis").style.display = "block";
+                            document.getElementById("approxValue").textContent = data.approx.toFixed(6);
+                            document.getElementById("exactValue").textContent = data.exact.toFixed(6);
+                            document.getElementById("absError").textContent = data.error_abs.toFixed(6);
+                            document.getElementById("relError").textContent = data.error_rel.toFixed(4) + "%";
+                        } else {
+                            document.getElementById("errorAnalysis").style.display = "none";
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error:", error);
+                    }).finally(() => {
+                    setLoadingState(false);
+                });
+            }
+
+            function generateTable(xValues, originalYValues) {
+                const table = document.getElementById("dataTable");
+                const thead = table.querySelector("thead");
+                const tbody = table.querySelector("tbody");
+
+                // Clear the table
+                tbody.innerHTML = "";
+
+                // Create the data rows
+                xValues.forEach((x, index) => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td class="fw-bold">${index + 1}</td>
+                        <td>${x.toFixed(4)}</td>
+                        <td>${originalYValues[index].toFixed(4)}</td>`;
+                    tbody.appendChild(row);
+                });
+
+                document.getElementById("resultsTable").style.display = "block";
+            }
+        </script>
+
+    </div>
+
+{% endblock %}
