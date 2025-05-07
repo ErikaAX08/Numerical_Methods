@@ -429,5 +429,5 @@ def calculate_trapezoid(request):
         return JsonResponse({"error": "Método no permitido"}, status=405)
 
 
-def trapecio_simple(request):
-    return render(request, "trapecio-simple.html")
+def trapezoid_compound(request):
+    return render(request, "trapezoid_compound.html")
