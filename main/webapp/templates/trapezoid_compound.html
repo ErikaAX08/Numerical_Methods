@@ -144,25 +144,22 @@
                 const b = document.getElementById("intervalB").value;
                 const n = document.getElementById("nIntervals").value;
 
-                // show loading state
                 setLoadingState(true);
 
                 // Build url with query parameters
-                const url = `/calculate_trapezoid_compound/?func=${encodeURIComponent(func)}&a=${a}&b=${b}&n=${n}`;
+                const url = `/calculate-trapezoid-compound/?func=${encodeURIComponent(func)}&a=${a}&b=${b}&n=${n}`;
 
-                // Fetch the data from the server
                 fetch(url)
                     .then((response) => response.json())
                     .then((data) => {
-
                         if (data.error) {
                             alert("Error: " + data.error);
-                            console.log(data.error)
                             return;
                         }
 
-                        if (data.error) {
-                            alert(data.error);
+                        // Validar que los datos requeridos existen
+                        if (!data.x_values || !data.original_y_values) {
+                            alert("No se recibieron datos de puntos para graficar.");
                             return;
                         }
 
@@ -184,9 +181,11 @@
                     })
                     .catch((error) => {
                         console.error("Error:", error);
-                    }).finally(() => {
-                    setLoadingState(false);
-                });
+                        alert("Ocurrió un error inesperado: " + error);
+                    })
+                    .finally(() => {
+                        setLoadingState(false);
+                    });
             }
 
             function generateTable(xValues, originalYValues) {

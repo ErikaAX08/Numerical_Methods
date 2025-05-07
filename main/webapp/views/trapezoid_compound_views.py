@@ -4,6 +4,7 @@ import numpy as np
 from django.http import JsonResponse
 from django.shortcuts import render
 from sympy import exp, sin, cos, sinh, cosh, log, symbols, lambdify, sympify
+from django.views.decorators.csrf import csrf_exempt
 
 # Definir la variable simbólica
 x = symbols('x')
@@ -35,7 +36,7 @@ def trapezoid_rule(func, a, b, n=1):
     return integral, x_points, y_points
 
 
-def calculate_trapezoid_compound(func, a, b, n):
+def trapezoid_compound_rule(func, a, b, n):
     """
     Implementa la regla del trapecio compuesto para integración numérica.
     
@@ -103,7 +104,7 @@ def generate_trapezoid_graph(func, a, b, subintervals):
                     'b-', label=f"f(x) = {func}")
 
             # Calcular la regla del trapecio compuesto
-            integral_value, x_points, y_points = calculate_trapezoid_compound(func, a, b, n)
+            integral_value, x_points, y_points = trapezoid_compound_rule(func, a, b, n)
 
             # Dibujar los trapecios
             for j in range(len(x_points) - 1):
@@ -203,7 +204,7 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=10):
 
         # Crear visualizaciones para diferentes números de subintervalos
         for n in range(1, max_subintervals + 1):
-            integral_value, x_points, y_points = calculate_trapezoid_compound(func, a, b, n)
+            integral_value, x_points, y_points = trapezoid_compound_rule(func, a, b, n)
 
             trapezoid_traces = []
 
@@ -394,7 +395,7 @@ def calculate_trapezoid(request):
             # Calcular las aproximaciones para cada número de subintervalos
             trapezoid_data = {}
             for n in range(1, max_subintervals + 1):
-                integral_value, x_points, y_points = calculate_trapezoid_compound(
+                integral_value, x_points, y_points = trapezoid_compound_rule(
                     sym_func, a, b, n)
                 trapezoid_data[f"n={n}"] = {
                     "x_points": x_points.tolist(),
@@ -424,6 +425,68 @@ def calculate_trapezoid(request):
             return JsonResponse(response)
         except Exception as e:
             print(f"Error: {str(e)}")  # Debug
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Método no permitido"}, status=405)
+
+
+@csrf_exempt
+def calculate_trapezoid_compound(request):
+    global x
+    x = symbols('x')
+    if request.method == "GET":
+        try:
+            func = request.GET.get("func")
+            a = request.GET.get("a")
+            b = request.GET.get("b")
+            n = request.GET.get("n")
+
+            # Validación de parámetros
+            if func is None or a is None or b is None or n is None:
+                return JsonResponse({"error": "Faltan parámetros requeridos."}, status=400)
+
+            try:
+                a = float(a)
+                b = float(b)
+                n = int(n)
+            except Exception as e:
+                return JsonResponse({"error": f"Parámetros numéricos inválidos: {str(e)}"}, status=400)
+
+            # Parsear la función
+            try:
+                sym_func = sympify(func)
+            except Exception as e:
+                return JsonResponse({"error": f"Función no válida: {str(e)}"}, status=400)
+
+            # Calcular la integral y los puntos para el n solicitado
+            try:
+                integral, x_points, y_points = trapezoid_compound_rule(sym_func, a, b, n)
+            except Exception as e:
+                return JsonResponse({"error": f"Error en el cálculo numérico: {str(e)}"}, status=500)
+
+            # Generar gráfico estático
+            try:
+                graph_buffer = generate_trapezoid_graph(sym_func, a, b, [n])
+                image_base64 = base64.b64encode(graph_buffer.getvalue()).decode("utf-8")
+            except Exception as e:
+                image_base64 = ""
+            
+            # Generar gráfico interactivo
+            try:
+                plot_json = generate_interactive_trapezoid_graph(sym_func, a, b, max_subintervals=max(10, n))
+            except Exception as e:
+                plot_json = "{}"
+
+            response = {
+                "image": image_base64,
+                "plot_json": plot_json,
+                "x_values": x_points.tolist(),
+                "original_y_values": y_points.tolist(),
+                "integral": float(integral)
+            }
+            return JsonResponse(response)
+        except Exception as e:
+            print(f"Error: {str(e)}")
             return JsonResponse({"error": str(e)}, status=500)
     else:
         return JsonResponse({"error": "Método no permitido"}, status=405)
