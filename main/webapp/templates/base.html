@@ -105,6 +105,26 @@
                                 href="{%  url 'lu_factorization' %}">{% translate 'Factorization LU Method' %}</a></li>
                     </ul>
                 </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        {% translate 'Integracion' %}
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item"
+                               href="{% url 'trapecio_simple' %}">{% translate 'Regla del trapecio simple' %}</a></li>
+                        <li><a class="dropdown-item"
+                               href="#">{% translate 'Regla del trapecio compuesto' %}</a></li>
+                        <li><a class="dropdown-item"
+                               href="#">{% translate 'Regla de Simpson de 1/3 simple' %}</a></li>
+                        <li><a class="dropdown-item"
+                                href="{%  url 'simpson_tercio_compuesto' %}">{% translate 'Regla de Simpson de 1/3 compuesto' %}</a></li>
+                        <li><a class="dropdown-item"
+                            href="{%  url 'simpson_3_8_simple' %}">{% translate 'Regla de Simpson de 3/8 simple' %}</a></li>
+                        <li><a class="dropdown-item"
+                                href="#">{% translate 'Regla de Simpson de 3/8 compuesto' %}</a></li>
+                    </ul>
+                </li>
             </ul>
             <ul class="navbar-nav">
                 <li class="nav-item dropdown">
