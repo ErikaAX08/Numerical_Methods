@@ -17,13 +17,12 @@ def trapezoid_rule(func, a, b, n=1):
         func: función a integrar (expresión de sympy)
         a: límite inferior
         b: límite superior
-        n: número de subintervalos
     
     Returns:
         Aproximación de la integral y los puntos utilizados
     """
     h = (b - a) 
-    x_points = np.linspace(a, b, n + 1)
+    x_points = np.linspace(a, b)
 
     # Convertir la función simbólica a una función numérica
     f = lambdify(x, func, "numpy")
