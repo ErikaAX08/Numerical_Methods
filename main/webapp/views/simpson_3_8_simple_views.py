@@ -76,7 +76,6 @@ def calculate_simpson_3_8_simple(request):
         func_str = request.GET.get("func")
         a = float(request.GET.get("a"))
         b = float(request.GET.get("b"))
-        pt_num = request.GET.get("pt_num")  # No se usa, pero se acepta para compatibilidad
         exact = request.GET.get("exact", "false").lower() == "true"
 
         func = parse_function(func_str)

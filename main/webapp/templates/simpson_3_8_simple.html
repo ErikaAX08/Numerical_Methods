@@ -55,12 +55,12 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <!-- <div class="row">
                     <div class="col-sm-6 mb-3">
                         <label for="pointNum" class="form-label">{% translate 'Number of Points' %}:</label>
                         <input type="number" class="form-control" id="pointNum" min="2" value="20" required>
                     </div>
-                </div>
+                </div> -->
 
                 <button type="submit" class="btn btn-lg btn-primary mt-2" id="calculateButton" onclick="calculateAndGraph()">
                     <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;"
@@ -154,13 +154,13 @@
                 const func = document.getElementById("functionSelect").value;
                 const a = document.getElementById("intervalA").value;
                 const b = document.getElementById("intervalB").value;
-                const ptNum = document.getElementById('pointNum').value;
+                // const ptNum = document.getElementById('pointNum').value;
 
                 // show loading state
                 setLoadingState(true);
 
                 // Build url with query parameters
-                const url = `/calculate-simpson-3-8-simple/?func=${encodeURIComponent(func)}&a=${a}&b=${b}&pt_num=${ptNum}`;
+                const url = `/calculate-simpson-3-8-simple/?func=${encodeURIComponent(func)}&a=${a}&b=${b}`;
 
                 // Fetch the data from the server
                 fetch(url)
