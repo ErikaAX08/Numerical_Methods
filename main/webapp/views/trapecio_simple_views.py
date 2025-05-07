@@ -235,13 +235,14 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=10):
             )
 
             # Texto para mostrar la información de la integral
-            annotation_text = f"Aproximación con {n} subintervalo{'s' if n > 1 else ''}: {integral_value:.6f}"
+            annotation_text = f"<b>Aproximación:</b> {integral_value:.6f}"
+
             if has_exact:
                 error = abs(exact_integral - integral_value)
-                annotation_text += f"<br>Error: {error:.6f}"
+                annotation_text += f"<br><b>Error:</b> {error:.6f}"
                 if exact_integral != 0:
                     rel_error = error / abs(exact_integral) * 100
-                    annotation_text += f"<br>Error relativo: {rel_error:.4f}%"
+                    # annotation_text += f"<br><b>Error relativo:</b> {rel_error:.4f}%"
 
             text_annotation = go.Scatter(
                 x=[a + (b-a)/2],
