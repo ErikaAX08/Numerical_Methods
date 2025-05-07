@@ -80,9 +80,19 @@ def simpson_interactive_plot(f_numeric, a, b, max_n, approx):
     fig.add_trace(go.Scatter(x=x_plot, y=y_plot, mode="lines",
                              name="f(x)", line=dict(color="blue")))
 
+    approx_values = []
+    n_values = []
     for n in range(2, max_n + 1, 2):
         x_partition = np.linspace(a, b, n + 1)
         y_partition = f_numeric(x_partition)
+
+        # Calcular la aproximación para este n
+        integral = y_partition[0] + y_partition[-1]
+        integral += 4 * np.sum(y_partition[1:-1:2])  # impares
+        integral += 2 * np.sum(y_partition[2:-2:2])  # pares
+        integral *= (b - a) / n / 3
+        approx_values.append(integral)
+        n_values.append(n)
 
         fig.add_trace(go.Scatter(
             x=x_partition, y=y_partition,
@@ -94,12 +104,24 @@ def simpson_interactive_plot(f_numeric, a, b, max_n, approx):
     fig.data[1].visible = True
 
     steps = []
-    for i in range(1, len(fig.data)):
+    annotations = []
+    for i, n in enumerate(n_values):
+        annotation = dict(
+            text=f"Resultado aproximado (n = {n}): {approx_values[i]:.6f}",
+            xref="paper", yref="paper",
+            x=0.5, y=1.1, showarrow=False,
+            font=dict(size=14),
+            bgcolor="white"
+        )
+        annotations.append(annotation)
         step = dict(
             method="update",
-            args=[{"visible": [True] + [j == i for j in range(1, len(fig.data))]},
-                  {"title": f"Simpson 1/3 Compuesta — Subintervalos: {2 * i}"}],
-            label=f"{2 * i}"
+            args=[
+                {"visible": [True] + [j == (i + 1) for j in range(1, len(fig.data))]},
+                {"title": f"Simpson 1/3 Compuesta — Subintervalos: {n}",
+                 "annotations": [annotation]}
+            ],
+            label=f"{n}"
         )
         steps.append(step)
 
@@ -112,19 +134,11 @@ def simpson_interactive_plot(f_numeric, a, b, max_n, approx):
 
     fig.update_layout(
         sliders=sliders,
-        title="Aproximación Interactiva — Simpson 1/3 Compuesta",
+        title=f"Simpson 1/3 Compuesta — Subintervalos: {n_values[0]}",
         xaxis_title="x",
-        yaxis_title="f(x)"
+        yaxis_title="f(x)",
+        annotations=[annotations[0]]
     )
-    
-    fig.add_annotation(
-        text=f"Resultado aproximado (n = {max_n}): {approx:.6f}",
-        xref="paper", yref="paper",
-        x=0.5, y=1.1, showarrow=False,
-        font=dict(size=14),
-        bgcolor="white"
-    )
-
 
     return fig
 
