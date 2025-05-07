@@ -149,7 +149,9 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=10):
         y_max = max(abs(original_y_values.min()),
                     abs(original_y_values.max())) * 1.1
 
-        # Lista para almacenar los pasos del slider
+        # Guardar las anotaciones para cada paso
+        annotations = []
+        traces_per_step = []
         steps = []
 
         # Crear visualizaciones para diferentes números de subintervalos
@@ -157,10 +159,8 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=10):
             integral_value, x_points, y_points = trapezoid_rule(func, a, b, n)
 
             trapezoid_traces = []
-
             # Añadir trapecios
             for j in range(len(x_points) - 1):
-                # Crear un trapecio relleno
                 trapezoid_traces.append(
                     go.Scatter(
                         x=[x_points[j], x_points[j], x_points[j+1],
@@ -209,40 +209,48 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=10):
                 hoverinfo='none'
             )
 
-            # Añadir información de la integral
-            text_annotation = go.Scatter(
-                x=[a + (b-a)/2],
-                y=[y_max * 0.9],
-                text=f"Aproximación con {n} subintervalo{'s' if n > 1 else ''}: {integral_value:.6f}",
-                mode='text',
-                showlegend=False,
-                visible=False,
-                hoverinfo='none'
-            )
+            # Guardar la anotación para este paso
+            annotation_text = f"Aproximación con {n} subintervalo{'s' if n > 1 else ''}: {integral_value:.6f}"
+            annotations.append(dict(
+                x=a + (b-a)/2,
+                y=y_max * 0.95,
+                xref="x",
+                yref="y",
+                text=annotation_text,
+                showarrow=False,
+                font=dict(size=14, color="black"),
+                align="center",
+                bgcolor="rgba(255,255,255,0.8)",
+                bordercolor="black",
+                borderwidth=1,
+                borderpad=4
+            ))
 
-            # Añadir todas las trazas
-            all_traces = trapezoid_traces + \
-                [points_trace, vertical_lines, horizontal_line, text_annotation]
-            for trace in all_traces:
+            traces_per_step.append(trapezoid_traces + [points_trace, vertical_lines, horizontal_line])
+
+        # Agregar todas las trazas al gráfico y guardar sus índices
+        trace_indices = []
+        for traces in traces_per_step:
+            idxs = []
+            for trace in traces:
                 fig.add_trace(trace)
+                idxs.append(len(fig.data) - 1)
+            trace_indices.append(idxs)
 
-            # Configurar el paso del slider
+        # Configurar los pasos del slider
+        for i, idxs in enumerate(trace_indices):
+            visible = [True] + [False] * (len(fig.data) - 1)
+            for idx in idxs:
+                visible[idx] = True
             step = {
                 'method': 'update',
                 'args': [
-                    {'visible': [True] + [False] * len(fig.data[1:])},
-                    {'title': f"Regla del Trapecio con {n} subintervalo{'s' if n > 1 else ''}"}
+                    {'visible': visible},
+                    {'annotations': [annotations[i]],
+                     'title': f"Regla del Trapecio con {i+1} subintervalo{'s' if i+1 > 1 else ''}"}
                 ],
-                'label': str(n)
+                'label': str(i+1)
             }
-
-            # Establecer visibilidad para este paso
-            for j, _ in enumerate(fig.data):
-                if j == 0:  # La función original siempre visible
-                    step['args'][0]['visible'][j] = True
-                elif j - 1 < len(all_traces):  # Solo las trazas actuales son visibles
-                    step['args'][0]['visible'][j] = True
-
             steps.append(step)
 
         # Configurar el layout
@@ -263,7 +271,8 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=10):
                 y=1.02,
                 xanchor="right",
                 x=1
-            )
+            ),
+            annotations=[annotations[0]]
         )
 
         # Configurar los rangos de los ejes
@@ -273,11 +282,6 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=10):
         # Añadir una cuadrícula
         fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='LightGray')
         fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='LightGray')
-
-        # Hacer visible el primer conjunto de trazas
-        for i in range(1, len(steps[0]['args'][0]['visible'])):
-            if steps[0]['args'][0]['visible'][i]:
-                fig.data[i].visible = True
 
         return fig.to_json()
     except Exception as e:

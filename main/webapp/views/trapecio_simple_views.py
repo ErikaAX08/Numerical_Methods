@@ -105,9 +105,6 @@ def generate_trapezoid_graph(func, a, b, subintervals):
 
             # Añadir título y leyenda
             title = f"Regla del Trapecio con {n} subintervalo{'s' if n > 1 else ''}, ∫({a},{b}) = {integral_value:.6f}"
-            if has_exact:
-                error = abs(exact_integral - integral_value)
-                title += f", Error: {error:.6f}"
             ax.set_title(title)
             ax.set_xlabel("x")
             ax.set_ylabel("f(x)")
@@ -174,8 +171,12 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=10):
         except:
             has_exact = False
 
+        # Guardar las anotaciones para cada paso
+        annotations = []
+
         # Lista para almacenar los pasos del slider
         steps = []
+        traces_per_step = []
 
         # Crear visualizaciones para diferentes números de subintervalos
         for n in range(1, max_subintervals + 1):
@@ -185,7 +186,6 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=10):
 
             # Añadir trapecios
             for j in range(len(x_points) - 1):
-                # Crear un trapecio relleno
                 trapezoid_traces.append(
                     go.Scatter(
                         x=[x_points[j], x_points[j], x_points[j+1],
@@ -236,46 +236,50 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=10):
 
             # Texto para mostrar la información de la integral
             annotation_text = f"Aproximación con {n} subintervalo{'s' if n > 1 else ''}: {integral_value:.6f}"
-            if has_exact:
-                error = abs(exact_integral - integral_value)
-                annotation_text += f"<br>Error: {error:.6f}"
-                if exact_integral != 0:
-                    rel_error = error / abs(exact_integral) * 100
-                    annotation_text += f"<br>Error relativo: {rel_error:.4f}%"
 
-            text_annotation = go.Scatter(
-                x=[a + (b-a)/2],
-                y=[y_max * 0.9],
+            # Guardar la anotación para este paso
+            annotations.append(dict(
+                x=a + (b-a)/2,
+                y=y_max * 0.95,
+                xref="x",
+                yref="y",
                 text=annotation_text,
-                mode='text',
-                showlegend=False,
-                visible=False,
-                hoverinfo='none'
-            )
+                showarrow=False,
+                font=dict(size=14, color="black"),
+                align="center",
+                bgcolor="rgba(255,255,255,0.8)",
+                bordercolor="black",
+                borderwidth=1,
+                borderpad=4
+            ))
 
-            # Añadir todas las trazas
-            all_traces = trapezoid_traces + \
-                [points_trace, vertical_lines, horizontal_line, text_annotation]
-            for trace in all_traces:
+            # Añadir todas las trazas de este paso
+            traces_per_step.append(trapezoid_traces + [points_trace, vertical_lines, horizontal_line])
+
+        # Agregar todas las trazas al gráfico y guardar sus índices
+        trace_indices = []
+        for traces in traces_per_step:
+            idxs = []
+            for trace in traces:
                 fig.add_trace(trace)
+                idxs.append(len(fig.data) - 1)
+            trace_indices.append(idxs)
 
-            # Configurar el paso del slider
+        # Configurar los pasos del slider
+        for i, idxs in enumerate(trace_indices):
+            # Visibilidad: función original siempre visible, solo las trazas de este paso visibles
+            visible = [True] + [False] * (len(fig.data) - 1)
+            for idx in idxs:
+                visible[idx] = True
             step = {
                 'method': 'update',
                 'args': [
-                    {'visible': [True] + [False] * len(fig.data[1:])},
-                    {'title': f"Regla del Trapecio con {n} subintervalo{'s' if n > 1 else ''}"}
+                    {'visible': visible},
+                    {'annotations': [annotations[i]],
+                     'title': f"Regla del Trapecio con {i+1} subintervalo{'s' if i+1 > 1 else ''}"}
                 ],
-                'label': str(n)
+                'label': str(i+1)
             }
-
-            # Establecer visibilidad para este paso
-            for j, _ in enumerate(fig.data):
-                if j == 0:  # La función original siempre visible
-                    step['args'][0]['visible'][j] = True
-                elif j - 1 < len(all_traces):  # Solo las trazas actuales son visibles
-                    step['args'][0]['visible'][j] = True
-
             steps.append(step)
 
         # Configurar el layout
@@ -300,7 +304,8 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=10):
                 y=1.02,
                 xanchor="right",
                 x=1
-            )
+            ),
+            annotations=[annotations[0]]
         )
 
         # Configurar los rangos de los ejes
@@ -310,11 +315,6 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=10):
         # Añadir una cuadrícula
         fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='LightGray')
         fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='LightGray')
-
-        # Hacer visible el primer conjunto de trazas
-        for i in range(1, len(steps[0]['args'][0]['visible'])):
-            if steps[0]['args'][0]['visible'][i]:
-                fig.data[i].visible = True
 
         return fig.to_json()
     except Exception as e:
