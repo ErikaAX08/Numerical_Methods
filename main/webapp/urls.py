@@ -18,7 +18,7 @@ from .views.gauss_maximum_column_pivoting_views import gauss_maximum_column_pivo
     calculate_gauss_maximum_column_pivoting
 from .views.chulesky_factorization_view import chulesky_factorization, calculate_chulesky_factorization
 from .views.lu_factorization_view import lu_factorization, calculate_lu_factorization
-from .views.simpson_tres_octavos_simple_views import simpson_tres_octavos_simple, calculate_simpson_tres_octavos_simple
+from .views.simpson_tres_octavos_simple import simpson_tres_octavos_simple
 
 urlpatterns = [
     path("", index, name="index"),
@@ -54,6 +54,4 @@ urlpatterns = [
     path("calculate-lu-factorization/", calculate_lu_factorization,
          name="calculate_lu_factorization"),
      path("simpson-tres-octavos-simple/", simpson_tres_octavos_simple, name="simpson_tres_octavos_simple"),
-     path("calculate-simpson-tres-octavos-simple/", calculate_simpson_tres_octavos_simple,
-           name="calculate_simpson_tres_octavos_simple"),
 ]
