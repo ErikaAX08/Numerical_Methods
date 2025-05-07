@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% translate 'Regla Simpson 3/8 Simple' %} - {% translate 'Numerical Methods' %}{% endblock %}
+{% block content %}
+    {% load static %}
+
+    <div class="container-sm p-5">
+        <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
+            <div class="col-lg-12">
+                <h2 class="display-4 fw-bold lh-1s">{% translate 'Simpson 3/8 Simple' %}</h2>
+                <p class="lead py-5">
+                    {% translate 'La regla de Simpson 3/8 simple es un método numérico utilizado para aproximar el valor de una integral definida. Consiste en dividir el intervalo de integración [a, b] en tres subintervalos de igual longitud y aplicar la fórmula de Simpson 3/8 para calcular la integral. Es especialmente útil cuando el número de subintervalos es múltiplo de tres o para mejorar la precisión en la aproximación de integrales.' %}
+                </p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
+                    <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
+                            onclick="showCalculator()">{% translate 'Calculadora Gráfica' %}
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">
+                        {% translate 'Explicación' %}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="py-3"></div>
+
+        <!-- Hidden calculator section -->
+        <div id="calculator" style="display: none;" class="mt-5">
+            <h3 class="mb-5">{% translate 'Calculadora Regla Simpson 3/8 Simple' %}</h3>
+            <form class="mb-5 p-4 bg-light rounded-3 shadow" id="calculatorForm">
+                <div class="mb-3">
+                    <label for="functionSelect" class="form-label">{% translate 'Select Function' %}:</label>
+                    <select class="form-select" id="functionSelect" required>
+                        <option value="3*x**4 - 4*x**3 - 12*x**2 + 5">3x^4 - 4x^3 - 12x^2 + 5</option>
+                        <option value="cos(x)">cos(x)</option>
+                        <option value="sin(x)">sin(x)</option>
+                        <option value="8 + 3*sin(x)">8 + 3sin(x)</option>
+                        <option value="x*ln(x)">xln(x)</option>
+                        <option value="exp(2*x)*sin(3*x)">e^2x * sin(3x)</option>
+                        <option value="x / (x**2 + 4)">x / (x^2 + 4)</option>
+                        <option value="exp(x)*ln(x)">e^x * ln(x)</option>
+                        <option value="exp(x**2)">e^x^2</option>
+                        <option value="exp(x) / x">e^x / x</option>
+                    </select>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <label for="intervalA" class="form-label">{% translate 'Interval Start' %}:</label>
+                        <input type="number" class="form-control" id="intervalA" step="any" value="-3.1416" required>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <label for="intervalB" class="form-label">{% translate 'Interval End' %}:</label>
+                        <input type="number" class="form-control" id="intervalB" step="any" value="6.1416" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <label for="pointNum" class="form-label">{% translate 'Number of Points' %}:</label>
+                        <input type="number" class="form-control" id="pointNum" min="2" value="20" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-lg btn-primary mt-2" id="calculateButton" onclick="calculateAndGraph()">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;"
+                          id="loadingSpinner"></span>
+                    <span id="buttonText">{% translate 'Calculate and Graph' %}</span>
+                </button>
+            </form>
+
+            <div id="graphs-container" class="mt-5 p-4 bg-light rounded-3 shadow" style="display: none;">
+                <div id="graph" class="mb-5 row justify-content-center">
+                    <img id="plotImage" src="" alt="Plot" class="img-fluid w-75 rounded-4">
+                </div>
+
+                <div class="rounded-5" id="plot-container" style="height: 500px;">
+                    <!-- Plotly chart will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Container for the results table -->
+            <div id="resultsTable" class="mt-5" style="display: none;">
+                <h4 class="mb-3">{% translate 'Results table' %}</h4>
+                <table id="dataTable" class="table table-bordered rounded-5 table-striped">
+                    <thead>
+                    <tr>
+                        <th>x</th>
+                        <th>{% translate 'Original Function' %}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Hidden extensive explanation section -->
+        <div id="explanation" class="mt-4 rounded-3">
+            <h3 class="pb-3">{% translate "Explicación Regla de Simpson 3/8 Simple" %}</h3>
+            <p>
+                {% translate "<strong>Paso 1:</strong> Divide el intervalo [a, b] en tres subintervalos de igual longitud h. La regla de Simpson 3/8 simple requiere exactamente tres subintervalos." %}<br><br>
+                {% translate "<strong>Paso 2:</strong> Calcula el ancho de cada subintervalo:" %}
+                <br>
+                <span>
+                \( h = \frac{b - a}{3} \)
+                </span>
+                <br>
+                {% translate "<strong>Paso 3:</strong> Evalúa la función en los cuatro puntos necesarios:" %}
+                <br>
+                <span>
+                \( x_0 = a,\quad x_1 = a + h,\quad x_2 = a + 2h,\quad x_3 = b \)
+                </span>
+                <br>
+                {% translate "<strong>Paso 4:</strong> Aplica la fórmula de Simpson 3/8 simple:" %}
+                <br>
+                <span>
+                \[
+                \int_{a}^{b} f(x)\,dx \approx \frac{3h}{8} \left[ f(x_0) + 3f(x_1) + 3f(x_2) + f(x_3) \right]
+                \]
+                </span>
+                <br>
+                {% translate "Donde f(x_0), f(x_1), f(x_2) y f(x_3) son los valores de la función en los puntos correspondientes." %}
+            </p>
+        </div>
+
+        <script>
+            function showCalculator() {
+                document.getElementById('explanation').style.display = 'none';
+                document.getElementById('calculator').style.display = 'block';
+            }
+
+            function showExplanation() {
+                document.getElementById('calculator').style.display = 'none';
+                document.getElementById('explanation').style.display = 'block';
+            }
+
+            document.getElementById("calculatorForm").addEventListener("submit", function (event) {
+                event.preventDefault();
+                calculateAndGraph();
+            });
+
+            function setLoadingState(isLoading) {
+                const button = document.getElementById("calculateButton");
+                const spinner = document.getElementById("loadingSpinner");
+                const buttonText = document.getElementById("buttonText");
+
+                button.disabled = isLoading;
+                spinner.style.display = isLoading ? "inline-block" : "none";
+                buttonText.textContent = isLoading ? "{% translate 'Calculating...' %}" : "{% translate 'Calculate and Graph' %}";
+            }
+
+            function calculateAndGraph() {
+                const func = document.getElementById("functionSelect").value;
+                const a = document.getElementById("intervalA").value;
+                const b = document.getElementById("intervalB").value;
+                const ptNum = document.getElementById('pointNum').value;
+
+                // show loading state
+                setLoadingState(true);
+
+                // Build url with query parameters
+                const url = `/calculate-simpson-3-8-simple/?func=${encodeURIComponent(func)}&a=${a}&b=${b}&pt_num=${ptNum}`;
+
+                // Fetch the data from the server
+                fetch(url)
+                    .then((response) => response.json())
+                    .then((data) => {
+
+                        if (data.error) {
+                            alert("Error: " + data.error);
+                            console.log(data.error)
+                            return;
+                        }
+
+                        if (data.error) {
+                            alert(data.error);
+                            return;
+                        }
+
+                        // Show the graph with the plot image
+                        const plotImage = document.getElementById("plotImage");
+                        plotImage.src = `data:image/png;base64,${data.image}`;
+                        document.getElementById("graphs-container").style.display = "block";
+                        document.getElementById("graph").style.display = "flex";
+
+                        // Render Plotly chart
+                        const plotData = JSON.parse(data.plot_json);
+                        Plotly.newPlot('plot-container', plotData.data, plotData.layout, {
+                            responsive: true,
+                            displayModeBar: true
+                        });
+
+                        // Generate the results table
+                        generateTable(data.x_values, data.original_y_values);
+                    })
+                    .catch((error) => {
+                        console.error("Error:", error);
+                    }).finally(() => {
+                    setLoadingState(false);
+                });
+            }
+
+            function generateTable(xValues, originalYValues) {
+                const table = document.getElementById("dataTable");
+                const thead = table.querySelector("thead");
+                const tbody = table.querySelector("tbody");
+
+                // Clear the table
+                thead.innerHTML = "";
+                tbody.innerHTML = "";
+
+                // Create the header row
+                const headerRow = document.createElement("tr");
+                headerRow.innerHTML = `
+                  <th>i</th>
+                  <th>x</th>
+                  <th>{% translate 'Original Function '%}</th>`;
+                thead.appendChild(headerRow);
+
+                // Create the data rows
+                xValues.forEach((x, index) => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td class="fw-bold">${index + 1}</td>
+                        <td>${x.toFixed(4)}</td>
+                        <td>${originalYValues[index].toFixed(4)}</td>`;
+                    tbody.appendChild(row);
+                });
+
+                document.getElementById("resultsTable").style.display = "block";
+            }
+
+            function normalizarFuncion(funcion) {
+                return funcion
+                    .replace(/\^/g, "**")                 // ^ → **
+                    .replace(/(\d)([a-zA-Z])/g, "$1*$2")   // 3x → 3*x
+                    .replace(/([a-zA-Z])(\d)/g, "$1*$2")   // x2 → x*2
+                    .replace(/\bln\b/g, "log")            // ln → log (base e en SymPy)
+                    .replace(/\be\b/g, "exp(1)");          // e → exp(1)
+            }
+        </script>
+
+    </div>
+
+{% endblock %}
