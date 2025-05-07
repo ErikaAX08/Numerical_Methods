@@ -21,6 +21,8 @@ from .views.lu_factorization_view import lu_factorization, calculate_lu_factoriz
 from .views.simpson_tercio_compuesto_views import simpson_tercio_compuesto, calculate_simpson
 from .views.simpson_3_8_simple_views import simpson_3_8_simple_page, calculate_simpson_3_8_simple
 from .views.trapecio_simple_views import trapecio_simple, calculate_trapezoid
+from .views.trapezoid_compound_views import trapezoid_compound, calculate_trapezoid_compound
+
 
 urlpatterns = [
     path("", index, name="index"),
@@ -62,5 +64,8 @@ urlpatterns = [
          name="simpson_tercio_compuesto"),
     path("calculate_simpson/", calculate_simpson, name="calculate_simpson"),
     path("trapecio_simple/", trapecio_simple, name="trapecio_simple"),
-    path("calculate_trapezoid/", calculate_trapezoid, name="calculate_trapezoid")
+    path("calculate_trapezoid/", calculate_trapezoid, name="calculate_trapezoid"),
+    path("trapezoid-compound/", trapezoid_compound, name="trapezoid_compound"), 
+    path("calculate-trapezoid-compound/", calculate_trapezoid_compound,
+         name="calculate_trapezoid_compound")
 ]
