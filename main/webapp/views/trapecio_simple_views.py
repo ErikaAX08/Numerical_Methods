@@ -34,7 +34,7 @@ def trapezoid_rule(func, a, b, n=1):
     return integral, x_points, y_points
 
 
-def generate_trapezoid_graph(func, a, b, subintervals):
+def generate_trapezoid_graph(func, a, b, subintervals, integral_value):
     """
     Genera una visualización estática de la regla del trapecio.
     
@@ -78,7 +78,7 @@ def generate_trapezoid_graph(func, a, b, subintervals):
                     'b-', label=f"f(x) = {func}")
 
             # Calcular la regla del trapecio
-            integral_value, x_points, y_points = trapezoid_rule(func, a, b, n)
+            iv, x_points, y_points = trapezoid_rule(func, a, b, n)
 
             # Dibujar los trapecios
             for j in range(len(x_points) - 1):
@@ -123,7 +123,7 @@ def generate_trapezoid_graph(func, a, b, subintervals):
         raise e
 
 
-def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=10):
+def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=1, integral_value = 0):
     """
     Genera una visualización interactiva de la regla del trapecio.
     
@@ -163,19 +163,19 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=10):
                     abs(original_y_values.max())) * 1.1
 
         # Calcular el área exacta bajo la curva (integral analítica si está disponible)
-        try:
-            from sympy import integrate
-            exact_integral = float(integrate(func, (x, a, b)))
-            has_exact = True
-        except:
-            has_exact = False
+        # try:
+        #     # from sympy import integrate
+        #     exact_integral = float(integrate(func, (x, a, b)))
+        #     has_exact = True
+        # except:
+        #     has_exact = False
 
         # Guardar las anotaciones para cada paso
         annotations = []
 
         # Lista para almacenar los pasos del slider
-        steps = []
-        traces_per_step = []
+        # steps = []
+        # traces_per_step = []
 
         # Crear visualizaciones para diferentes números de subintervalos
         for n in range(1, max_subintervals + 1):
@@ -253,39 +253,38 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=10):
             ))
 
             # Añadir todas las trazas de este paso
-            traces_per_step.append(trapezoid_traces + [points_trace, vertical_lines, horizontal_line])
+            # traces_per_step.append(trapezoid_traces + [points_trace, vertical_lines, horizontal_line])
 
         # Agregar todas las trazas al gráfico y guardar sus índices
-        trace_indices = []
-        for traces in traces_per_step:
-            idxs = []
-            for trace in traces:
-                fig.add_trace(trace)
-                idxs.append(len(fig.data) - 1)
-            trace_indices.append(idxs)
+        # trace_indices = []
+        # for traces in traces_per_step:
+        #     idxs = []
+        #     for trace in traces:
+        #         fig.add_trace(trace)
+        #         idxs.append(len(fig.data) - 1)
+        #     trace_indices.append(idxs)
 
         # Configurar los pasos del slider
-        for i, idxs in enumerate(trace_indices):
-            # Visibilidad: función original siempre visible, solo las trazas de este paso visibles
-            visible = [True] + [False] * (len(fig.data) - 1)
-            for idx in idxs:
-                visible[idx] = True
-            step = {
-                'method': 'update',
-                'args': [
-                    {'visible': visible},
-                    {'annotations': [annotations[i]],
-                     'title': f"Regla del Trapecio con {i+1} subintervalo{'s' if i+1 > 1 else ''}"}
-                ],
-                'label': str(i+1)
-            }
-            steps.append(step)
+        # for i, idxs in enumerate(trace_indices):
+        #     # Visibilidad: función original siempre visible, solo las trazas de este paso visibles
+        #     visible = [True] + [False] * (len(fig.data) - 1)
+        #     for idx in idxs:
+        #         visible[idx] = True
+        #     step = {
+        #         'method': 'update',
+        #         'args': [
+        #             {'visible': visible},
+        #             {'annotations': [annotations[i]],
+        #              'title': f"Regla del Trapecio con {i+1} subintervalo{'s' if i+1 > 1 else ''}"}
+        #         ],
+        #         'label': str(i+1)
+        #     }
+        #     steps.append(step)
 
         # Configurar el layout
         title = f"Regla del Trapecio para ∫({a},{b}) {func} dx"
-        if has_exact:
-            title += f" (Valor exacto: {exact_integral:.6f})"
-
+        title += f" (Valor exacto: {integral_value:.6f})"
+           
         fig.update_layout(
             title=title,
             xaxis_title="x",
@@ -294,7 +293,7 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=10):
                 'active': 0,
                 'currentvalue': {"prefix": "Subintervalos: "},
                 'pad': {"t": 50},
-                'steps': steps
+                # 'steps': steps
             }],
             showlegend=True,
             legend=dict(
@@ -333,41 +332,21 @@ def calculate_trapezoid(request):
             b = float(request.GET.get("b"))
             max_subintervals = int(request.GET.get("max_subintervals", 10))
             subintervals = list(map(int, request.GET.get(
-                "subintervals", "1,2,4,8").split(",")))
+                "subintervals", "1").split(",")))
 
             # Definir la función simbólica
-            if func == "exp(x)":
-                sym_func = exp(x)
-            elif func == "exp(-x)":
-                sym_func = exp(-x)
-            elif func == "sin(x)":
-                sym_func = sin(x)
-            elif func == "cos(x)":
-                sym_func = cos(x)
-            elif func == "sinh(x)":
-                sym_func = sinh(x)
-            elif func == "cosh(x)":
-                sym_func = cosh(x)
-            elif func == "ln(1+x)":
-                sym_func = log(1 + x)
-            else:
-                # Intentar parsear una función personalizada
-                try:
-                    sym_func = sympify(func)
-                except Exception as e:
-                    return JsonResponse({
-                        "error": "Función no válida",
-                        "message": "No se puede interpretar la función ingresada. Error: " + str(e)
-                    }, status=400)
-
-            # Generar gráficos
-            graph_buffer = generate_trapezoid_graph(
-                sym_func, a, b, subintervals)
-            plot_json = generate_interactive_trapezoid_graph(
-                sym_func, a, b, max_subintervals)
+            try:
+                sym_func = sympify(func)
+            except Exception as e:
+                return JsonResponse({
+                    "error": "Función no válida",
+                    "message": "No se puede interpretar la función ingresada. Error: " + str(e)
+                }, status=400)
+               
 
             # Calcular las aproximaciones para cada número de subintervalos
             trapezoid_data = {}
+            integral_value = 0
             for n in range(1, max_subintervals + 1):
                 integral_value, x_points, y_points = trapezoid_rule(
                     sym_func, a, b, n)
@@ -384,6 +363,12 @@ def calculate_trapezoid(request):
                 exact_value = exact_integral
             except:
                 exact_value = None
+
+            # Generar gráficos
+            graph_buffer = generate_trapezoid_graph(
+                sym_func, a, b, subintervals, float(integral_value))
+            plot_json = generate_interactive_trapezoid_graph(
+                sym_func, a, b, max_subintervals, float(integral_value))
 
             # Convertir la imagen a base64
             image_base64 = base64.b64encode(
