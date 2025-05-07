@@ -201,6 +201,7 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=10):
 
         # Lista para almacenar los pasos del slider
         steps = []
+        annotations = []
 
         # Crear visualizaciones para diferentes números de subintervalos
         for n in range(1, max_subintervals + 1):
@@ -259,28 +260,23 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=10):
                 hoverinfo='none'
             )
 
-            # Texto para mostrar la información de la integral
+            # Texto para mostrar la información de la integral (sin errores)
             annotation_text = f"Aproximación con {n} subintervalo{'s' if n > 1 else ''}: {integral_value:.6f}"
-            if has_exact:
-                error = abs(exact_integral - integral_value)
-                annotation_text += f"<br>Error: {error:.6f}"
-                if exact_integral != 0:
-                    rel_error = error / abs(exact_integral) * 100
-                    annotation_text += f"<br>Error relativo: {rel_error:.4f}%"
 
-            text_annotation = go.Scatter(
-                x=[a + (b-a)/2],
-                y=[y_max * 0.9],
+            # Guardar la anotación para este paso
+            annotations.append(dict(
+                x=a + (b - a) / 2,
+                y=y_max * 0.9,
+                xref="x",
+                yref="y",
                 text=annotation_text,
-                mode='text',
-                showlegend=False,
-                visible=False,
-                hoverinfo='none'
-            )
+                showarrow=False,
+                font=dict(size=14, color="black"),
+                align="center"
+            ))
 
             # Añadir todas las trazas
-            all_traces = trapezoid_traces + \
-                [points_trace, vertical_lines, horizontal_line, text_annotation]
+            all_traces = trapezoid_traces + [points_trace, vertical_lines, horizontal_line]
             for trace in all_traces:
                 fig.add_trace(trace)
 
@@ -289,7 +285,10 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=10):
                 'method': 'update',
                 'args': [
                     {'visible': [True] + [False] * len(fig.data[1:])},
-                    {'title': f"Regla del Trapecio Compuesto con {n} subintervalo{'s' if n > 1 else ''}"}
+                    {
+                        'title': f"Regla del Trapecio Compuesto con {n} subintervalo{'s' if n > 1 else ''}",
+                        'annotations': [annotations[n - 1]]
+                    }
                 ],
                 'label': str(n)
             }
@@ -325,7 +324,8 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=10):
                 y=1.02,
                 xanchor="right",
                 x=1
-            )
+            ),
+            annotations=[annotations[0]] if annotations else []
         )
 
         # Configurar los rangos de los ejes
