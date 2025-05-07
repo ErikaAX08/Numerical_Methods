@@ -19,6 +19,8 @@ from .views.gauss_maximum_column_pivoting_views import gauss_maximum_column_pivo
 from .views.chulesky_factorization_view import chulesky_factorization, calculate_chulesky_factorization
 from .views.lu_factorization_view import lu_factorization, calculate_lu_factorization
 from .views.simpson_tercio_compuesto_views import simpson_tercio_compuesto, calculate_simpson
+from .views.simpson_3_8_simple_views import simpson_3_8_simple_page, calculate_simpson_3_8_simple
+from .views.trapecio_simple_views import trapecio_simple, calculate_trapezoid
 
 urlpatterns = [
     path("", index, name="index"),
@@ -51,9 +53,14 @@ urlpatterns = [
     path("calculate-chulesky-factorization/", calculate_chulesky_factorization,
          name="calculate_chulesky_factorization"),
     path("lu-factorization/", lu_factorization, name="lu_factorization"),
+    path("calculate-lu-factorization/", calculate_lu_factorization,),
+    path("simpson-3-8-simple/", simpson_3_8_simple_page, name="simpson_3_8_simple"),
+    path("calculate-simpson-3-8-simple/", calculate_simpson_3_8_simple, name="calculate_simpson_3_8_simple"),
     path("calculate-lu-factorization/", calculate_lu_factorization,
          name="calculate_lu_factorization"),
     path("simpson_tercio_compuesto/", simpson_tercio_compuesto,
          name="simpson_tercio_compuesto"),
-    path("calculate_simpson/", calculate_simpson, name="calculate_simpson")
+    path("calculate_simpson/", calculate_simpson, name="calculate_simpson"),
+    path("trapecio_simple/", trapecio_simple, name="trapecio_simple"),
+    path("calculate_trapezoid/", calculate_trapezoid, name="calculate_trapezoid")
 ]
