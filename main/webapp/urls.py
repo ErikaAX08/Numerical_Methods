@@ -71,7 +71,6 @@ urlpatterns = [
          name="calculate_trapezoid_compound"),
      path("simpson-3-8-compound/", simpson_3_8_compound, name="simpson_3_8_compound"),
      path("calculate-simpson-3-8-compound/", calculate_simpson_3_8_compound, name="calculate_simpson_3_8_compound"),
-          name="calculate_trapezoid_compound"),
      path("simpson-tercio-simple/", simpson_tercio_simple_page, name="simpson_tercio_simple"),
      path("calculate-simpson-tercio-simple/", calculate_simpson_tercio_simple, name="calculate_simpson_tercio_simple"),
 ]
