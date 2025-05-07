@@ -1,22 +1,22 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% translate 'Regla Trapecio Compuesto' %} - {% translate 'Numerical Methods' %}{% endblock %}
+{% block title %}{% translate 'Regla Simpson 3/8 Simple' %} - {% translate 'Numerical Methods' %}{% endblock %}
 {% block content %}
     {% load static %}
 
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
             <div class="col-lg-12">
-                <h2 class="display-4 fw-bold lh-1s">{% translate 'Regla del Trapecio Compuesto' %}</h2>
+                <h2 class="display-4 fw-bold lh-1s">{% translate 'Simpson 3/8 Simple' %}</h2>
                 <p class="lead py-5">
-                    {% translate 'La regla del trapecio compuesto es una técnica de integración numérica que mejora la precisión de la regla del trapecio simple al dividir el intervalo [a, b] en n subintervalos de igual longitud. Luego, se aplica la regla del trapecio en cada subintervalo y se suman los resultados para obtener una mejor aproximación del área bajo la curva de f(x).' %}
+                    {% translate 'La regla de Simpson 3/8 simple es un método numérico utilizado para aproximar el valor de una integral definida. Consiste en dividir el intervalo de integración [a, b] en tres subintervalos de igual longitud y aplicar la fórmula de Simpson 3/8 para calcular la integral. Es especialmente útil cuando el número de subintervalos es múltiplo de tres o para mejorar la precisión en la aproximación de integrales.' %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
-                            onclick="showCalculator()">{% translate 'Graphing Calculator' %}
+                            onclick="showCalculator()">{% translate 'Calculadora Gráfica' %}
                     </button>
                     <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">
-                        {% translate 'Explanation' %}
+                        {% translate 'Explicación' %}
                     </button>
                 </div>
             </div>
@@ -26,7 +26,7 @@
 
         <!-- Hidden calculator section -->
         <div id="calculator" style="display: none;" class="mt-5">
-            <h3 class="mb-5">{% translate 'Calculadora Regla Trapecio Compuesto' %}</h3>
+            <h3 class="mb-5">{% translate 'Calculadora Regla Simpson 3/8 Simple' %}</h3>
             <form class="mb-5 p-4 bg-light rounded-3 shadow" id="calculatorForm">
                 <div class="mb-3">
                     <label for="functionSelect" class="form-label">{% translate 'Select Function' %}:</label>
@@ -45,21 +45,24 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-sm-4 mb-3">
+                    <div class="col-sm-6 mb-3">
                         <label for="intervalA" class="form-label">{% translate 'Interval Start' %}:</label>
                         <input type="number" class="form-control" id="intervalA" step="any" value="-3.1416" required>
                     </div>
-                    <div class="col-sm-4 mb-3">
+                    <div class="col-sm-6 mb-3">
                         <label for="intervalB" class="form-label">{% translate 'Interval End' %}:</label>
                         <input type="number" class="form-control" id="intervalB" step="any" value="6.1416" required>
                     </div>
-                    <div class="col-sm-4 mb-3">
-                        <label for="nIntervals" class="form-label">{% translate 'Number of Subintervals (n)' %}:</label>
-                        <input type="number" class="form-control" id="nIntervals" min="1" step="1" value="4" required>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <label for="pointNum" class="form-label">{% translate 'Number of Points' %}:</label>
+                        <input type="number" class="form-control" id="pointNum" min="2" value="20" required>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-lg btn-primary mt-2" id="calculateButton">
+                <button type="submit" class="btn btn-lg btn-primary mt-2" id="calculateButton" onclick="calculateAndGraph()">
                     <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;"
                           id="loadingSpinner"></span>
                     <span id="buttonText">{% translate 'Calculate and Graph' %}</span>
@@ -94,21 +97,30 @@
 
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3">
-            <h3 class="pb-3">{% translate "Explicación Regla del Trapecio Compuesto" %}</h3>
+            <h3 class="pb-3">{% translate "Explicación Regla de Simpson 3/8 Simple" %}</h3>
             <p>
-                {% translate "<strong>Paso 1:</strong> Dividir el intervalo [a, b] en n subintervalos de igual longitud." %}  
+                {% translate "<strong>Paso 1:</strong> Divide el intervalo [a, b] en tres subintervalos de igual longitud h. La regla de Simpson 3/8 simple requiere exactamente tres subintervalos." %}<br><br>
+                {% translate "<strong>Paso 2:</strong> Calcula el ancho de cada subintervalo:" %}
+                <br>
+                <span>
+                \( h = \frac{b - a}{3} \)
+                </span>
+                <br>
+                {% translate "<strong>Paso 3:</strong> Evalúa la función en los cuatro puntos necesarios:" %}
+                <br>
+                <span>
+                \( x_0 = a,\quad x_1 = a + h,\quad x_2 = a + 2h,\quad x_3 = b \)
+                </span>
+                <br>
+                {% translate "<strong>Paso 4:</strong> Aplica la fórmula de Simpson 3/8 simple:" %}
+                <br>
+                <span>
                 \[
-                h = \frac{b - a}{n}
+                \int_{a}^{b} f(x)\,dx \approx \frac{3h}{8} \left[ f(x_0) + 3f(x_1) + 3f(x_2) + f(x_3) \right]
                 \]
-                {% translate "<strong>Paso 2:</strong> Evaluar la función en los puntos extremos y en los puntos intermedios del intervalo." %}
-                <br><br>
-                {% translate "<strong>Paso 3:</strong> Aplicar la fórmula del trapecio compuesto:" %}
-                \[
-                \int_{a}^{b} f(x)\,dx \approx \frac{h}{2}\left[f(x_0) + 2\sum_{i=1}^{n-1} f(x_i) + f(x_n)\right]
-                \]
-                {% translate "donde \(x_0 = a\), \(x_n = b\), y \(x_i\) son los puntos intermedios." %}
-                <br><br>
-                {% translate "<strong>Paso 4:</strong> Calcular la suma y multiplicar por h/2 para obtener la aproximación de la integral." %}
+                </span>
+                <br>
+                {% translate "Donde f(x_0), f(x_1), f(x_2) y f(x_3) son los valores de la función en los puntos correspondientes." %}
             </p>
         </div>
 
@@ -142,24 +154,27 @@
                 const func = document.getElementById("functionSelect").value;
                 const a = document.getElementById("intervalA").value;
                 const b = document.getElementById("intervalB").value;
-                const n = document.getElementById("nIntervals").value;
+                const ptNum = document.getElementById('pointNum').value;
 
+                // show loading state
                 setLoadingState(true);
 
                 // Build url with query parameters
-                const url = `/calculate-trapezoid-compound/?func=${encodeURIComponent(func)}&a=${a}&b=${b}&n=${n}`;
+                const url = `/calculate-simpson-3-8-simple/?func=${encodeURIComponent(func)}&a=${a}&b=${b}&pt_num=${ptNum}`;
 
+                // Fetch the data from the server
                 fetch(url)
                     .then((response) => response.json())
                     .then((data) => {
+
                         if (data.error) {
                             alert("Error: " + data.error);
+                            console.log(data.error)
                             return;
                         }
 
-                        // Validar que los datos requeridos existen
-                        if (!data.x_values || !data.original_y_values) {
-                            alert("No se recibieron datos de puntos para graficar.");
+                        if (data.error) {
+                            alert(data.error);
                             return;
                         }
 
@@ -181,11 +196,9 @@
                     })
                     .catch((error) => {
                         console.error("Error:", error);
-                        alert("Ocurrió un error inesperado: " + error);
-                    })
-                    .finally(() => {
-                        setLoadingState(false);
-                    });
+                    }).finally(() => {
+                    setLoadingState(false);
+                });
             }
 
             function generateTable(xValues, originalYValues) {
