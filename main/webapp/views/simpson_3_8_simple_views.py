@@ -7,8 +7,7 @@ from sympy import symbols, sympify, lambdify, integrate, sin, cos, sinh, cosh, e
 import io
 import base64
 
-# Importar la función utilitaria usando import relativo
-from ..utils.simpson_tres_octavos_simple import simpson_tres_octavos_simple
+from ..utils.simpson_3_8_simple import simpson_3_8_simple
 
 x = symbols("x")
 
@@ -72,7 +71,7 @@ def simpson_interactive_plot(f_numeric, a, b, approx, x_points):
     )
     return fig
 
-def calculate_simpson_tres_octavos_simple(request):
+def calculate_simpson_3_8_simple(request):
     try:
         func_str = request.GET.get("func")
         a = float(request.GET.get("a"))
@@ -81,15 +80,12 @@ def calculate_simpson_tres_octavos_simple(request):
         exact = request.GET.get("exact", "false").lower() == "true"
 
         func = parse_function(func_str)
-        # Usar la función utilitaria para obtener el resultado y los puntos
-        approx = simpson_tres_octavos_simple(func, a, b)
-        # Calcular los puntos de evaluación
+        approx = simpson_3_8_simple(func, a, b)
         h = (b - a) / 3
-        x_points = [a, a + h, a + 2*h, b]
+        x_points = [a, a + h, a + 2 * h, b]
 
         f_numeric = lambdify(x, func, "numpy")
 
-        # Imagen estática
         static_fig = simpson_static_plot(f_numeric, a, b, approx, x_points)
         buffer = io.BytesIO()
         static_fig.savefig(buffer, format="png")
@@ -98,7 +94,6 @@ def calculate_simpson_tres_octavos_simple(request):
         buffer.close()
         plt.close(static_fig)
 
-        # Gráfica interactiva
         interactive_fig = simpson_interactive_plot(f_numeric, a, b, approx, x_points)
         plot_json = interactive_fig.to_json()
 
@@ -122,5 +117,5 @@ def calculate_simpson_tres_octavos_simple(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
-def simpson_tres_octavos_simple(request):
-    return render(request, "simpson-tres-octavos-simple.html")
+def simpson_3_8_simple_page(request):
+    return render(request, "simpson_3_8_simple.html")

@@ -160,7 +160,7 @@
                 setLoadingState(true);
 
                 // Build url with query parameters
-                const url = `/calculate_simpson_tres_octavos_simple/?func=${encodeURIComponent(func)}&a=${a}&b=${b}&pt_num=${ptNum}`;
+                const url = `/calculate-simpson-3-8-simple/?func=${encodeURIComponent(func)}&a=${a}&b=${b}&pt_num=${ptNum}`;
 
                 // Fetch the data from the server
                 fetch(url)
@@ -244,5 +244,3 @@
     </div>
 
 {% endblock %}
-
-
