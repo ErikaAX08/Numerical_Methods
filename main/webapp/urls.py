@@ -19,6 +19,7 @@ from .views.gauss_maximum_column_pivoting_views import gauss_maximum_column_pivo
 from .views.chulesky_factorization_view import chulesky_factorization, calculate_chulesky_factorization
 from .views.lu_factorization_view import lu_factorization, calculate_lu_factorization
 from .views.simpson_3_8_simple_views import simpson_3_8_simple_page, calculate_simpson_3_8_simple
+from .views.trapecio_simple_views import trapecio_simple, calculate_trapezoid
 
 urlpatterns = [
     path("", index, name="index"),
@@ -54,4 +55,8 @@ urlpatterns = [
     path("calculate-lu-factorization/", calculate_lu_factorization,),
     path("simpson-3-8-simple/", simpson_3_8_simple_page, name="simpson_3_8_simple"),
     path("calculate-simpson-3-8-simple/", calculate_simpson_3_8_simple, name="calculate_simpson_3_8_simple"),
+    path("calculate-lu-factorization/", calculate_lu_factorization,
+         name="calculate_lu_factorization"),
+    path("trapecio_simple/", trapecio_simple, name="trapecio_simple"),
+    path("calculate_trapezoid/", calculate_trapezoid, name="calculate_trapezoid")
 ]
