@@ -123,15 +123,17 @@ def generate_trapezoid_graph(func, a, b, subintervals, integral_value):
         raise e
 
 
-def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=1, integral_value = 0):
+def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=1, integral_value=0):
     """
-    Genera una visualización interactiva de la regla del trapecio.
+    Genera una visualización interactiva de la regla del trapecio mostrando
+    toda la información de una sola vez.
     
     Args:
         func: función a integrar (expresión de sympy)
         a: límite inferior
         b: límite superior
-        max_subintervals: número máximo de subintervalos a mostrar
+        max_subintervals: número de subintervalos a mostrar
+        integral_value: valor de la integral calculada
     
     Returns:
         JSON con el gráfico interactivo de Plotly
@@ -154,7 +156,7 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=1, integra
                 y=original_y_values,
                 name=f"f(x) = {func}",
                 line=dict(color='blue', width=2),
-                hoverinfo='none'
+                hovertemplate='x: %{x:.4f}<br>f(x): %{y:.4f}'
             )
         )
 
@@ -162,82 +164,82 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=1, integra
         y_max = max(abs(original_y_values.min()),
                     abs(original_y_values.max())) * 1.1
 
-        # Calcular el área exacta bajo la curva (integral analítica si está disponible)
-        # try:
-        #     # from sympy import integrate
-        #     exact_integral = float(integrate(func, (x, a, b)))
-        #     has_exact = True
-        # except:
-        #     has_exact = False
+        # Calcular la regla del trapecio
+        integral_value, x_points, y_points = trapezoid_rule(func, a, b, max_subintervals)
 
-        # Guardar las anotaciones para cada paso
-        annotations = []
-
-        # Lista para almacenar los pasos del slider
-        # steps = []
-        # traces_per_step = []
-
-        # Crear visualizaciones para diferentes números de subintervalos
-        for n in range(1, max_subintervals + 1):
-            integral_value, x_points, y_points = trapezoid_rule(func, a, b, n)
-
-            trapezoid_traces = []
-
-            # Añadir trapecios
-            for j in range(len(x_points) - 1):
-                trapezoid_traces.append(
-                    go.Scatter(
-                        x=[x_points[j], x_points[j], x_points[j+1],
-                            x_points[j+1], x_points[j]],
-                        y=[0, y_points[j], y_points[j+1], 0, 0],
-                        fill="toself",
-                        fillcolor='rgba(255, 0, 0, 0.2)',
-                        line=dict(color='rgba(255, 0, 0, 0.5)'),
-                        name=f"Trapecio {j+1}",
-                        showlegend=False,
-                        visible=False,
-                        hoverinfo='none'
-                    )
+        # Añadir trapecios
+        for j in range(len(x_points) - 1):
+            fig.add_trace(
+                go.Scatter(
+                    x=[x_points[j], x_points[j], x_points[j+1],
+                        x_points[j+1], x_points[j]],
+                    y=[0, y_points[j], y_points[j+1], 0, 0],
+                    fill="toself",
+                    fillcolor='rgba(255, 0, 0, 0.2)',
+                    line=dict(color='rgba(255, 0, 0, 0.5)'),
+                    name=f"Trapecio {j+1}",
+                    showlegend=(j == 0),  # Solo mostrar uno en la leyenda
+                    hoverinfo='none'
                 )
+            )
 
-            # Añadir puntos de evaluación
-            points_trace = go.Scatter(
+        # Añadir puntos de evaluación
+        fig.add_trace(
+            go.Scatter(
                 x=x_points,
                 y=y_points,
                 mode='markers',
                 marker=dict(size=8, color='red'),
                 name='Puntos de evaluación',
-                visible=False,
                 hovertemplate='x: %{x:.4f}<br>f(x): %{y:.4f}'
             )
+        )
 
-            # Añadir líneas verticales y horizontales
-            vertical_lines = go.Scatter(
+        # Añadir líneas verticales
+        fig.add_trace(
+            go.Scatter(
                 x=np.repeat(x_points, 2),
                 y=np.array([[0, y] for y in y_points]).flatten(),
                 mode='lines',
                 line=dict(color='red', width=1, dash='dash'),
                 name='Líneas verticales',
-                visible=False,
-                showlegend=False,
+                showlegend=True,
                 hoverinfo='none'
             )
+        )
 
-            horizontal_line = go.Scatter(
+        # Añadir línea horizontal (aproximación)
+        fig.add_trace(
+            go.Scatter(
                 x=x_points,
                 y=y_points,
                 mode='lines',
                 line=dict(color='red', width=2),
                 name='Aproximación',
-                visible=False,
                 hoverinfo='none'
             )
+        )
 
-            # Texto para mostrar la información de la integral
-            annotation_text = f"Aproximación con {n} subintervalo{'s' if n > 1 else ''}: {integral_value:.6f}"
+        # Texto para mostrar la información de la integral
+        annotation_text = f"Aproximación con {max_subintervals} subintervalo{'s' if max_subintervals > 1 else ''}: {integral_value:.6f}"
 
-            # Guardar la anotación para este paso
-            annotations.append(dict(
+        # Configurar el layout
+        title = f"Regla del Trapecio para ∫({a},{b}) {func} dx"
+        title += f"<br>Valor aproximado: {integral_value:.6f}"
+           
+        fig.update_layout(
+            title=title,
+            xaxis_title="x",
+            yaxis_title="f(x)",
+            showlegend=True,
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1
+            ),
+            annotations=[dict(
                 x=a + (b-a)/2,
                 y=y_max * 0.95,
                 xref="x",
@@ -250,60 +252,7 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=1, integra
                 bordercolor="black",
                 borderwidth=1,
                 borderpad=4
-            ))
-
-            # Añadir todas las trazas de este paso
-            # traces_per_step.append(trapezoid_traces + [points_trace, vertical_lines, horizontal_line])
-
-        # Agregar todas las trazas al gráfico y guardar sus índices
-        # trace_indices = []
-        # for traces in traces_per_step:
-        #     idxs = []
-        #     for trace in traces:
-        #         fig.add_trace(trace)
-        #         idxs.append(len(fig.data) - 1)
-        #     trace_indices.append(idxs)
-
-        # Configurar los pasos del slider
-        # for i, idxs in enumerate(trace_indices):
-        #     # Visibilidad: función original siempre visible, solo las trazas de este paso visibles
-        #     visible = [True] + [False] * (len(fig.data) - 1)
-        #     for idx in idxs:
-        #         visible[idx] = True
-        #     step = {
-        #         'method': 'update',
-        #         'args': [
-        #             {'visible': visible},
-        #             {'annotations': [annotations[i]],
-        #              'title': f"Regla del Trapecio con {i+1} subintervalo{'s' if i+1 > 1 else ''}"}
-        #         ],
-        #         'label': str(i+1)
-        #     }
-        #     steps.append(step)
-
-        # Configurar el layout
-        title = f"Regla del Trapecio para ∫({a},{b}) {func} dx"
-        title += f" (Valor exacto: {integral_value:.6f})"
-           
-        fig.update_layout(
-            title=title,
-            xaxis_title="x",
-            yaxis_title="f(x)",
-            sliders=[{
-                'active': 0,
-                'currentvalue': {"prefix": "Subintervalos: "},
-                'pad': {"t": 50},
-                # 'steps': steps
-            }],
-            showlegend=True,
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="right",
-                x=1
-            ),
-            annotations=[annotations[0]]
+            )]
         )
 
         # Configurar los rangos de los ejes
@@ -318,7 +267,6 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=1, integra
     except Exception as e:
         print(f"Error en generate_interactive_trapezoid_graph: {str(e)}")
         raise e
-
 
 def calculate_trapezoid(request):
     global x
