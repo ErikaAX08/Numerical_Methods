@@ -78,7 +78,8 @@ def simpson_static_plot(f_numeric, a, b, approx, exact=None):
 
 def simpson_interactive_plot(f_numeric, a, b, approx, exact=None):
     """
-    Genera un gráfico interactivo para la aproximación de Simpson 1/3 simple con animación paso a paso.
+    Genera un gráfico interactivo para la aproximación de Simpson 1/3 simple
+    mostrando todos los elementos a la vez.
     """
     x_plot = np.linspace(a, b, 1000)
     y_plot = f_numeric(x_plot)
@@ -101,82 +102,45 @@ def simpson_interactive_plot(f_numeric, a, b, approx, exact=None):
         error_text += f"<br>Error absoluto: {error:.6f}"
         error_text += f"<br>Error relativo: {error_rel:.2f}%"
     
-    # Crear figura interactiva con pasos de visualización
+    # Crear figura interactiva con todos los elementos visibles
     fig = go.Figure()
     
-    # Paso 1: Mostrar solo la función original
+    # Mostrar la función original
     fig.add_trace(go.Scatter(
         x=x_plot, y=y_plot, mode="lines", name="f(x)", line=dict(color="blue")
     ))
     
-    # Paso 2: Añadir los tres puntos de evaluación
+    # Añadir los tres puntos de evaluación
     fig.add_trace(go.Scatter(
         x=x_points, y=y_points, mode="markers", name="Puntos de evaluación",
-        marker=dict(size=10, color="red"), visible=False
+        marker=dict(size=10, color="red")
     ))
     
-    # Paso 3: Mostrar la parábola de aproximación sin relleno
+    # Mostrar la parábola de aproximación
     fig.add_trace(go.Scatter(
         x=x_parabola, y=y_parabola, mode="lines", name="Parábola",
-        line=dict(color="orange", dash="dash"), visible=False
+        line=dict(color="orange", dash="dash")
     ))
     
-    # Paso 4: Mostrar el área bajo la parábola (resultado de Simpson)
+    # Mostrar el área bajo la parábola (resultado de Simpson)
     fig.add_trace(go.Scatter(
         x=x_parabola, y=y_parabola, mode="lines", name="Área aproximada",
-        line=dict(color="orange"), fill='tozeroy', fillcolor='rgba(255, 165, 0, 0.3)',
-        visible=False
+        line=dict(color="orange"), fill='tozeroy', fillcolor='rgba(255, 165, 0, 0.3)'
     ))
     
-    # Paso 5 (opcional): Mostrar el área real bajo la curva para comparar
+    # Mostrar el área real bajo la curva para comparar (si está disponible)
     if exact is not None:
         fig.add_trace(go.Scatter(
             x=x_plot, y=y_plot, mode="lines", name="Área real",
             line=dict(color="blue", width=0.5), fill='tozeroy', 
-            fillcolor='rgba(0, 0, 255, 0.2)', visible=False
+            fillcolor='rgba(0, 0, 255, 0.2)'
         ))
     
-    # Configurar sliders y pasos
-    steps = []
-    
-    # Descripciones para cada paso
-    descriptions = [
-        "Paso 1: Visualizamos la función f(x) que queremos integrar en el intervalo [a, b].",
-        "Paso 2: Evaluamos la función en tres puntos: a, (a+b)/2, y b.",
-        "Paso 3: Ajustamos una parábola que pasa por los tres puntos.",
-        "Paso 4: El área bajo la parábola es nuestra aproximación de la integral por Simpson 1/3.",
-        "Paso 5: Comparamos con el área real bajo la curva para visualizar el error." if exact is not None else None
-    ]
-    
-    # Crear los pasos de la animación
-    for i, desc in enumerate(descriptions):
-        if desc is None:
-            continue
-            
-        visible_traces = [True]  # La función original siempre visible
-        
-        # Configurar qué trazos son visibles en cada paso
-        for j in range(1, len(fig.data)):
-            visible_traces.append(j <= i)
-            
-        step = dict(
-            method="update",
-            args=[{"visible": visible_traces},
-                  {"title": f"Simpson 1/3 Simple - {desc}<br>Resultado: {approx:.6f}{error_text if i >= 3 else ''}"}],
-            label=f"Paso {i+1}"
-        )
-        steps.append(step)
-    
-    sliders = [dict(
-        active=0,
-        currentvalue={"prefix": "Visualización: ", "suffix": ""},
-        pad={"t": 40},
-        steps=steps
-    )]
+    # Título y layout sin sliders
+    title_text = f"Simpson 1/3 Simple<br>Resultado: {approx:.6f}{error_text}"
     
     fig.update_layout(
-        sliders=sliders,
-        title=f"Simpson 1/3 Simple - Paso 1: Visualizamos la función f(x)<br>Resultado: {approx:.6f}",
+        title=title_text,
         xaxis_title="x",
         yaxis_title="f(x)",
         legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
@@ -184,7 +148,6 @@ def simpson_interactive_plot(f_numeric, a, b, approx, exact=None):
     )
     
     return fig
-
 
 def calculate_simpson_tercio_simple(request):
     try:

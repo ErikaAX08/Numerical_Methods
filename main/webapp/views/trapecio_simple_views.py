@@ -4,6 +4,7 @@ import numpy as np
 from django.http import JsonResponse
 from django.shortcuts import render
 from sympy import exp, sin, cos, sinh, cosh, log, symbols, lambdify, sympify
+import math
 
 # Definir la variable simbólica
 x = symbols('x')
@@ -30,7 +31,6 @@ def trapezoid_rule(func, a, b, n=1):
 
     # Aplicar la regla del trapecio
     integral = h/2 * (f(a) + f(b))
-
     return integral, x_points, y_points
 
 
