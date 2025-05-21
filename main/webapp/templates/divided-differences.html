@@ -1,12 +1,25 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% trans 'Divided Differences Method' %} - {% trans 'Numerical Methods' %}{% endblock %}
+{% block title %}
+    {% get_current_language as LANGUAGE_CODE %}
+    {% if LANGUAGE_CODE == "es" %}
+        Método de Diferencias Divididas - Métodos Numéricos
+    {% else %}
+        Divided Differences Method - Numerical Methods
+    {% endif %}
+{% endblock %}
 {% block content %}
     {% load static %}
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
             <div class="col-lg-12">
-                <h2 class="display-4 fw-bold lh-1s">{% trans 'Divided Differences Method' %}</h2>
+                <h2 class="display-4 fw-bold lh-1s">
+                    {% if LANGUAGE_CODE == "es" %}
+                        Método de Diferencias Divididas
+                    {% else %}
+                        Divided Differences Method
+                    {% endif %}
+                </h2>
                 {% get_current_language as LANGUAGE_CODE %}
                 <p class="lead py-5">
                     {% if LANGUAGE_CODE == "es" %}
@@ -17,10 +30,19 @@
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
-                            onclick="showCalculator()">{% translate 'Graphing Calculator' %}
+                            onclick="showCalculator()">
+                        {% if LANGUAGE_CODE == "es" %}
+                            Calculadora Gráfica
+                        {% else %}
+                            Graphing Calculator
+                        {% endif %}
                     </button>
                     <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">
-                        {% translate 'Explanation' %}
+                        {% if LANGUAGE_CODE == "es" %}
+                            Explicación
+                        {% else %}
+                            Explanation
+                        {% endif %}
                     </button>
                 </div>
             </div>
@@ -100,34 +122,111 @@
 
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3">
-            <h3 class="pb-3">{% translate "Explicación Método Diferencias Divididas" %}</h3>
+            <h3 class="pb-3">
+                {% if LANGUAGE_CODE == "es" %}
+                    {% translate "Explicación Método de Diferencias Divididas" %}
+                {% else %}
+                    {% translate "Divided Differences Method Explanation" %}
+                {% endif %}
+            </h3>
             <p class="lead">
-                {% translate "<strong>1. Preparar los datos:</strong><br><br>" %}
-                {% translate "Supón que se tiene un conjunto de puntos dados (\( x_0 \), \( y_0 \)), (\( x_1 \), \( y_1 \)), (\( x_n \), \( y_n \)), donde \( x_i \) son los valores de la variable dependiente y \( y_i \) = f(\( y_i \)) son los valores de la función.<br><br>" %}
+                <strong>
+                    {% if LANGUAGE_CODE == "es" %}
+                        1. Preparar los datos:
+                    {% else %}
+                        1. Prepare the data:
+                    {% endif %}
+                </strong><br><br>
 
-                {% translate "<strong>2. Cálculo de las diferencias divididas:</strong><br><br>" %}
-                {% translate "Diferencias divididas primer orden: Se calcula con la fórmula: <br>" %}
-                \[
-                f[x_i, x_{i+1}] = \frac{f(x_{i+1}) - f(x_i)}{x_{i+1} - x_i}
-                \]
-                {% translate "Esta fórmula calcula la tasa de cambio promedio entre los valores de la función en dos puntos consecutivos \( x_i \) y \( x_{i+1} \).<br><br>" %}
+                {% if LANGUAGE_CODE == "es" %}
+                    Supón que se tiene un conjunto de puntos dados (\( x_0, y_0 \)), (\( x_1, y_1 \)), ..., (\( x_n, y_n \)),
+                    donde \( x_i \) son los valores de la variable dependiente y \( y_i \) = f(\( y_i \)) son los valores de la función.
+                {% else %}
+                    Suppose we have a set of given points (\( x_0, y_0 \)), (\( x_1, y_1 \)), ..., (\( x_n, y_n \)),
+                    where \( x_i \) are the values of the dependent variable and \( y_i \) = f(\( y_i \)) are the function values.
+                {% endif %}
 
-                {% translate "Diferencias divididas segundo orden: Se calcula utilizando las diferencias divididas de primer orden ya obtenidas: <br>" %}
-                \[
-                f[x_i, x_{i+1}, x_{i+2}] = \frac{f(x_{i+1}, x_{i+2}) - f(x_i, x_{i+1})}{x_{i+2} - x_i}
-                \]
+                <br>
 
-                {% translate "Generalización para diferencias divididas de orden n: se sigue el mismo principio de cálculo recursivo, usando las diferencias divididas de orden n - 1 y la fórmula general: <br><br>" %}
-                \[
-                f[x_i, x_{i+1}, ..., x_{i+n}] = \frac{f(x_{i+1}, ..., x_{i+n}) - f(x_i, ..., x_{i+n-1})}{x_{i+n} - x_i}
-                \]
-                {% translate "<strong>3. Construcción polinomio de interpolación: </strong><br><br>" %}
-                {% translate "Una vez que se han calculado todas las diferencias divididas, el polinomio de interpolación se construye de la siguiente manera: .<br>" %}
-                \[
-                P(x) = f[x_0] + (x - x_0)f[x_0, x_1] + (x - x_0)(x - x_1)f[x_0, x_1, x_2] + ...
-                \]
-                {% translate "<strong>4. Evaluación del polinomio: </strong><br><br>" %}
-                {% translate "Para evaluar el polinomio en un valor x dado, se sustituye x en la expresión del polinomio P(x). Esta forma de evaluación es eficiente debido a que la estructura del polinomio permite agregar puntos de manera incremental sin necesidad de recalcular todo el polinomio desde cero." %}
+                <strong>
+                    {% if LANGUAGE_CODE == "es" %}
+                        2. Cálculo de las diferencias divididas:
+                    {% else %}
+                        2. Calculate the divided differences:
+                    {% endif %}
+                </strong><br><br>
+
+                {% if LANGUAGE_CODE == "es" %}
+                    Diferencias divididas primer orden: Se calcula con la fórmula: <br>
+                    \[
+                    f[x_i, x_{i+1}] = \frac{f(x_{i+1}) - f(x_i)}{x_{i+1} - x_i}
+                    \]
+                    Esta fórmula calcula la tasa de cambio promedio entre los valores de la función en dos puntos consecutivos \( x_i \) y \( x_{i+1} \).<br><br>
+
+                    Diferencias divididas segundo orden: Se calcula utilizando las diferencias divididas de primer orden ya obtenidas: <br>
+                    \[
+                    f[x_i, x_{i+1}, x_{i+2}] = \frac{f(x_{i+1}, x_{i+2}) - f(x_i, x_{i+1})}{x_{i+2} - x_i}
+                    \]
+
+                    Generalización para diferencias divididas de orden n: se sigue el mismo principio de cálculo recursivo, usando las diferencias divididas de orden n - 1 y la fórmula general: <br><br>
+                    \[
+                    f[x_i, x_{i+1}, ..., x_{i+n}] = \frac{f(x_{i+1}, ..., x_{i+n}) - f(x_i, ..., x_{i+n-1})}{x_{i+n} - x_i}
+                    \]
+                {% else %}
+                    First-order divided differences: Calculated with the formula: <br>
+                    \[
+                    f[x_i, x_{i+1}] = \frac{f(x_{i+1}) - f(x_i)}{x_{i+1} - x_i}
+                    \]
+                    This formula calculates the average rate of change between the function values at two consecutive points \( x_i \) and \( x_{i+1} \).<br><br>
+
+                    Second-order divided differences: Calculated using the already obtained first-order divided differences: <br>
+                    \[
+                    f[x_i, x_{i+1}, x_{i+2}] = \frac{f(x_{i+1}, x_{i+2}) - f(x_i, x_{i+1})}{x_{i+2} - x_i}
+                    \]
+
+                    Generalization for n-th order divided differences: follows the same recursive calculation principle, using the divided differences of order n - 1 and the general formula: <br><br>
+                    \[
+                    f[x_i, x_{i+1}, ..., x_{i+n}] = \frac{f(x_{i+1}, ..., x_{i+n}) - f(x_i, ..., x_{i+n-1})}{x_{i+n} - x_i}
+                    \]
+                {% endif %}
+
+                <br>
+
+                <strong>
+                    {% if LANGUAGE_CODE == "es" %}
+                        3. Construcción polinomio de interpolación:
+                    {% else %}
+                        3. Construct the interpolation polynomial:
+                    {% endif %}
+                </strong><br><br>
+
+                {% if LANGUAGE_CODE == "es" %}
+                    Una vez que se han calculado todas las diferencias divididas, el polinomio de interpolación se construye de la siguiente manera: .<br>
+                    \[
+                    P(x) = f[x_0] + (x - x_0)f[x_0, x_1] + (x - x_0)(x - x_1)f[x_0, x_1, x_2] + ...
+                    \]
+                {% else %}
+                    Once all divided differences have been calculated, the interpolation polynomial is constructed as follows: .<br>
+                    \[
+                    P(x) = f[x_0] + (x - x_0)f[x_0, x_1] + (x - x_0)(x - x_1)f[x_0, x_1, x_2] + ...
+                    \]
+                {% endif %}
+
+                <br>
+
+                <strong>
+                    {% if LANGUAGE_CODE == "es" %}
+                        4. Evaluación del polinomio:
+                    {% else %}
+                        4. Evaluate the polynomial:
+                    {% endif %}
+                </strong><br><br>
+
+                {% if LANGUAGE_CODE == "es" %}
+                    Para evaluar el polinomio en un valor x dado, se sustituye x en la expresión del polinomio P(x). Esta forma de evaluación es eficiente debido a que la estructura del polinomio permite agregar puntos de manera incremental sin necesidad de recalcular todo el polinomio desde cero.
+                {% else %}
+                    To evaluate the polynomial at a given x value, substitute x into the polynomial expression P(x). This evaluation method is efficient because the polynomial's structure allows for incremental point addition without recalculating the entire polynomial from scratch.
+                {% endif %}
             </p>
         </div>
 

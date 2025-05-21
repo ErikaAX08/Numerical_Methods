@@ -1,22 +1,49 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% translate 'Regla Trapecio Simple' %} - {% translate 'Numerical Methods' %}{% endblock %}
+{% block title %}
+    {% get_current_language as LANGUAGE_CODE %}
+    {% if LANGUAGE_CODE == "es" %}
+        Regla del Trapecio Simple - Métodos Numéricos
+    {% else %}
+        Simple Trapezoidal Rule - Numerical Methods
+    {% endif %}
+{% endblock %}
 {% block content %}
     {% load static %}
 
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
             <div class="col-lg-12">
-                <h2 class="display-4 fw-bold lh-1s">{% translate 'Regla del Trapecio Simple' %}</h2>
+                <h2 class="display-4 fw-bold lh-1s">
+                    {% if LANGUAGE_CODE == "es" %}
+                        Regla del Trapecio Simple
+                    {% else %}
+                        Simple Trapezoidal Rule
+                    {% endif %}
+                </h2>
+                {% get_current_language as LANGUAGE_CODE %}
                 <p class="lead py-5">
-                    {% translate 'La regla del trapecio simple es una técnica de integración numérica que se utiliza para aproximar el valor de una integral definida. Consiste en reemplazar la curva de la función por una línea recta que conecta los puntos extremos del intervalo [a, b], formando así un trapecio. El área bajo la curva se aproxima entonces por el área del trapecio.' %}
+                    {% if LANGUAGE_CODE == "es" %}
+                        La regla del trapecio simple es una técnica de integración numérica que se utiliza para aproximar el valor de una integral definida. Consiste en reemplazar la curva de la función por una línea recta que conecta los puntos extremos del intervalo [a, b], formando así un trapecio. El área bajo la curva se aproxima entonces por el área del trapecio.
+                    {% else %}
+                        The simple trapezoidal rule is a numerical integration technique used to approximate the value of a definite integral. It consists of replacing the curve of the function with a straight line connecting the endpoints of the interval [a, b], thus forming a trapezoid. The area under the curve is then approximated by the area of the trapezoid.
+                    {% endif %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
-                            onclick="showCalculator()">{% translate 'Graphing Calculator' %}
+                            onclick="showCalculator()">
+                        {% if LANGUAGE_CODE == "es" %}
+                            Calculadora Gráfica
+                        {% else %}
+                            Graphing Calculator
+                        {% endif %}
                     </button>
                     <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">
-                        {% translate 'Explanation' %}
+                        {% if LANGUAGE_CODE == "es" %}
+                            Explicación
+                        {% else %}
+                            Explanation
+                        {% endif %}
                     </button>
                 </div>
             </div>

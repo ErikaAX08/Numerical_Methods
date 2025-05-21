@@ -1,12 +1,25 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% trans 'Gaussian Elimination with Maximum Column Pivoting' %} - {% trans 'Numerical Methods' %}{% endblock %}
+{% block title %}
+    {% get_current_language as LANGUAGE_CODE %}
+    {% if LANGUAGE_CODE == "es" %}
+        Eliminación Gaussiana con Pivoteo Máximo por Columna - Métodos Numéricos
+    {% else %}
+        Gaussian Elimination with Maximum Column Pivoting - Numerical Methods
+    {% endif %}
+{% endblock %}
 {% block content %}
     {% load static %}
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
             <div class="col-lg-12">
-                <h2 class="display-4 fw-bold lh-1s">{% trans 'Gaussian Elimination with Maximum Column Pivoting' %}</h2>
+                <h2 class="display-4 fw-bold lh-1s">
+                    {% if LANGUAGE_CODE == "es" %}
+                        Eliminación Gaussiana con Pivoteo Máximo por Columna
+                    {% else %}
+                        Gaussian Elimination with Maximum Column Pivoting
+                    {% endif %}
+                </h2>
                 {% get_current_language as LANGUAGE_CODE %}
                 <p class="lead py-5">
                     {% if LANGUAGE_CODE == "es" %}
@@ -17,10 +30,19 @@
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
-                            onclick="showCalculator()">{% translate 'Graphing Calculator' %}
+                            onclick="showCalculator()">
+                        {% if LANGUAGE_CODE == "es" %}
+                            Calculadora
+                        {% else %}
+                            Calculator
+                        {% endif %}
                     </button>
                     <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">
-                        {% translate 'Explanation' %}
+                        {% if LANGUAGE_CODE == "es" %}
+                            Explicación
+                        {% else %}
+                            Explanation
+                        {% endif %}
                     </button>
                 </div>
             </div>

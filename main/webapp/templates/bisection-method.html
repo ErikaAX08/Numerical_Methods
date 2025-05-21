@@ -64,7 +64,13 @@
                 <button type="submit" class="btn btn-lg btn-primary mt-2" id="calculateButton">
                     <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;"
                           id="loadingSpinner"></span>
-                    <span id="buttonText">{% trans 'Calculate and Graph' %}</span>
+                    <span id="buttonText">
+            {% if LANGUAGE_CODE == "es" %}
+                Calcular y Graficar
+            {% else %}
+                Calculate and Graph
+            {% endif %}
+        </span>
                 </button>
             </form>
 
@@ -245,9 +251,15 @@
 
                 if (results.converged) {
                     messageContainer.innerHTML = `
-                        <div class="alert alert-success">
-                            <strong>{% translate 'Root found' %}:</strong> ${results.root.toFixed(6)}
-                        </div>`;
+        <div class="alert alert-success">
+            <strong>
+                {% if LANGUAGE_CODE == "es" %}
+                    Raíz encontrada:
+                {% else %}
+                    Root found:
+                {% endif %}
+            </strong> ${results.root.toFixed(6)}
+        </div>`;
                 } else {
                     messageContainer.innerHTML = `
                         <div class="alert alert-warning">
