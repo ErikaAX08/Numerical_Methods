@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from sympy import exp, sin, cos, sinh, cosh, log, symbols, lambdify, sympify
 import math
+from webapp.models import TrapecioHistorial
 
 # Definir la variable simbólica
 x = symbols('x')
@@ -268,74 +269,73 @@ def generate_interactive_trapezoid_graph(func, a, b, max_subintervals=1, integra
         print(f"Error en generate_interactive_trapezoid_graph: {str(e)}")
         raise e
 
+
 def calculate_trapezoid(request):
-    global x
-    sym_func = None
-    x = symbols('x')
-    if request.method == "GET":
+    # Si es GET con parámetros (cálculo desde el frontend)
+    if request.method == "GET" and request.GET.get("func"):
+        # Obtener los parámetros desde la URL
+        func = request.GET.get("func")
+        a = float(request.GET.get("a"))
+        b = float(request.GET.get("b"))
+
         try:
-            # Obtener los valores del formulario
-            func = request.GET.get("func")
-            a = float(request.GET.get("a"))  # Transformar a float
-            b = float(request.GET.get("b"))
-            max_subintervals = int(request.GET.get("max_subintervals", 10))
-            subintervals = list(map(int, request.GET.get(
-                "subintervals", "1").split(",")))
+            # Validar y convertir la función
+            parsed_func = sympify(func)
 
-            # Definir la función simbólica
-            try:
-                sym_func = sympify(func)
-            except Exception as e:
-                return JsonResponse({
-                    "error": "Función no válida",
-                    "message": "No se puede interpretar la función ingresada. Error: " + str(e)
-                }, status=400)
-               
+            # Crear función evaluable
+            f = lambdify(x, parsed_func, "numpy")
 
-            # Calcular las aproximaciones para cada número de subintervalos
-            trapezoid_data = {}
-            integral_value = 0
-            for n in range(1, max_subintervals + 1):
-                integral_value, x_points, y_points = trapezoid_rule(
-                    sym_func, a, b, n)
-                trapezoid_data[f"n={n}"] = {
-                    "x_points": x_points.tolist(),
-                    "y_points": y_points.tolist(),
-                    "integral": float(integral_value)
-                }
+            # Aplicar la regla del trapecio
+            integral_value, x_values, y_values = trapezoid_rule(
+                parsed_func, a, b, 1)
 
-            # Calcular el valor exacto de la integral si es posible
-            try:
-                from sympy import integrate
-                exact_integral = float(integrate(sym_func, (x, a, b)))
-                exact_value = exact_integral
-            except:
-                exact_value = None
+            # Generar el gráfico estático
+            plot_buffer = generate_trapezoid_graph(
+                parsed_func, a, b, [1], integral_value)
+            plot_image = base64.b64encode(
+                plot_buffer.getvalue()).decode('utf-8')
 
-            # Generar gráficos
-            graph_buffer = generate_trapezoid_graph(
-                sym_func, a, b, subintervals, float(integral_value))
+            # Generar el gráfico interactivo
             plot_json = generate_interactive_trapezoid_graph(
-                sym_func, a, b, max_subintervals, float(integral_value))
+                parsed_func, a, b, 1, integral_value)
 
-            # Convertir la imagen a base64
-            image_base64 = base64.b64encode(
-                graph_buffer.getvalue()).decode("utf-8")
+            # Guardar en historial
+            TrapecioHistorial.objects.create(
+                funcion=func,
+                limite_inferior=a,
+                limite_superior=b,
+                subintervalos=1,
+                resultado=float(integral_value)
+            )
 
-            # Devolver la imagen y los datos tabulados
-            response = {
-                "image": image_base64,
-                "plot_json": plot_json,
-                "trapezoid_data": trapezoid_data,
-                "exact_value": exact_value
-            }
-            return JsonResponse(response)
+            # Devolver los resultados como JSON
+            return JsonResponse({
+                "error": None,
+                "integral_value": float(integral_value),
+                "x_values": x_values.tolist(),
+                "original_y_values": y_values.tolist(),
+                "image": plot_image,
+                "plot_json": plot_json
+            })
+
         except Exception as e:
-            print(f"Error: {str(e)}")  # Debug
-            return JsonResponse({"error": str(e)}, status=500)
-    else:
-        return JsonResponse({"error": "Método no permitido"}, status=405)
+            return JsonResponse({"error": str(e)})
 
+    # Si es GET sin parámetros (petición AJAX para cargar últimos valores usados)
+    elif request.method == "GET" and request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        ultimo = TrapecioHistorial.objects.order_by("-id").first()
+        if ultimo:
+            return JsonResponse({
+                "funcion": ultimo.funcion,
+                "limite_inferior": ultimo.limite_inferior,
+                "limite_superior": ultimo.limite_superior,
+                "subintervalos": ultimo.subintervalos
+            })
+        else:
+            return JsonResponse({"error": "No hay datos guardados"})
+
+    # Vista inicial
+    return render(request, "trapecio-simple.html")
 
 def trapecio_simple(request):
     return render(request, "trapecio-simple.html")
