@@ -1,29 +1,48 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% translate 'Gaussian Elimination with Maximum Column Pivoting. ' %} -
-    {% translate 'Métodos Numéricos' %}{% endblock %}
+{% block title %}
+    {% get_current_language as LANGUAGE_CODE %}
+    {% if LANGUAGE_CODE == "es" %}
+        Eliminación Gaussiana con Pivoteo Máximo por Columna - Métodos Numéricos
+    {% else %}
+        Gaussian Elimination with Maximum Column Pivoting - Numerical Methods
+    {% endif %}
+{% endblock %}
 {% block content %}
     {% load static %}
-
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
             <div class="col-lg-12">
-                <h2 class="display-4 fw-bold lh-1s">{% translate 'Gaussian Elimination with Maximum Column Pivoting.' %}</h2>
+                <h2 class="display-4 fw-bold lh-1s">
+                    {% if LANGUAGE_CODE == "es" %}
+                        Eliminación Gaussiana con Pivoteo Máximo por Columna
+                    {% else %}
+                        Gaussian Elimination with Maximum Column Pivoting
+                    {% endif %}
+                </h2>
+                {% get_current_language as LANGUAGE_CODE %}
                 <p class="lead py-5">
-                    El método de eliminación gaussiana con máxima columna de pivoteo es una técnica para resolver
-                    sistemas de ecuaciones lineales. Consiste en transformar una matriz en su forma escalonada
-                    utilizando operaciones elementales, pero con una variación: en cada paso, se selecciona la fila con
-                    el valor absoluto más grande en la columna que está siendo procesada (el pivote). Este proceso ayuda
-                    a mejorar la estabilidad numérica y reducir los errores de redondeo, especialmente en matrices mal
-                    condicionadas. Después de obtener la matriz escalonada, se aplica la sustitución hacia atrás para
-                    encontrar las soluciones.
+                    {% if LANGUAGE_CODE == "es" %}
+                        La eliminación gaussiana con pivoteo máximo por columna mejora la estabilidad numérica del método clásico seleccionando en cada paso el elemento de mayor valor absoluto en la columna como pivote. Esto reduce los errores de redondeo y mejora la precisión de la solución.
+                    {% else %}
+                        Gaussian elimination with maximum column pivoting improves the numerical stability of the classical method by selecting, at each step, the largest absolute value in the column as the pivot. This reduces rounding errors and improves the accuracy of the solution.
+                    {% endif %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
-                            onclick="showCalculator()">{% translate 'Graphing Calculator' %}
+                            onclick="showCalculator()">
+                        {% if LANGUAGE_CODE == "es" %}
+                            Calculadora
+                        {% else %}
+                            Calculator
+                        {% endif %}
                     </button>
                     <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">
-                        {% translate 'Explanation' %}
+                        {% if LANGUAGE_CODE == "es" %}
+                            Explicación
+                        {% else %}
+                            Explanation
+                        {% endif %}
                     </button>
                 </div>
             </div>

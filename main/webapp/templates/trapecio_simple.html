@@ -1,0 +1,399 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Regla del trapecio simple' %} - {% trans 'Numerical Methods' %}{% endblock %}
+{% block content %}
+    {% load static %}
+    <div class="container-sm p-5">
+        <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
+            <div class="col-lg-12">
+                <h2 class="display-4 fw-bold lh-1s">{% trans 'Regla del trapecio simple' %}</h2>
+                {% get_current_language as LANGUAGE_CODE %}
+                <p class="lead py-5">
+                    {% if LANGUAGE_CODE == "es" %}
+                        La regla del trapecio simple es un método de integración numérica que aproxima el área bajo una curva usando un único trapecio. Este método asume que la función se puede aproximar mediante una línea recta entre dos puntos, formando así un trapecio con el eje x.
+                    {% else %}
+                        The simple trapezoidal rule is a numerical integration method that approximates the area under a curve using a single trapezoid. This method assumes that the function can be approximated by a straight line between two points, thus forming a trapezoid with the x-axis.
+                    {% endif %}
+                </p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
+                    <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
+                            onclick="showCalculator()">{% translate 'Calculadora' %}
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">
+                        {% translate 'Explanation' %}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="py-3"></div>
+
+        <!-- Hidden calculator section -->
+        <div id="calculator" style="display: none !important;" class="mt-5">
+            <h3 class="mb-5">{% translate 'Calculadora de regla del trapecio simple' %}</h3>
+            <div class="mb-5 p-4 bg-light rounded-3 shadow">
+
+                <!-- Header -->
+                <div class="btn-toolbar d-flex flex-column">
+                    <div class="mb-2">
+                        <H4>{% trans "Intervalo de integración" %}</H4>
+                    </div>
+                    <div class="d-flex flex-row justify-content-between">
+                        <form class="form d-flex align-items-center">
+                            <div class="input-group">
+                                <span class="input-group-text" id="basic-addon1">a</span>
+                                <input id="inputA" type="text" class="form-control" placeholder="{% trans 'Límite inferior' %}"
+                                       aria-label="Username"
+                                       aria-describedby="basic-addon1">
+                            </div>
+                            <span class="fw-bolder" style="margin: 0 10px;">&nbsp;&nbsp;&nbsp;</span>
+                            <div class="input-group">
+                                <span class="input-group-text" id="basic-addon1">b</span>
+                                <input id="inputB" type="text" class="form-control" placeholder="{% trans 'Límite superior' %}"
+                                       aria-label="Username"
+                                       aria-describedby="basic-addon1">
+                            </div>
+                        </form>
+                        <div class="btn-group">
+                            <button style="height: fit-content" type="button" class="btn btn-outline-secondary"
+                                    id="clearBtn">
+                                <i class="bi bi-trash"></i> Limpiar
+                            </button>
+                            <button style="height: fit-content" type="button" class="btn btn-primary" id="solveBtn">
+                                <i class="bi bi-calculator"></i>
+                                <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;"
+                                      id="loadingSpinner"></span>
+                                <span id="buttonText">{% translate 'Calculate' %}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="alertContainer" class="my-3">
+                    <!-- Alerts -->
+                </div>
+                <!-- Function -->
+                <div class="card-body">
+                    <div class="mb-4">
+                        <label for="functionInput" class="form-label">{% trans 'Función a integrar' %}</label>
+                        <input type="text" class="form-control" id="functionInput" placeholder="Ej: sin(x) o x^2 + 3*x + 2">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Container for the results table -->
+            <div id="responseContainer" class="mt-5" style="display: none;">
+                <!-- Section to show results -->
+                <div id="resultContainer" class="mt-5">
+                </div>
+
+                <!-- Section to show the steps -->
+                <div id="stepsContainer" class="p-4 mt-3 bg-light rounded-3 shadow"></div>
+            </div>
+
+        </div>
+
+        <!-- Hidden extensive explanation section -->
+        <div id="explanation" class="mt-4 rounded-3 lead" style="display: none !important;">
+            <h3 class="pb-3">{% translate "Explicación de la regla del trapecio simple" %}</h3>
+            <p>
+                {% translate 'La regla del trapecio simple es un método de integración numérica que permite aproximar el valor de una integral definida. Se basa en la idea de que el área bajo la curva de una función puede ser aproximada mediante trapecios en lugar de rectángulos, como en el caso de la regla del rectángulo. La fórmula general para el método del trapecio simple es:' %}
+                \[
+                \int_{a}^{b} f(x) \,dx \approx (b - a) \cdot \frac{f(a) + f(b)}{2}
+                \]
+                {% translate 'Donde \(a\) y \(b\) son los límites de integración, y \(f(x)\) es la función a integrar. El método del trapecio simple ofrece una aproximación más precisa que el método del rectángulo, especialmente para funciones que son lineales o casi lineales en el intervalo de integración.' %}
+            </p>
+        </div>
+
+        <script>
+            const points = [];
+
+            function showCalculator() {
+                document.getElementById('explanation').style.display = 'none';
+                document.getElementById('calculator').style.display = 'block';
+            }
+
+            function showExplanation() {
+                document.getElementById('calculator').style.display = 'none';
+                document.getElementById('explanation').style.display = 'block';
+            }
+
+            const solveBtn = document.getElementById('solveBtn');
+            const responseContainer = document.getElementById('responseContainer');
+            const resultContainer = document.getElementById('resultContainer');
+            const clearBtn = document.getElementById('clearBtn');
+
+            // Evento para limpiar los campos
+            clearBtn.addEventListener('click', function () {
+                document.getElementById('inputA').value = '';
+                document.getElementById('inputB').value = '';
+                document.getElementById('functionInput').value = '';
+                responseContainer.style.display = 'none';
+            });
+
+            // Evento para resolver el sistema (aquí solo recolectamos los datos)
+            solveBtn.addEventListener('click', function () {
+                // Limpiar alertas anteriores
+                const alertContainer = document.getElementById('alertContainer');
+                if (alertContainer) {
+                    alertContainer.innerHTML = '';
+                }
+
+                const a = parseFloat(document.getElementById('inputA').value);
+                const b = parseFloat(document.getElementById('inputB').value);
+                const func = document.getElementById('functionInput').value;
+
+                // Validar entradas
+                if (isNaN(a) || isNaN(b)) {
+                    showAlert('Por favor, ingresa límites de integración válidos (números).', 'warning');
+                    return;
+                }
+
+                if (a >= b) {
+                    showAlert('El límite inferior debe ser menor que el límite superior.', 'warning');
+                    return;
+                }
+
+                // Mostrar mensaje de éxito
+                showAlert('Datos ingresados correctamente. Calculando...', 'success');
+
+                // Aquí se llamaría a la función que resuelve el sistema
+                console.log('Datos a resolver:', { a, b, func });
+
+                calculate()
+
+                // Mostrar el contenedor de respuesta
+                document.getElementById('responseContainer').style.display = 'block';
+            });
+
+            function setLoadingState(isLoading) {
+                const button = document.getElementById("solveBtn");
+                const spinner = document.getElementById("loadingSpinner");
+                const buttonText = document.getElementById("buttonText");
+
+                button.disabled = isLoading;
+                spinner.style.display = isLoading ? "inline-block" : "none";
+                buttonText.textContent = isLoading ? "{% translate 'Calculating...' %}" : "{% translate 'Calculate' %}";
+            }
+
+            function showAlert(message, type = 'danger') {
+                // Buscar o crear el contenedor de alertas
+                let alertContainer = document.getElementById('alertContainer');
+
+                // Si no existe el contenedor, lo creamos
+                if (!alertContainer) {
+                    alertContainer = document.createElement('div');
+                    alertContainer.id = 'alertContainer';
+                    alertContainer.className = 'my-3';
+
+                    // Insertar el contenedor después del toolbar
+                    const toolbar = document.querySelector('.btn-toolbar');
+                    toolbar.parentNode.insertBefore(alertContainer, toolbar.nextSibling);
+                }
+
+                // Limpiar alertas anteriores
+                alertContainer.innerHTML = '';
+
+                // Crear la alerta simple
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type}`;
+                alertDiv.role = 'alert';
+
+                // Agregar el mensaje
+                alertDiv.textContent = message;
+
+                // Agregar la alerta al contenedor
+                alertContainer.appendChild(alertDiv);
+            }
+
+            function getCSRFToken() {
+                // Buscar el token CSRF en las cookies
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    const [name, value] = cookie.trim().split('=');
+                    if (name === 'csrftoken') {
+                         return value;
+                    }
+                }
+    
+                // Alternativamente, buscar el token en el input del formulario
+                const tokenInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+                if (tokenInput) {
+                    return tokenInput.value;
+                }
+    
+                return '';
+            }
+
+            function calculate() {
+                setLoadingState(true);
+
+                const a = parseFloat(document.getElementById('inputA').value);
+                const b = parseFloat(document.getElementById('inputB').value);
+                const func = document.getElementById('functionInput').value;
+
+                // Validar entradas
+                if (isNaN(a) || isNaN(b)) {
+                    showAlert('Por favor, ingresa límites de integración válidos (números).', 'warning');
+                    setLoadingState(false);
+                    return;
+                }
+
+                if (a >= b) {
+                    showAlert('El límite inferior debe ser menor que el límite superior.', 'warning');
+                    setLoadingState(false);
+                    return;
+                }
+
+                fetch('http://127.0.0.1:8000/calculate_trapecio_simple/', {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCSRFToken(), // Si usas CSRF Protection en Django
+                    },
+                    body: JSON.stringify({ a: a, b: b, func: func }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showAlert(data.error, 'danger');
+                        return;
+                    }
+
+                    // Mostrar los pasos del proceso siempre
+                    if (data.process_steps) {
+                        showProcessSteps(data.process_steps);
+                    }
+
+                    // Mostrar el resultado según el tipo de solución
+                    showResultBasedOnStatus(data);
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    showAlert(`Error en la conexión con el servidor: ${error}`, 'danger');
+                })
+                .finally(() => {
+                    setLoadingState(false);
+                });
+            }
+
+            function showResultBasedOnStatus(data) {
+                const responseContainer = document.getElementById("responseContainer");
+                responseContainer.style.display = "block";
+
+                const resultContainer = document.getElementById("resultContainer");
+                
+                // Determinar el tipo de resultado y mostrar el mensaje apropiado
+                if (data.status === "success") {
+                    // Sistema con solución única
+                    let solutionHTML = `<strong>{% trans 'Resultado de la integración' %}:</strong> ${data.resultado.toFixed(4)}`;
+                    
+                    resultContainer.innerHTML = `
+                        <div class="alert alert-success" role="alert">
+                        ${solutionHTML}
+                        </div>
+                    `;
+                } 
+                else {
+                    // Estado desconocido, mostrar información general
+                    resultContainer.innerHTML = `
+                        <div class="alert alert-info" role="alert">
+                        <h4>Resultado del cálculo:</h4>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            }
+
+            function showProcessSteps(steps) {
+    console.log("Datos recibidos para los pasos:", steps);
+
+    const stepsContainer = document.getElementById("stepsContainer");
+    stepsContainer.innerHTML = "<h4>Desarrollo del proceso:</h4>"; // Limpiar pasos anteriores y agregar título
+
+    steps.forEach((stepObj, index) => {
+        console.log(`Paso ${index + 1}:`, stepObj);
+
+        let stepContent = "";
+
+        if (stepObj.matrix) {
+            const latexMatrix = formatMatrixToLatex(stepObj.matrix, 4); // Formato con 4 decimales
+            stepContent = `<p>$$${latexMatrix}$$</p>`;
+            
+            // Agregar información adicional si está presente
+            if (stepObj.inconsistent_rows) {
+                stepContent += `<p class="text-danger"><strong>Filas inconsistentes detectadas:</strong></p>`;
+                stepObj.inconsistent_rows.forEach(row => {
+                    stepContent += `<p class="text-danger">Fila ${row.row_index} sugiere: 0 = ${row.row_values[row.row_values.length - 1]}</p>`;
+                });
+            }
+            
+            if (stepObj.rank) {
+                stepContent += `<p><strong>Rango de la matriz:</strong> ${stepObj.rank}</p>`;
+            }
+            
+            if (stepObj.free_variables) {
+                stepContent += `<p><strong>Variables libres:</strong> ${stepObj.free_variables.join(', ')}</p>`;
+            }
+        } 
+        else if (stepObj.solution) {
+            // Formateamos la solución final para que muestre los valores de x_1, x_2, x_3 directamente
+            const formattedSolution = stepObj.solution.map((val, i) => `x_${i + 1} = ${val.toFixed(4)}`).join(", ");
+            stepContent = `<p><strong>Solución final:</strong> ${formattedSolution}</p>`;
+        }
+
+        const stepElement = document.createElement("div");
+        stepElement.innerHTML = `
+            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
+                <strong>Paso ${index + 1}:</strong> ${stepObj.step}
+                ${stepContent}
+            </div>
+        `;
+
+        stepsContainer.appendChild(stepElement);
+    });
+
+    // Re-renderizar el contenido LaTeX usando MathJax
+    if (typeof MathJax !== 'undefined') {
+        MathJax.typeset();
+    }
+}
+
+
+
+        function formatMatrixToLatex(matrix, decimals = 4) {
+            if (!matrix || matrix.length === 0) {
+                return "\\text{Empty matrix}";
+            }
+            
+            const numCols = matrix[0].length;
+            // Crea un formato de columnas con una línea vertical antes de la última columna
+            // Por ejemplo, para una matriz 3x4, sería "ccc|c"
+            let columnFormat = "";
+            for (let i = 0; i < numCols; i++) {
+                columnFormat += "c";
+                // Añade la línea vertical antes de la última columna
+                if (i === numCols - 2) {
+                    columnFormat += "|";
+                }
+            }
+            
+            const rows = matrix.map(row => {
+                return row.map(val => {
+                    if (typeof val === 'number') {
+                        return val.toFixed(decimals);
+                    }
+                    return val;
+                }).join(" & ");
+            }).join(" \\\\ ");
+            
+            return "\\left[ \\begin{array}{" + columnFormat + "} " + rows + " \\end{array} \\right]";
+        }
+
+
+        </script>
+
+    </div>
+
+
+{% endblock %}

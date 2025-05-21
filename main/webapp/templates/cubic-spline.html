@@ -1,15 +1,19 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% translate 'Trazadores Cúbicos' %} - {% translate 'Métodos Numéricos' %}{% endblock %}
+{% block title %}{% trans 'Cubic Splines' %} - {% trans 'Numerical Methods' %}{% endblock %}
 {% block content %}
     {% load static %}
-
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-lg-3">
             <div class="col-lg-12">
-                <h2 class="display-4 fw-bold lh-1s">{% translate 'Trazadores Cúbicos' %}</h2>
+                <h2 class="display-4 fw-bold lh-1s">{% trans 'Cubic Splines' %}</h2>
+                {% get_current_language as LANGUAGE_CODE %}
                 <p class="lead py-5">
-                    {% translate 'Los trazadores cúbicos son una técnica de interpolación que utiliza polinomios de grado 3 en cada intervalo, asegurando la continuidad de la función, su primera y segunda derivada para obtener una curva suave que pase por todos los puntos.' %}
+                    {% if LANGUAGE_CODE == "es" %}
+                        Los trazadores cúbicos son una técnica de interpolación que utiliza polinomios de grado 3 en cada intervalo, asegurando la continuidad de la función, su primera y segunda derivada para obtener una curva suave que pase por todos los puntos.
+                    {% else %}
+                        Cubic splines are an interpolation technique that uses degree-3 polynomials in each interval, ensuring continuity of the function, its first and second derivatives to obtain a smooth curve passing through all points.
+                    {% endif %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"

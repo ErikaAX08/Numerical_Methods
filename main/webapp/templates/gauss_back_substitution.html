@@ -1,26 +1,48 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% translate 'Gaussian elimination with back replacement' %} -
-{% translate 'Métodos Numéricos' %}{% endblock %}
+{% block title %}
+    {% get_current_language as LANGUAGE_CODE %}
+    {% if LANGUAGE_CODE == "es" %}
+        Eliminación Gaussiana con Sustitución hacia Atrás - Métodos Numéricos
+    {% else %}
+        Gaussian elimination with back substitution - Numerical Methods
+    {% endif %}
+{% endblock %}
 {% block content %}
-{% load static %}
-{% csrf_token %}
-
+    {% load static %}
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
             <div class="col-lg-12">
-                <h2 class="display-4 fw-bold lh-1s">{% translate 'Gaussian elimination with back replacement' %}</h2>
+                <h2 class="display-4 fw-bold lh-1s">
+                    {% if LANGUAGE_CODE == "es" %}
+                        Eliminación Gaussiana con Sustitución hacia Atrás
+                    {% else %}
+                        Gaussian elimination with back substitution
+                    {% endif %}
+                </h2>
+                {% get_current_language as LANGUAGE_CODE %}
                 <p class="lead py-5">
-                    El método de Gauss con back replacement (sustitución hacia atrás) es una técnica para resolver sistemas de ecuaciones lineales. Consiste en dos etapas: <br><br>
-                    <strong>1.Eliminación de Gauss</strong>: Transformar la matriz aumentada del sistema en una forma escalonada (triangular superior) mediante operaciones elementales de fila.<br><br>
-                    <strong>2.Sustitución hacia atrás</strong>: Resolver el sistema desde la última ecuación hacia arriba, despejando las incógnitas en orden inverso
+                    {% if LANGUAGE_CODE == "es" %}
+                        La eliminación gaussiana con sustitución hacia atrás es un método clásico para resolver sistemas de ecuaciones lineales. Consiste en transformar la matriz aumentada del sistema en una forma triangular superior mediante operaciones elementales de fila, y luego resolver el sistema resultante usando sustitución hacia atrás.
+                    {% else %}
+                        Gaussian elimination with back substitution is a classic method for solving systems of linear equations. It consists of transforming the augmented matrix of the system into an upper triangular form using elementary row operations, and then solving the resulting system using back substitution.
+                    {% endif %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
-                            onclick="showCalculator()">{% translate 'Calculadora' %}
+                            onclick="showCalculator()">
+                        {% if LANGUAGE_CODE == "es" %}
+                            Calculadora
+                        {% else %}
+                            Calculator
+                        {% endif %}
                     </button>
                     <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">
-                        {% translate 'Explanation' %}
+                        {% if LANGUAGE_CODE == "es" %}
+                            Explicación
+                        {% else %}
+                            Explanation
+                        {% endif %}
                     </button>
                 </div>
             </div>
@@ -131,9 +153,14 @@
 
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3 lead" style="display: none !important;">
-            <h3 class="pb-3">{% translate "Explicación de Gaussian elimination with back replacement" %}</h3>
+            <h3 class="pb-3">{% trans "Explicación de Gaussian elimination with back replacement" %}</h3>
+            {% get_current_language as LANGUAGE_CODE %}
             <p>
-                {% translate 'El método de Gauss con sustitución hacia atrás (también conocido como eliminación gaussiana) es un algoritmo fundamental en álgebra lineal para resolver sistemas de ecuaciones lineales de la forma: '%}'
+                {% if LANGUAGE_CODE == "es" %}
+                    El método de Gauss con sustitución hacia atrás (también conocido como eliminación gaussiana) es un algoritmo fundamental en álgebra lineal para resolver sistemas de ecuaciones lineales de la forma:
+                {% else %}
+                    The Gaussian elimination method with back substitution is a fundamental algorithm in linear algebra for solving systems of linear equations of the form:
+                {% endif %}
                 \[
                 \left\{
                 \begin{array}{l}
@@ -144,8 +171,13 @@
                 \end{array}
                 \right.
                 \]
-                {% translate 'El método consiste en dos fases principales:<br><br>'%}
-                {% translate '<strong>1.Eliminación de Gauss (Triangularización)</strong>: El objetivo es convertir la matriz aumentada [A|b] en una matriz triangular superior mediante operaciones elementales de fila: '%}
+                {% if LANGUAGE_CODE == "es" %}
+                    El método consiste en dos fases principales:<br><br>
+                    <strong>1. Eliminación de Gauss (Triangularización)</strong>: El objetivo es convertir la matriz aumentada [A|b] en una matriz triangular superior mediante operaciones elementales de fila:
+                {% else %}
+                    The method consists of two main phases:<br><br>
+                    <strong>1. Gaussian Elimination (Triangularization)</strong>: The goal is to convert the augmented matrix [A|b] into an upper triangular matrix using elementary row operations:
+                {% endif %}
                 \[
                 \begin{bmatrix}
                 a_{11} & a_{12} & \cdots & a_{1n} & \vert & b_1 \\
@@ -654,7 +686,7 @@
                     body: JSON.stringify({ matrix: matrix, vector: vector }),
                 })
                 .then(response => response.json())
-                .then(data => {
+                .then((data) => {
                     if (data.error) {
                         showAlert(data.error, 'danger');
                         return;

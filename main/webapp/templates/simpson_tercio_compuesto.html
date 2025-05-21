@@ -1,19 +1,18 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% translate 'Chulesky Factorization' %} - {% translate 'Métodos Numéricos' %}{% endblock %}
+{% block title %}{% trans 'Regla de Simpson 1/3 compuesta' %} - {% trans 'Numerical Methods' %}{% endblock %}
 {% block content %}
     {% load static %}
-    {% csrf_token %}
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
             <div class="col-lg-12">
-                <h2 class="display-4 fw-bold lh-1s">{% translate 'Cholesky Factorization' %}</h2>
+                <h2 class="display-4 fw-bold lh-1s">{% trans 'Regla de Simpson 1/3 compuesta' %}</h2>
                 {% get_current_language as LANGUAGE_CODE %}
                 <p class="lead py-5">
                     {% if LANGUAGE_CODE == "es" %}
-                        La factorización de Cholesky es un método eficiente para resolver sistemas de ecuaciones lineales cuando la matriz de coeficientes es simétrica y definida positiva. Esta factorización descompone la matriz A en el producto de una matriz triangular inferior L y su transpuesta L^T, de manera que A = L × L^T.
+                        La regla de Simpson 1/3 compuesta extiende el método simple dividiendo el intervalo en subintervalos pares. Aplica la regla de Simpson 1/3 a cada par de subintervalos y suma los resultados, proporcionando una aproximación más precisa para intervalos más grandes.
                     {% else %}
-                        Cholesky factorization is an efficient method for solving linear systems when the coefficient matrix is symmetric and positive definite. This factorization decomposes the matrix A into the product of a lower triangular matrix L and its transpose L^T, so that A = L × L^T.
+                        The composite Simpson's 1/3 rule extends the simple method by dividing the interval into even subintervals. It applies Simpson's 1/3 rule to each pair of subintervals and sums the results, providing a more accurate approximation for larger intervals.
                     {% endif %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
@@ -31,26 +30,26 @@
 
         <!-- Hidden calculator section -->
         <div id="calculator" style="display: none !important;" class="mt-5">
-            <h3 class="mb-5">{% translate 'Calculadora de Chulesky Factorization' %}</h3>
+            <h3 class="mb-5">{% translate 'Calculadora de la Regla de Simpson de 1/3 Compuesto' %}</h3>
             <div class="mb-5 p-4 bg-light rounded-3 shadow">
 
                 <!-- Header -->
                 <div class="btn-toolbar d-flex flex-column">
                     <div class="mb-2">
-                        <H4>Tamaño de la matriz</H4>
+                        <H4>{% translate 'Intervalo' %}</H4>
                     </div>
                     <div class="d-flex flex-row justify-content-between">
                         <form class="form d-flex align-items-center">
                             <div class="input-group">
-                                <span class="input-group-text" id="basic-addon1">M</span>
-                                <input id="inputM" type="text" class="form-control" placeholder="Filas"
+                                <span class="input-group-text" id="basic-addon1">a</span>
+                                <input id="inputA" type="text" class="form-control" placeholder="{% translate 'Inicio' %}"
                                        aria-label="Username"
                                        aria-describedby="basic-addon1">
                             </div>
-                            <span class="fw-bolder" style="margin: 0 10px;">x</span>
+                            <span class="fw-bolder" style="margin: 0 10px;">-</span>
                             <div class="input-group">
-                                <span class="input-group-text" id="basic-addon1">N</span>
-                                <input id="inputN" type="text" class="form-control" placeholder="Columnas"
+                                <span class="input-group-text" id="basic-addon1">b</span>
+                                <input id="inputB" type="text" class="form-control" placeholder="{% translate 'Fin' %}"
                                        aria-label="Username"
                                        aria-describedby="basic-addon1">
                             </div>
@@ -107,122 +106,81 @@
 
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3 lead" style="display: none !important;">
-            <h3 class="pb-3">{% translate "Explicación de Factorización de Cholesky" %}</h3>
+            <h3 class="pb-3">{% translate "Explicación de la Regla de Simpson de 1/3 Compuesto" %}</h3>
 
             <h4 class="mt-4">Descripción General</h4>
             <p>
-                La <strong>factorización de Cholesky</strong> es un método especializado para resolver sistemas de
-                ecuaciones lineales.
-                A diferencia de otros métodos de eliminación gaussiana, Cholesky es aplicable únicamente cuando la
-                matriz de coeficientes
-                cumple dos condiciones específicas: debe ser <strong>simétrica</strong> (igual a su transpuesta) y
-                <strong>definida positiva</strong>
-                (todos sus autovalores son positivos).
+                La <strong>regla de Simpson de 1/3 compuesto</strong> es una técnica numérica para aproximar la
+                integral definida de una función. Es una extensión del método de Simpson 1/3 simple, pero
+                aplicada a intervalos más pequeños dentro del intervalo de integración, lo que generalmente
+                proporciona una mayor precisión.
             </p>
 
             <h4 class="mt-4">Fundamentos Matemáticos</h4>
             <p>
-                Dada una matriz simétrica y definida positiva \(A\), la factorización de Cholesky descompone \(A\) en:
-                \[A = L \cdot L^T\]
-                donde:
-            <ul>
-                <li>\(L\) es una matriz triangular inferior con elementos positivos en la diagonal</li>
-                <li>\(L^T\) es la transpuesta de \(L\), siendo una matriz triangular superior</li>
-            </ul>
+                La regla de Simpson de 1/3 compuesto se basa en la idea de que una función puede ser
+                aproximada por un polinomio de segundo grado (una parábola) en intervalos pequeños. La
+                integral de la función sobre el intervalo se aproxima luego integrando el polinomio
+                correspondiente.
             </p>
 
-            <h4 class="mt-4">Algoritmo de Factorización</h4>
+            <h4 class="mt-4">Algoritmo de la Regla de Simpson de 1/3 Compuesto</h4>
             <p>
-                Para una matriz \(A\) de dimensión \(n \times n\), los elementos de \(L\) se calculan de la siguiente
-                manera:
-
-            <ul>
-                <li>Para los elementos diagonales (\(i = j\)):
-                    \[L_{ii} = \sqrt{A_{ii} - \sum_{k=1}^{i-1} L_{ik}^2}\]
-                </li>
-                <li>Para los elementos debajo de la diagonal (\(i > j\)):
-                    \[L_{ij} = \frac{A_{ij} - \sum_{k=1}^{j-1} L_{ik} \cdot L_{jk}}{L_{jj}}\]
-                </li>
-                <li>Los elementos encima de la diagonal son cero:
-                    \[L_{ij} = 0 \text{ para } i < j\]
-                </li>
-            </ul>
-            </p>
-
-            <h4 class="mt-4">Proceso de Resolución del Sistema</h4>
-            <p>
-                Una vez obtenida la factorización \(A = L \cdot L^T\), para resolver el sistema \(A \cdot x = b\) se
-                siguen estos pasos:
-
+                Dado un intervalo \([a, b]\) y \(n\) subintervalos (donde \(n\) es par), la regla de Simpson
+                de 1/3 compuesto calcula la integral como sigue:
             <ol>
-                <li>Resolver el sistema triangular inferior \(L \cdot y = b\) para encontrar \(y\) mediante sustitución
-                    hacia adelante
+                <li>Calcular el ancho de los subintervalos: \(h = \frac{b - a}{n}\)</li>
+                <li>Para \(i = 0\) hasta \(n/2 - 1\):
+                    <ul>
+                        <li>Calcular \(x_{2i} = a + 2ih\)</li>
+                        <li>Calcular \(x_{2i+1} = a + (2i+1)h\)</li>
+                    </ul>
                 </li>
-                <li>Resolver el sistema triangular superior \(L^T \cdot x = y\) para encontrar \(x\) mediante
-                    sustitución hacia atrás
+                <li>Calcular la suma:
+                    \[
+                    S = f(x_0) + 4 \sum_{i=0}^{n/2-1} f(x_{2i+1}) + 2 \sum_{i=1}^{n/2-1} f(x_{2i}) + f(x_n)
+                    \]
+                </li>
+                <li>Calcular la integral aproximada:
+                    \[
+                    I \approx \frac{h}{3} S
+                    \]
                 </li>
             </ol>
             </p>
 
-            <h4 class="mt-4">Ventajas de la Factorización de Cholesky</h4>
+            <h4 class="mt-4">Ventajas de la Regla de Simpson de 1/3 Compuesto</h4>
             <p>
             <ul>
-                <li>Es aproximadamente dos veces más eficiente que la factorización LU para matrices simétricas y
-                    definidas positivas
+                <li>Mayor precisión que los métodos de un solo intervalo, especialmente para funciones
+                    suaves.
                 </li>
-                <li>Es numéricamente estable sin necesidad de pivoteo</li>
-                <li>Requiere aproximadamente la mitad de almacenamiento que otros métodos</li>
-                <li>Es especialmente útil para resolver sistemas con múltiples vectores \(b\) y una misma matriz \(A\)
+                <li>Fácil de implementar y entender.</li>
+                <li>Requiere menos evaluaciones de la función que los métodos de integración numérica de
+                    orden superior.
                 </li>
             </ul>
             </p>
 
             <h4 class="mt-4">Aplicaciones Prácticas</h4>
             <p>
-                La factorización de Cholesky es ampliamente utilizada en:
+                La regla de Simpson de 1/3 compuesto es utilizada en:
             <ul>
-                <li>Optimización numérica y método de mínimos cuadrados</li>
-                <li>Simulación de procesos estocásticos</li>
-                <li>Problemas de elementos finitos</li>
-                <li>Estadística computacional (por ejemplo, en la simulación Monte Carlo)</li>
-                <li>Procesamiento digital de señales</li>
+                <li>Ingeniería para el análisis de señales y sistemas.</li>
+                <li>Ciencias físicas para el cálculo de áreas y volúmenes.</li>
+                <li>Economía para la estimación de costos e ingresos.</li>
+                <li>Biología para el modelado de poblaciones y recursos.</li>
             </ul>
             </p>
 
             <h4 class="mt-4">Ejemplo</h4>
             <p>
-                Consideremos el sistema:
+                Consideremos la función \(f(x) = \sin(x)\) en el intervalo \([0, \pi]\) con \(n = 6\)
+                subintervalos. La integral exacta es 2. La regla de Simpson de 1/3 compuesto dará:
                 \[
-                \begin{bmatrix}
-                4 & 2 & 2 \\
-                2 & 5 & 1 \\
-                2 & 1 & 6
-                \end{bmatrix}
-                \begin{bmatrix}
-                x_1 \\
-                x_2 \\
-                x_3
-                \end{bmatrix}
-                =
-                \begin{bmatrix}
-                20 \\
-                19 \\
-                18
-                \end{bmatrix}
+                I \approx \frac{h}{3} \left( f(x_0) + 4 \sum f(x_{2i+1}) + 2 \sum f(x_{2i}) + f(x_n) \right)
                 \]
-
-                La matriz es simétrica y definida positiva. Su factorización de Cholesky sería:
-                \[
-                L =
-                \begin{bmatrix}
-                2 & 0 & 0 \\
-                1 & 2 & 0 \\
-                1 & 0 & \sqrt{5}
-                \end{bmatrix}
-                \]
-
-                Mediante sustitución hacia adelante y hacia atrás, obtenemos la solución \(x_1 = 3\), \(x_2 = 2\), \(x_3
-                = 1\).
+                lo que proporciona una buena aproximación de la integral.
             </p>
         </div>
 
@@ -490,7 +448,7 @@
                 }
 
                 // Asegurarse de que la URL es correcta - puede necesitar ajustarse según la configuración de tu proyecto
-                fetch('/calculate-chulesky-factorization/', {
+                fetch('/calculate-simpson-13-compound/', {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
