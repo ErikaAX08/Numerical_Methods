@@ -34,6 +34,19 @@
         <!-- Hidden calculator section -->
         <div id="calculator" style="display: none !important;" class="mt-5">
             <h3 class="mb-5">{% translate 'Calculadora de Gaussian Elimination with Maximum Column Pivoting' %}</h3>
+            
+            <!-- Nuevo: Sección de matrices precargadas -->
+            <div class="mb-4 p-4 bg-light rounded-3 shadow">
+                <h4 class="mb-3">Matrices Precargadas</h4>
+                <p class="text-muted mb-3">Selecciona un ejemplo para cargar una matriz predefinida:</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-outline-primary" onclick="loadPresetMatrix('basic')">Sistema Básico 3×4</button>
+                    <button class="btn btn-outline-primary" onclick="loadPresetMatrix('inconsistent')">Sistema Inconsistente</button>
+                    <button class="btn btn-outline-primary" onclick="loadPresetMatrix('large')">Sistema Grande 4×5</button>
+                    <button class="btn btn-outline-primary" onclick="loadPresetMatrix('identity')">Matriz Identidad + b</button>
+                </div>
+            </div>
+            
             <div class="mb-5 p-4 bg-light rounded-3 shadow">
 
                 <!-- Header -->
@@ -91,6 +104,22 @@
                                 <!-- Corchete derecho -->
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nuevo: Sección de historial -->
+            <div class="mb-5 p-4 bg-light rounded-3 shadow" id="historySection">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="m-0">Historial de Cálculos</h4>
+                    <button class="btn btn-outline-danger btn-sm" onclick="clearHistory()">
+                        <i class="bi bi-trash"></i> Borrar Historial
+                    </button>
+                </div>
+                <div id="historyContainer" class="mt-3">
+                    <p class="text-muted text-center" id="emptyHistoryMessage">No hay cálculos en el historial.</p>
+                    <div id="historyList" class="list-group">
+                        <!-- Aquí se mostrarán los elementos del historial -->
                     </div>
                 </div>
             </div>
@@ -177,6 +206,213 @@
 
         <script>
             const points = [];
+            // Nuevo: Variable para el historial
+            let calculationHistory = [];
+            
+            // Inicializar historial desde localStorage al cargar la página
+            function initializeHistory() {
+                const savedHistory = localStorage.getItem('gaussCalculationHistory');
+                if (savedHistory) {
+                    try {
+                        calculationHistory = JSON.parse(savedHistory);
+                        updateHistoryDisplay();
+                    } catch (e) {
+                        console.error("Error al cargar el historial:", e);
+                        calculationHistory = [];
+                    }
+                }
+            }
+            
+            // Guardar historial en localStorage
+            function saveHistory() {
+                try {
+                    localStorage.setItem('gaussCalculationHistory', JSON.stringify(calculationHistory));
+                } catch (e) {
+                    console.error("Error al guardar el historial:", e);
+                    showAlert("No se pudo guardar el historial localmente", "warning");
+                }
+            }
+            
+            // Añadir un cálculo al historial
+            function addToHistory(matrix, result) {
+                const timestamp = new Date().toLocaleString();
+                const dimensions = `${matrix.length}×${matrix[0].length}`;
+                
+                // Crear un resumen del resultado
+                let resultSummary;
+                if (Array.isArray(result)) {
+                    resultSummary = "Solución encontrada";
+                } else {
+                    resultSummary = typeof result === 'string' ? 
+                        (result.length > 30 ? result.substring(0, 30) + "..." : result) : 
+                        "Resultado especial";
+                }
+                
+                const historyItem = {
+                    id: Date.now(),
+                    timestamp,
+                    dimensions,
+                    matrix: JSON.parse(JSON.stringify(matrix)), // Copia profunda
+                    result: result,
+                    resultSummary
+                };
+                
+                // Añadir al principio del array para mostrar más reciente primero
+                calculationHistory.unshift(historyItem);
+                
+                // Limitar el historial a 10 elementos
+                if (calculationHistory.length > 10) {
+                    calculationHistory.pop();
+                }
+                
+                // Guardar y actualizar la visualización
+                saveHistory();
+                updateHistoryDisplay();
+            }
+            
+            // Actualizar la visualización del historial
+            function updateHistoryDisplay() {
+                const historyList = document.getElementById('historyList');
+                const emptyMessage = document.getElementById('emptyHistoryMessage');
+                
+                // Mostrar mensaje si no hay elementos
+                if (calculationHistory.length === 0) {
+                    emptyMessage.style.display = 'block';
+                    historyList.innerHTML = '';
+                    return;
+                }
+                
+                // Ocultar mensaje y mostrar elementos
+                emptyMessage.style.display = 'none';
+                historyList.innerHTML = '';
+                
+                calculationHistory.forEach(item => {
+                    const historyItem = document.createElement('a');
+                    historyItem.className = 'list-group-item list-group-item-action';
+                    historyItem.href = '#';
+                    historyItem.onclick = (e) => {
+                        e.preventDefault();
+                        loadMatrixFromHistory(item.id);
+                    };
+                    
+                    historyItem.innerHTML = `
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">Matriz ${item.dimensions}</h5>
+                            <small>${item.timestamp}</small>
+                        </div>
+                        <p class="mb-1">${item.resultSummary}</p>
+                        <small class="text-muted">Haz clic para cargar esta matriz</small>
+                    `;
+                    
+                    historyList.appendChild(historyItem);
+                });
+            }
+            
+            // Cargar una matriz del historial
+            function loadMatrixFromHistory(id) {
+                const historyItem = calculationHistory.find(item => item.id === id);
+                if (!historyItem) return;
+                
+                const matrix = historyItem.matrix;
+                const rows = matrix.length;
+                const cols = matrix[0].length;
+                
+                // Actualizar dimensiones
+                rowsInput.value = rows;
+                colsInput.value = cols;
+                
+                // Generar la matriz
+                generateMatrix();
+                
+                // Rellenar con los valores guardados
+                setTimeout(() => {
+                    for (let i = 0; i < rows; i++) {
+                        for (let j = 0; j < cols; j++) {
+                            const input = document.querySelector(`.matrix-input[data-row="${i}"][data-col="${j}"]`);
+                            if (input) {
+                                input.value = matrix[i][j];
+                            }
+                        }
+                    }
+                    showAlert("Matriz cargada desde el historial", "success");
+                }, 100);
+            }
+            
+            // Limpiar todo el historial
+            function clearHistory() {
+                if (confirm("¿Estás seguro de que deseas borrar todo el historial de cálculos?")) {
+                    calculationHistory = [];
+                    saveHistory();
+                    updateHistoryDisplay();
+                    showAlert("Historial borrado correctamente", "info");
+                }
+            }
+            
+            // Nuevo: Matrices precargadas
+            const presetMatrices = {
+                basic: {
+                    rows: 3,
+                    cols: 4,
+                    values: [
+                        [2, 1, -1, 8],
+                        [-3, -1, 2, -11],
+                        [-2, 1, 2, -3]
+                    ]
+                },
+                inconsistent: {
+                    rows: 3,
+                    cols: 4,
+                    values: [
+                        [1, 2, 3, 6],
+                        [2, 4, 6, 8], // Esta fila hace el sistema inconsistente
+                        [3, 5, 1, 9]
+                    ]
+                },
+                large: {
+                    rows: 4,
+                    cols: 5,
+                    values: [
+                        [2, 1, -1, 3, 4],
+                        [-3, -1, 2, 5, -7],
+                        [-2, 1, 2, 7, -5],
+                        [1, 3, -4, 2, 6]
+                    ]
+                },
+                identity: {
+                    rows: 3,
+                    cols: 4,
+                    values: [
+                        [1, 0, 0, 5],
+                        [0, 1, 0, 10],
+                        [0, 0, 1, 15]
+                    ]
+                }
+            };
+            
+            // Función para cargar una matriz precargada
+            function loadPresetMatrix(presetName) {
+                const preset = presetMatrices[presetName];
+                if (!preset) return;
+                
+                rowsInput.value = preset.rows;
+                colsInput.value = preset.cols;
+                
+                // Generar la matriz
+                generateMatrix();
+                
+                // Rellenar con los valores predefinidos
+                setTimeout(() => {
+                    for (let i = 0; i < preset.rows; i++) {
+                        for (let j = 0; j < preset.cols; j++) {
+                            const input = document.querySelector(`.matrix-input[data-row="${i}"][data-col="${j}"]`);
+                            if (input) {
+                                input.value = preset.values[i][j];
+                            }
+                        }
+                    }
+                    showAlert(`Ejemplo cargado: ${presetName}`, "success");
+                }, 100);
+            }
 
             function showCalculator() {
                 document.getElementById('explanation').style.display = 'none';
@@ -310,7 +546,7 @@
                 // Aquí se llamaría a la función que resuelve el sistema
                 console.log('Matriz a resolver:', matrix);
 
-                calculate()
+                calculate(matrix)
 
                 // Mostrar el contenedor de respuesta
                 document.getElementById('responseContainer').style.display = 'block';
@@ -335,6 +571,9 @@
                 };
 
                 generateMatrix();
+                
+                // Inicializar el historial
+                initializeHistory();
 
                 setTimeout(function () {
                     calculatorSection.style.display = 'none';
@@ -405,33 +644,11 @@
             }
 
             // Función para realizar el cálculo
-            function calculate() {
+            function calculate(matrix) {
                 setLoadingState(true);
 
                 // Mostrar mensaje de procesamiento
                 showAlert('Matriz cargada correctamente. Procesando...', 'success');
-
-                // Obtener dimensiones de la matriz
-                const rows = parseInt(rowsInput.value);
-                const cols = parseInt(colsInput.value);
-
-                // Crear la matriz para enviar al servidor
-                const matrix = [];
-                for (let i = 0; i < rows; i++) {
-                    const rowValues = [];
-                    for (let j = 0; j < cols; j++) {
-                        const input = document.querySelector(`.matrix-input[data-row="${i}"][data-col="${j}"]`);
-                        const value = parseFloat(input.value);
-
-                        if (isNaN(value)) {
-                            showAlert(`Por favor, ingresa un valor numérico en la posición [${i + 1}, ${j + 1}]`, 'warning');
-                            setLoadingState(false);
-                            return;
-                        }
-                        rowValues.push(value);
-                    }
-                    matrix.push(rowValues);
-                }
 
                 // Realizar la petición al servidor usando POST
                 fetch('/calculate-gauss-maximum-column-pivoting/', {
@@ -470,6 +687,9 @@
                         // Si hay resultado, mostrarlo
                         if (data.result) {
                             showResult(data.result);
+                            
+                            // Añadir al historial
+                            addToHistory(matrix, data.result);
                         }
 
                         // Mostrar los pasos del proceso siempre que estén disponibles
