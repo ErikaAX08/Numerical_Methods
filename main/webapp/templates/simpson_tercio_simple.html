@@ -1,19 +1,18 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% translate 'Chulesky Factorization' %} - {% translate 'Métodos Numéricos' %}{% endblock %}
+{% block title %}{% trans 'Regla de Simpson 1/3 simple' %} - {% trans 'Numerical Methods' %}{% endblock %}
 {% block content %}
     {% load static %}
-    {% csrf_token %}
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
             <div class="col-lg-12">
-                <h2 class="display-4 fw-bold lh-1s">{% translate 'Cholesky Factorization' %}</h2>
+                <h2 class="display-4 fw-bold lh-1s">{% trans 'Regla de Simpson 1/3 simple' %}</h2>
                 {% get_current_language as LANGUAGE_CODE %}
                 <p class="lead py-5">
                     {% if LANGUAGE_CODE == "es" %}
-                        La factorización de Cholesky es un método eficiente para resolver sistemas de ecuaciones lineales cuando la matriz de coeficientes es simétrica y definida positiva. Esta factorización descompone la matriz A en el producto de una matriz triangular inferior L y su transpuesta L^T, de manera que A = L × L^T.
+                        La regla de Simpson 1/3 simple es un método de integración numérica que aproxima el área bajo una curva usando un polinomio cuadrático. Este método ofrece una mejor aproximación que la regla del trapecio para funciones con curvatura, ya que considera la concavidad de la función.
                     {% else %}
-                        Cholesky factorization is an efficient method for solving linear systems when the coefficient matrix is symmetric and positive definite. This factorization decomposes the matrix A into the product of a lower triangular matrix L and its transpose L^T, so that A = L × L^T.
+                        Simpson's 1/3 rule is a numerical integration method that approximates the area under a curve using a quadratic polynomial. This method provides better approximation than the trapezoidal rule for curved functions, as it takes into account the concavity of the function.
                     {% endif %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
@@ -31,26 +30,26 @@
 
         <!-- Hidden calculator section -->
         <div id="calculator" style="display: none !important;" class="mt-5">
-            <h3 class="mb-5">{% translate 'Calculadora de Chulesky Factorization' %}</h3>
+            <h3 class="mb-5">{% translate 'Calculadora de la regla de Simpson de 1/3 simple' %}</h3>
             <div class="mb-5 p-4 bg-light rounded-3 shadow">
 
                 <!-- Header -->
                 <div class="btn-toolbar d-flex flex-column">
                     <div class="mb-2">
-                        <H4>Tamaño de la matriz</H4>
+                        <H4>{% translate 'Intervalo de integración' %}</H4>
                     </div>
                     <div class="d-flex flex-row justify-content-between">
                         <form class="form d-flex align-items-center">
                             <div class="input-group">
-                                <span class="input-group-text" id="basic-addon1">M</span>
-                                <input id="inputM" type="text" class="form-control" placeholder="Filas"
+                                <span class="input-group-text" id="basic-addon1">a</span>
+                                <input id="inputA" type="text" class="form-control" placeholder="{% translate 'Inicio' %}"
                                        aria-label="Username"
                                        aria-describedby="basic-addon1">
                             </div>
-                            <span class="fw-bolder" style="margin: 0 10px;">x</span>
+                            <span class="fw-bolder" style="margin: 0 10px;">-</span>
                             <div class="input-group">
-                                <span class="input-group-text" id="basic-addon1">N</span>
-                                <input id="inputN" type="text" class="form-control" placeholder="Columnas"
+                                <span class="input-group-text" id="basic-addon1">b</span>
+                                <input id="inputB" type="text" class="form-control" placeholder="{% translate 'Fin' %}"
                                        aria-label="Username"
                                        aria-describedby="basic-addon1">
                             </div>
@@ -58,13 +57,13 @@
                         <div class="btn-group">
                             <button style="height: fit-content" type="button" class="btn btn-outline-secondary"
                                     id="clearBtn">
-                                <i class="bi bi-trash"></i> Limpiar
+                                <i class="bi bi-trash"></i> {% translate 'Limpiar' %}
                             </button>
                             <button style="height: fit-content" type="button" class="btn btn-primary" id="solveBtn">
                                 <i class="bi bi-calculator"></i>
                                 <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;"
                                       id="loadingSpinner"></span>
-                                <span id="buttonText">{% translate 'Calculate' %}</span>
+                                <span id="buttonText">{% translate 'Calcular' %}</span>
                             </button>
                         </div>
                     </div>
@@ -107,122 +106,56 @@
 
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3 lead" style="display: none !important;">
-            <h3 class="pb-3">{% translate "Explicación de Factorización de Cholesky" %}</h3>
+            <h3 class="pb-3">{% translate "Explicación de la regla de Simpson de 1/3 simple" %}</h3>
 
-            <h4 class="mt-4">Descripción General</h4>
+            <h4 class="mt-4">{% translate 'Descripción General' %}</h4>
             <p>
-                La <strong>factorización de Cholesky</strong> es un método especializado para resolver sistemas de
-                ecuaciones lineales.
-                A diferencia de otros métodos de eliminación gaussiana, Cholesky es aplicable únicamente cuando la
-                matriz de coeficientes
-                cumple dos condiciones específicas: debe ser <strong>simétrica</strong> (igual a su transpuesta) y
-                <strong>definida positiva</strong>
-                (todos sus autovalores son positivos).
+                La <strong>regla de Simpson de 1/3 simple</strong> es un método de integración numérica que utiliza
+                un único
+                polinomio cuadrático para aproximar el área bajo una curva. Es una técnica de interpolación
+                polinómica que
+                ofrece una manera eficiente de calcular integrales definidas, especialmente cuando la función a
+                integrar es
+                suave y el intervalo de integración es pequeño.
             </p>
 
-            <h4 class="mt-4">Fundamentos Matemáticos</h4>
+            <h4 class="mt-4">{% translate 'Fundamentos Matemáticos' %}</h4>
             <p>
-                Dada una matriz simétrica y definida positiva \(A\), la factorización de Cholesky descompone \(A\) en:
-                \[A = L \cdot L^T\]
-                donde:
-            <ul>
-                <li>\(L\) es una matriz triangular inferior con elementos positivos en la diagonal</li>
-                <li>\(L^T\) es la transpuesta de \(L\), siendo una matriz triangular superior</li>
-            </ul>
+                Dado un intervalo \([a, b]\) y una función \(f(x)\) que es continua en ese intervalo, la regla de
+                Simpson
+                de 1/3 simple aproxima la integral definida de la siguiente manera:
+                \[
+                \int_{a}^{b} f(x) \, dx \approx \frac{(b - a)}{6} \left( f(a) + 4f\left(\frac{a+b}{2}\right) + f(b) \right)
+                \]
             </p>
 
-            <h4 class="mt-4">Algoritmo de Factorización</h4>
+            <h4 class="mt-4">{% translate 'Algoritmo' %}</h4>
             <p>
-                Para una matriz \(A\) de dimensión \(n \times n\), los elementos de \(L\) se calculan de la siguiente
-                manera:
-
-            <ul>
-                <li>Para los elementos diagonales (\(i = j\)):
-                    \[L_{ii} = \sqrt{A_{ii} - \sum_{k=1}^{i-1} L_{ik}^2}\]
-                </li>
-                <li>Para los elementos debajo de la diagonal (\(i > j\)):
-                    \[L_{ij} = \frac{A_{ij} - \sum_{k=1}^{j-1} L_{ik} \cdot L_{jk}}{L_{jj}}\]
-                </li>
-                <li>Los elementos encima de la diagonal son cero:
-                    \[L_{ij} = 0 \text{ para } i < j\]
-                </li>
-            </ul>
-            </p>
-
-            <h4 class="mt-4">Proceso de Resolución del Sistema</h4>
-            <p>
-                Una vez obtenida la factorización \(A = L \cdot L^T\), para resolver el sistema \(A \cdot x = b\) se
-                siguen estos pasos:
-
+                Para aplicar la regla de Simpson de 1/3 simple, se siguen estos pasos:
             <ol>
-                <li>Resolver el sistema triangular inferior \(L \cdot y = b\) para encontrar \(y\) mediante sustitución
-                    hacia adelante
-                </li>
-                <li>Resolver el sistema triangular superior \(L^T \cdot x = y\) para encontrar \(x\) mediante
-                    sustitución hacia atrás
+                <li>Se evalúa la función \(f(x)\) en tres puntos: \(a\), \(b\) y el punto medio \(\frac{a+b}{2}\).</li>
+                <li>Se aplica la fórmula de la regla de Simpson de 1/3 simple para obtener la aproximación de la
+                    integral.
                 </li>
             </ol>
             </p>
 
-            <h4 class="mt-4">Ventajas de la Factorización de Cholesky</h4>
+            <h4 class="mt-4">{% translate 'Ejemplo' %}</h4>
             <p>
-            <ul>
-                <li>Es aproximadamente dos veces más eficiente que la factorización LU para matrices simétricas y
-                    definidas positivas
-                </li>
-                <li>Es numéricamente estable sin necesidad de pivoteo</li>
-                <li>Requiere aproximadamente la mitad de almacenamiento que otros métodos</li>
-                <li>Es especialmente útil para resolver sistemas con múltiples vectores \(b\) y una misma matriz \(A\)
-                </li>
-            </ul>
-            </p>
-
-            <h4 class="mt-4">Aplicaciones Prácticas</h4>
-            <p>
-                La factorización de Cholesky es ampliamente utilizada en:
-            <ul>
-                <li>Optimización numérica y método de mínimos cuadrados</li>
-                <li>Simulación de procesos estocásticos</li>
-                <li>Problemas de elementos finitos</li>
-                <li>Estadística computacional (por ejemplo, en la simulación Monte Carlo)</li>
-                <li>Procesamiento digital de señales</li>
-            </ul>
-            </p>
-
-            <h4 class="mt-4">Ejemplo</h4>
-            <p>
-                Consideremos el sistema:
+                Consideremos la integral:
                 \[
-                \begin{bmatrix}
-                4 & 2 & 2 \\
-                2 & 5 & 1 \\
-                2 & 1 & 6
-                \end{bmatrix}
-                \begin{bmatrix}
-                x_1 \\
-                x_2 \\
-                x_3
-                \end{bmatrix}
-                =
-                \begin{bmatrix}
-                20 \\
-                19 \\
-                18
-                \end{bmatrix}
+                \int_{1}^{3} (x^2 + 2x) \, dx
                 \]
 
-                La matriz es simétrica y definida positiva. Su factorización de Cholesky sería:
+                Aplicando la regla de Simpson de 1/3 simple:
                 \[
-                L =
-                \begin{bmatrix}
-                2 & 0 & 0 \\
-                1 & 2 & 0 \\
-                1 & 0 & \sqrt{5}
-                \end{bmatrix}
+                \begin{align*}
+                &\text{Intervalo: } [1, 3] \\
+                &\text{Puntos: } 1, 2, 3 \\
+                &\text{Valores de la función: } f(1), f(2), f(3) \\
+                &\text{Aproximación: } \frac{(3-1)}{6} \left( f(1) + 4f(2) + f(3) \right)
+                \end{align*}
                 \]
-
-                Mediante sustitución hacia adelante y hacia atrás, obtenemos la solución \(x_1 = 3\), \(x_2 = 2\), \(x_3
-                = 1\).
             </p>
         </div>
 
@@ -241,8 +174,8 @@
             }
 
             // Matrix buttons
-            const rowsInput = document.getElementById('inputM');
-            const colsInput = document.getElementById('inputN');
+            const aInput = document.getElementById('inputA');
+            const bInput = document.getElementById('inputB');
             const matrixBody = document.getElementById('matrixBody');
             const solveBtn = document.getElementById('solveBtn');
             const responseContainer = document.getElementById('responseContainer');
@@ -251,12 +184,12 @@
 
             // Generate Matrix Function
             function generateMatrix() {
-                const rows = parseInt(rowsInput.value);
-                const cols = parseInt(colsInput.value);
+                const a = parseFloat(aInput.value);
+                const b = parseFloat(bInput.value);
 
                 // Validaciones
-                if (isNaN(rows) || rows < 1 || isNaN(cols) || cols < 2) {
-                    showAlert('Por favor, ingresa valores válidos', 'warning');
+                if (isNaN(a) || isNaN(b) || a >= b) {
+                    showAlert('Por favor, ingresa valores válidos para el intervalo', 'warning');
                     return;
                 }
 
@@ -264,57 +197,59 @@
                 matrixBody.innerHTML = '';
 
                 // Generar filas y columnas de la matriz
-                for (let i = 0; i < rows; i++) {
-                    const row = document.createElement('tr');
+                const row = document.createElement('tr');
 
-                    for (let j = 0; j < cols; j++) {
-                        const cell = document.createElement('td');
+                for (let j = 0; j < 3; j++) {
+                    const cell = document.createElement('td');
 
-                        // Crear un grupo de input con texto
-                        const inputGroup = document.createElement('div');
-                        inputGroup.className = 'input-group';
+                    // Crear un grupo de input con texto
+                    const inputGroup = document.createElement('div');
+                    inputGroup.className = 'input-group';
 
-                        // Input para el valor
-                        const input = document.createElement('input');
-                        input.type = 'number';
-                        input.step = 'any'; // Permite decimales
-                        input.className = 'form-control matrix-input';
-                        input.dataset.row = i;
-                        input.dataset.col = j;
+                    // Input para el valor
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.step = 'any'; // Permite decimales
+                    input.className = 'form-control matrix-input';
+                    input.dataset.row = 0;
+                    input.dataset.col = j;
 
-                        // Etiqueta para la variable
-                        const varLabel = document.createElement('span');
-                        varLabel.className = 'input-group-text';
+                    // Etiqueta para la variable
+                    const varLabel = document.createElement('span');
+                    varLabel.className = 'input-group-text';
 
-                        // Asignar la etiqueta adecuada dependiendo de la columna
-                        if (j === cols - 1) {
-                            // Columna del término independiente
-                            varLabel.textContent = 'b' + (i + 1);
-                            varLabel.title = 'Término independiente';
-                        } else {
-                            // Columnas de coeficientes
-                            varLabel.textContent = 'x' + (j + 1);
-                            varLabel.title = 'Variable x' + (j + 1);
-                        }
-
-                        // Añadir elementos al grupo
-                        inputGroup.appendChild(varLabel);
-                        inputGroup.appendChild(input);
-
-                        cell.appendChild(inputGroup);
-                        row.appendChild(cell);
+                    // Asignar la etiqueta adecuada dependiendo de la columna
+                    if (j === 0) {
+                        // Columna a
+                        varLabel.textContent = 'a';
+                        varLabel.title = 'Límite inferior de integración';
+                    } else if (j === 1) {
+                        // Columna b
+                        varLabel.textContent = 'b';
+                        varLabel.title = 'Límite superior de integración';
+                    } else {
+                        // Columna del término independiente
+                        varLabel.textContent = 'f(a)';
+                        varLabel.title = 'Valor de la función en a';
                     }
 
-                    matrixBody.appendChild(row);
+                    // Añadir elementos al grupo
+                    inputGroup.appendChild(varLabel);
+                    inputGroup.appendChild(input);
+
+                    cell.appendChild(inputGroup);
+                    row.appendChild(cell);
                 }
+
+                matrixBody.appendChild(row);
 
                 // Mostrar el contenedor de la matriz
                 document.getElementById('calculator').style.display = 'block';
             }
 
-            // Evento para generar la matriz cuando se cambian los valores de M y N
-            rowsInput.addEventListener('change', generateMatrix);
-            colsInput.addEventListener('change', generateMatrix);
+            // Evento para generar la matriz cuando se cambian los valores de a y b
+            aInput.addEventListener('change', generateMatrix);
+            bInput.addEventListener('change', generateMatrix);
 
             // Evento para limpiar la matriz
             clearBtn.addEventListener('click', function () {
@@ -332,33 +267,22 @@
                     alertContainer.innerHTML = '';
                 }
 
-                const rows = parseInt(rowsInput.value);
-                const cols = parseInt(colsInput.value);
+                const a = parseFloat(aInput.value);
+                const b = parseFloat(bInput.value);
 
-                // Crear matriz para almacenar los valores
-                const matrix = [];
-
-                // Obtener valores de la matriz
-                for (let i = 0; i < rows; i++) {
-                    const rowValues = [];
-                    for (let j = 0; j < cols; j++) {
-                        const input = document.querySelector(`.matrix-input[data-row="${i}"][data-col="${j}"]`);
-                        const value = parseFloat(input.value);
-
-                        if (isNaN(value)) {
-                            showAlert(`Por favor, ingresa un valor numérico en la posición [${i + 1}, ${j + 1}]`, 'warning');
-                            return;
-                        }
-
-                        rowValues.push(value);
-                    }
-                    matrix.push(rowValues);
+                // Validaciones
+                if (isNaN(a) || isNaN(b) || a >= b) {
+                    showAlert('Por favor, ingresa un intervalo válido (a < b)', 'warning');
+                    return;
                 }
 
-                // Mostrar mensaje de éxito
-                showAlert('Matriz cargada correctamente.', 'success');
+                // Crear matriz para almacenar los valores
+                const matrix = [[a, b]];
 
-                // Llamar a la función que calcula la factorización
+                // Mostrar mensaje de éxito
+                showAlert('Intervalo cargado correctamente.', 'success');
+
+                // Llamar a la función que calcula la regla de Simpson
                 calculate();
 
                 // Mostrar el contenedor de respuesta
@@ -412,7 +336,7 @@
 
                 button.disabled = isLoading;
                 spinner.style.display = isLoading ? "inline-block" : "none";
-                buttonText.textContent = isLoading ? "{% translate 'Calculating...' %}" : "{% translate 'Calculate' %}";
+                buttonText.textContent = isLoading ? "{% translate 'Calculando...' %}" : "{% translate 'Calcular' %}";
             }
 
             function showAlert(message, type = 'danger') {
@@ -468,29 +392,20 @@
             function calculate() {
                 setLoadingState(true);
 
-                const rows = parseInt(rowsInput.value);
-                const cols = parseInt(colsInput.value);
+                const a = parseFloat(aInput.value);
+                const b = parseFloat(bInput.value);
 
-                const matrix = [];
-
-                // Extract the matrix values from the inputs
-                for (let i = 0; i < rows; i++) {
-                    const rowValues = [];
-                    for (let j = 0; j < cols; j++) {
-                        const input = document.querySelector(`.matrix-input[data-row="${i}"][data-col="${j}"]`);
-                        const value = parseFloat(input.value);
-                        if (isNaN(value)) {
-                            showAlert(`Por favor, ingresa un valor numérico en la posición [${i + 1}, ${j + 1}]`, 'warning');
-                            setLoadingState(false);
-                            return;
-                        }
-                        rowValues.push(value);
-                    }
-                    matrix.push(rowValues);
+                // Validaciones
+                if (isNaN(a) || isNaN(b) || a >= b) {
+                    showAlert('Por favor, ingresa un intervalo válido (a < b)', 'warning');
+                    setLoadingState(false);
+                    return;
                 }
 
+                const matrix = [[a, b]];
+
                 // Asegurarse de que la URL es correcta - puede necesitar ajustarse según la configuración de tu proyecto
-                fetch('/calculate-chulesky-factorization/', {
+                fetch('/calculate-simpson-1-3-simple/', {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

@@ -9,7 +9,11 @@
             <div class="col-lg-12">
                 <h2 class="display-4 fw-bold lh-1s">{% translate 'Regula Falsi' %}</h2>
                 <p class="lead py-5">
-                    {% translate 'The False Position Method (Regula Falsi) is an iterative root-finding algorithm that approximates the root of a function by using linear interpolation between two points that bracket the root. It improves upon the Bisection Method by using the slope of the line connecting the points to converge faster. The Modified False Position Method introduces adjustments to reduce the risk of slow convergence, especially when one bound remains fixed for multiple iterations. Both methods are useful for solving nonlinear equations where analytical solutions are difficult to obtain.' %}
+                    {% if LANGUAGE_CODE == "es" %}
+                        El Método de la Posición Falsa (Regula Falsi) es un algoritmo iterativo para encontrar raíces que aproxima la raíz de una función mediante interpolación lineal entre dos puntos que encierran la raíz. Mejora el Método de Bisección al utilizar la pendiente de la línea que conecta los puntos para converger más rápidamente. El Método de la Posición Falsa Modificado introduce ajustes para reducir el riesgo de convergencia lenta, especialmente cuando un límite permanece fijo durante múltiples iteraciones. Ambos métodos son útiles para resolver ecuaciones no lineales donde las soluciones analíticas son difíciles de obtener.
+                    {% else %}
+                        The False Position Method (Regula Falsi) is an iterative root-finding algorithm that approximates the root of a function by using linear interpolation between two points that bracket the root. It improves upon the Bisection Method by using the slope of the line connecting the points to converge faster. The Modified False Position Method introduces adjustments to reduce the risk of slow convergence, especially when one bound remains fixed for multiple iterations. Both methods are useful for solving nonlinear equations where analytical solutions are difficult to obtain.
+                    {% endif %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
@@ -119,41 +123,74 @@
         </div>
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3">
-            <h3 class="pb-3">{% translate "Explicación Método Regla Falsa" %}</h3>
+            <h3 class="pb-3">
+                {% if LANGUAGE_CODE == "es" %}
+                    {% translate "Explicación Método Regla Falsa" %}
+                {% else %}
+                    {% translate "False Position Method Explanation" %}
+                {% endif %}
+            </h3>
             <p class="lead">
-                {% translate "Dado un intervalo [a, b] donde f(a)f(b)< 0, la aproximación de la raíz se encuentra con la fórmula: " %}
+                {% if LANGUAGE_CODE == "es" %}
+                    Dado un intervalo [a, b] donde f(a)f(b)< 0, la aproximación de la raíz se encuentra con la fórmula:
+                {% else %}
+                    Given an interval [a, b] where f(a)f(b)< 0, the root approximation is found with the formula:
+                {% endif %}
                 \[
                 x_r = \frac{a f(b) - b f(a)}{f(b) - f(a)}
                 \]
-                {% translate "Esta fórmula proviene de la ecuación de la recta que pasa por dos puntos (a, f(a)) y (b, f(b)), resolviendo para x cuando f(x) = 0.<br><br>" %}
-
-                {% translate "<strong>Algoritmo iterativo:</strong><br><br>" %}
-                {% translate "<strong>1.</strong> Calcular \( x_r \) usando la fórmula de la regla falsa.<br><br>" %}
-                {% translate "<strong>2.</strong> Evaluar \( f(x_r) \), si \( f(x_r) \) = 0 , entonces \( x_r \) es la raíz exacta. Si \( f(x_r) \)\( f(a) \) < 0, entonces la raíz está en [a, \( x_r \)], por lo que se actualiza b = \( x_r \). Si \( f(x_r) \)\( f(b) \) < 0, entonces la raíz está en [\( x_r \), b], por lo que se actualiza a = \( x_r \).<br><br>" %}
-                {% translate "<strong>3.</strong> Repetir hasta que |\( f(x_r) \)| sea menor que una tolerancia establecida <strong>ε</strong> o se alcance el número máximo de tolerancias" %}
-                {% translate "Este método converge más rápido que el de bisección en funciones sin curvatura extrema cerca de la raíz. Sin embargo, en funciones con concavidad pronunciada, puede volverse lento y requerir modificaciones como <strong>la regla falsa modificada.</strong><br><br>" %}
+                {% if LANGUAGE_CODE == "es" %}
+                    Esta fórmula proviene de la ecuación de la recta que pasa por dos puntos (a, f(a)) y (b, f(b)), resolviendo para x cuando f(x) = 0.<br><br>
+                    <strong>Algoritmo iterativo:</strong><br><br>
+                    <strong>1.</strong> Calcular \( x_r \) usando la fórmula de la regla falsa.<br><br>
+                    <strong>2.</strong> Evaluar \( f(x_r) \), si \( f(x_r) \) = 0 , entonces \( x_r \) es la raíz exacta. Si \( f(x_r) \)\( f(a) \) < 0, entonces la raíz está en [a, \( x_r \)], por lo que se actualiza b = \( x_r \). Si \( f(x_r) \)\( f(b) \) < 0, entonces la raíz está en [\( x_r \), b], por lo que se actualiza a = \( x_r \).<br><br>
+                    <strong>3.</strong> Repetir hasta que |\( f(x_r) \)| sea menor que una tolerancia establecida <strong>ε</strong> o se alcance el número máximo de tolerancias
+                {% else %}
+                    This formula comes from the equation of the line passing through two points (a, f(a)) and (b, f(b)), solving for x when f(x) = 0.<br><br>
+                    <strong>Iterative Algorithm:</strong><br><br>
+                    <strong>1.</strong> Calculate \( x_r \) using the false position formula.<br><br>
+                    <strong>2.</strong> Evaluate \( f(x_r) \), if \( f(x_r) \) = 0, then \( x_r \) is the exact root. If \( f(x_r) \)\( f(a) \) < 0, then the root is in [a, \( x_r \)], so update b = \( x_r \). If \( f(x_r) \)\( f(b) \) < 0, then the root is in [\( x_r \), b], so update a = \( x_r \).<br><br>
+                    <strong>3.</strong> Repeat until |\( f(x_r) \)| is less than an established tolerance <strong>ε</strong> or the maximum number of iterations is reached
+                {% endif %}
             </p>
 
-            <h3 class="pb-3">{% translate "Explicación Método Regla Falsa Modificada" %}</h3>
+            <h3 class="pb-3">
+                {% if LANGUAGE_CODE == "es" %}
+                    {% translate "Explicación Método Regla Falsa Modificada" %}
+                {% else %}
+                    {% translate "Modified False Position Method Explanation" %}
+                {% endif %}
+            </h3>
             <p class="lead">
-                {% translate "Dado un intervalo [a, b] donde f(a)f(b)< 0, el método genera una nueva aproximación a la raíz de la siguiente manera: " %}
+                {% if LANGUAGE_CODE == "es" %}
+                    Dado un intervalo [a, b] donde f(a)f(b)< 0, el método genera una nueva aproximación a la raíz de la siguiente manera:
+                {% else %}
+                    Given an interval [a, b] where f(a)f(b)< 0, the method generates a new root approximation as follows:
+                {% endif %}
                 \[
                 c_k = \frac{a f(b) - b f(a)}{f(b) - f(a)}
                 \]
-                {% translate "donde \( c_k \) es el nuevo punto candidato para la raíz.<br><br>" %}
-
-                {% translate "<strong>Actualización del intervalo:</strong><br><br>" %}
-                {% translate "Se evalúa \( f(c_k) \) y se actualiza el intervalo [a, b] dependiendo del signo de <strong>\( f(c_k) \)</strong>. Si \( f(a) \)\( f(c_k) \) < 0, la raíz está en [a, \( c_k \)], por lo que se actualiza b = \( c_k \). Si \( f(b) \)\( f(c_k) \) < 0, la raíz está en [\( c_k \), b], por lo que se actualiza a = \( c_k \)<br><br>" %}
-                {% translate "<strong>Modificación del factor de corrección:</strong><br><br>" %}
-                {% translate "Para acelerar la convergencia, se introduce un factor de corrección en la actualización de f(a) o f(b).<br><br>" %}
-                \[
-                f(a) = \frac{f(a)}{2}
-                \]
-                \[
-                f(b) = \frac{f(b)}{2}
-                \]
-                {% translate "<strong>Criterio de parada:</strong><br><br>" %}
-                {% translate "Repetir hasta que |\( f(c_k) \)| sea menor que una tolerancia establecida <strong>ε</strong> o hasta que la diferencia entre iteraciones consecutivas sea suficientemente pequeña" %}
+                {% if LANGUAGE_CODE == "es" %}
+                    donde \( c_k \) es el nuevo punto candidato para la raíz.<br><br>
+                    <strong>Actualización del intervalo:</strong><br><br>
+                    Se evalúa \( f(c_k) \) y se actualiza el intervalo [a, b] dependiendo del signo de <strong>\( f(c_k) \)</strong>. Si \( f(a) \)\( f(c_k) \) < 0, la raíz está en [a, \( c_k \)], por lo que se actualiza b = \( c_k \). Si \( f(b) \)\( f(c_k) \) < 0, la raíz está en [\( c_k \), b], por lo que se actualiza a = \( c_k \)<br><br>
+                    <strong>Modificación del factor de corrección:</strong><br><br>
+                    Para acelerar la convergencia, se introduce un factor de corrección en la actualización de f(a) o f(b).<br><br>
+                    \( f(a) = \frac{f(a)}{2} \)<br>
+                    \( f(b) = \frac{f(b)}{2} \)<br><br>
+                    <strong>Criterio de parada:</strong><br><br>
+                    Repetir hasta que |\( f(c_k) \)| sea menor que una tolerancia establecida <strong>ε</strong> o hasta que la diferencia entre iteraciones consecutivas sea suficientemente pequeña
+                {% else %}
+                    where \( c_k \) is the new candidate point for the root.<br><br>
+                    <strong>Interval Update:</strong><br><br>
+                    \( f(c_k) \) is evaluated and the interval [a, b] is updated depending on the sign of <strong>\( f(c_k) \)</strong>. If \( f(a) \)\( f(c_k) \) < 0, the root is in [a, \( c_k \)], so update b = \( c_k \). If \( f(b) \)\( f(c_k) \) < 0, the root is in [\( c_k \), b], so update a = \( c_k \)<br><br>
+                    <strong>Correction Factor Modification:</strong><br><br>
+                    To speed up convergence, a correction factor is introduced in the update of f(a) or f(b).<br><br>
+                    \( f(a) = \frac{f(a)}{2} \)<br>
+                    \( f(b) = \frac{f(b)}{2} \)<br><br>
+                    <strong>Stopping Criterion:</strong><br><br>
+                    Repeat until |\( f(c_k) \)| is less than an established tolerance <strong>ε</strong> or the difference between consecutive iterations is sufficiently small
+                {% endif %}
                 \[
                 |c_k - c_{k-1}| < ε
                 \]

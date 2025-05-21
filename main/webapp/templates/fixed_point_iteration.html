@@ -1,15 +1,19 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% translate 'Newton Raphson Method' %} - {% translate 'Numerical Methods' %}{% endblock %}
+{% block title %}{% trans 'Fixed Point Iteration' %} - {% translate 'Numerical Methods' %}{% endblock %}
 {% block content %}
 {% load static %}
 
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
             <div class="col-lg-12">
-                <h2 class="display-4 fw-bold lh-1s">{% translate 'Newton Raphson Method' %}</h2>
+                <h2 class="display-4 fw-bold lh-1s">{% translate 'Fixed Point Iteration' %}</h2>
                 <p class="lead py-5">
-                    {% translate 'El método de Newton-Raphson es un procedimiento numérico utilizado para encontrar aproximaciones de las raíces de una función. Se basa en tomar una estimación inicial y mejorarla iterativamente utilizando la pendiente de la función en ese punto. Cada nueva aproximación se obtiene desplazándose hacia donde la función se acerca a cero, lo que permite una convergencia rápida en la mayoría de los casos. Es uno de los métodos más eficientes, aunque puede fallar si la estimación inicial no es adecuada o si la función tiene comportamientos irregulares.' %}
+                    {% if LANGUAGE_CODE == "es" %}
+                        El método de iteración de punto fijo es una técnica para encontrar puntos fijos de una función mediante un proceso iterativo. Un punto fijo es un valor que, cuando se aplica a una función, devuelve el mismo valor. El método consiste en reformular la ecuación f(x) = 0 como x = g(x) y generar una secuencia de aproximaciones mediante iteraciones sucesivas.
+                    {% else %}
+                        The fixed-point iteration method is a technique for finding fixed points of a function through an iterative process. A fixed point is a value that, when applied to a function, returns the same value. The method involves reformulating the equation f(x) = 0 as x = g(x) and generating a sequence of approximations through successive iterations.
+                    {% endif %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
@@ -26,12 +30,12 @@
 
         <!-- Hidden calculator section -->
         <div id="calculator" style="display: none;" class="mt-5">
-            <h3 class="mb-5">{% translate 'Newton Raphson Calculator' %}</h3>
+            <h3 class="mb-5">{% translate 'Fixed Point Iteration Calculator' %}</h3>
             <form class="mb-5 p-4 bg-light rounded-3 shadow" id="calculatorForm">
                 <div class="mb-3">
                     <div class="col-md-12 col-sm-6 mb-3">
-                        <label for="equation" class="form-label">{% translate 'Equation' %}:</label>
-                        <input type="text" class="form-control" id="equation" value="x^3 + 4*x^2 - 4" required>
+                        <label for="equation" class="form-label">{% translate 'Function g(x)' %}:</label>
+                        <input type="text" class="form-control" id="equation" value="x - (x^3 + 4*x^2 - 10)/8" required>
                     </div>
                 </div>
 
@@ -59,12 +63,8 @@
 
                 <div class="row">
                     <div class="col-sm-12 mb-3">
-                        <label for="p0" class="form-label">{% translate 'Initial Point p0' %}:</label>
+                        <label for="p0" class="form-label">{% translate 'Initial Point x0' %}:</label>
                         <input type="number" class="form-control" id="p0" step="any" value="1.0" required>
-                    </div>
-                    <div class="col-sm-6 mb-3" style="display: none;">
-                        <label for="p1" class="form-label">{% translate 'Initial Point p1' %}:</label>
-                        <input type="number" class="form-control" id="p1" step="any" value="2.5" required>
                     </div>
                 </div>
 
@@ -77,7 +77,7 @@
 
             <!-- Container for the graphs -->
             <div id="graphs-container" class="mt-5 p-4 bg-light rounded-3 shadow" style="display: none;">
-                <h4 class="mb-3">{% translate 'Newton Raphson Method' %}</h4>
+                <h4 class="mb-3">{% translate 'Fixed Point Iteration Method' %}</h4>
                 <div class="rounded-5 mb-5" id="plot-container" style="width: 100%;">
                     <!-- Plotly chart will be rendered here -->
                 </div>
@@ -91,10 +91,10 @@
                     <thead>
                     <tr>
                         <th>{% translate 'Iteration' %}</th>
-                        <th>{% translate 'p0' %}</th>
-                        <th>{% translate 'p1' %}</th>
-                        <th>{% translate 'p' %}</th>
-                        <th>{% translate 'f(p)' %}</th>
+                        <th>{% translate 'x_n' %}</th>
+                        <th>{% translate 'x_n1' %}</th>
+                        <th>{% translate 'Error' %}</th>
+                        <th>{% translate 'g(x)' %}</th>
                     </tr>
                     </thead>
                     <tbody></tbody>
@@ -103,20 +103,39 @@
         </div>
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3">
-            <h3 class="pb-3">{% translate "Explicación Método Newton-Raphson" %}</h3>
+            <h3 class="pb-3">
+                {% if LANGUAGE_CODE == "es" %}
+                    {% translate "Explicación Método de Iteración de Punto Fijo" %}
+                {% else %}
+                    {% translate "Fixed Point Iteration Method Explanation" %}
+                {% endif %}
+            </h3>
             <p class="lead">
-                {% translate "Dado un valor inicial \( x_0 \), las siguientes aproximaciones se calculan con la fórmula:." %}
+                {% if LANGUAGE_CODE == "es" %}
+                    Para encontrar una solución de f(x) = 0, primero se reescribe como x = g(x), donde g es una función de iteración adecuada.
+                {% else %}
+                    To find a solution of f(x) = 0, first rewrite it as x = g(x), where g is a suitable iteration function.
+                {% endif %}
+                
+                {% if LANGUAGE_CODE == "es" %}
+                    <strong>Algoritmo:</strong><br><br>
+                    <strong>1.</strong> Elegir un valor inicial x₀.<br><br>
+                    <strong>2.</strong> Calcular las iteraciones sucesivas usando:<br>
+                {% else %}
+                    <strong>Algorithm:</strong><br><br>
+                    <strong>1.</strong> Choose an initial value x₀.<br><br>
+                    <strong>2.</strong> Calculate successive iterations using:<br>
+                {% endif %}
                 \[
-                x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)}
+                x_{n+1} = g(x_n)
                 \]
-                {% translate "Donde \( x_n \) es la aproximación actual de la raíz, \( f(x_n) \) es el valor de la función en \( x_n \) y \( f'(x_n) \) es la derivada de la función en \( x_n \).<br><br>" %}
-
-                {% translate "<strong>Algoritmo:</strong><br><br>" %}
-                {% translate "<strong>1.</strong> Definir la función y su derivada. Función: \( f(x) = x^3 + 4x^2 -10 \). Derivada: \( f'(x) = 3x^2 + 8x \).<br><br>" %}
-                {% translate "<strong>2.</strong> Elegir una estimación inicial \( x_0 \): Se toma \( x_0 \) = 1.5 (un punto dentro del intervalo [1, 2]).<br><br>" %}
-                {% translate "<strong>3.</strong> Fórmula de iteración: \( x_{n+1} = x_n - \frac{f(x_n}{f'(x_n)}\).<br><br>" %}
-                {% translate "<strong>4.</strong> Calcular \( x_1 \) y repetir el proceso hasta que se alcance la tolerancia o el número máximo de iteraciones.<br><br>" %}
-                {% translate "<strong>5.</strong> Resultado final. Este método converge rápidamente a la raíz x ≈ 1.365. Con más iteraciones o mayor precisión, el método se acercará más a la raíz que se está buscando." %}
+                {% if LANGUAGE_CODE == "es" %}
+                    <strong>3.</strong> Continuar hasta que |xₙ₊₁ - xₙ| < tolerancia o se alcance el máximo de iteraciones.<br><br>
+                    <strong>4.</strong> La convergencia depende de que |g'(x)| < 1 cerca del punto fijo.
+                {% else %}
+                    <strong>3.</strong> Continue until |xₙ₊₁ - xₙ| < tolerance or maximum iterations reached.<br><br>
+                    <strong>4.</strong> Convergence depends on |g'(x)| < 1 near the fixed point.
+                {% endif %}
             </p>
         </div>
 
@@ -171,11 +190,10 @@
                 const tolerance = document.getElementById("tolerance").value;
                 const maxIterations = document.getElementById("maxIterations").value;
                 const p0 = document.getElementById("p0").value;
-                const p1 = document.getElementById("p1").value;
 
                 setLoadingState(true);
 
-                const url = `/calculate-newton-raphson-method/?equation=${encodeURIComponent(equation)}&a=${a}&b=${b}&tol=${tolerance}&maxIterations=${maxIterations}&p0=${p0}&p1=${p1}`;
+                const url = `/calculate-fixed-point-iteration/?equation=${encodeURIComponent(equation)}&a=${a}&b=${b}&tol=${tolerance}&maxIterations=${maxIterations}&p0=${p0}`;
 
                 fetch(url)
                     .then(response => {
@@ -262,10 +280,10 @@
                     const row = document.createElement("tr");
                     row.innerHTML = `
                         <td>${iter.iteration}</td>
-                        <td>${iter.p0.toFixed(6)}</td>
-                        <td>${iter.p1.toFixed(6)}</td>
-                        <td>${iter['f(p0)'].toFixed(6)}</td>
-                        <td>${iter['f(p1)'].toFixed(6)}</td>
+                        <td>${iter.x_n.toFixed(6)}</td>
+                        <td>${iter.x_n1.toFixed(6)}</td>
+                        <td>${iter.error.toFixed(6)}</td>
+                        <td>${iter['g(x)'].toFixed(6)}</td>
                     `;
                     tbody.appendChild(row);
                 });

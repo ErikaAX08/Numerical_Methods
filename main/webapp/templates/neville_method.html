@@ -1,15 +1,19 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% translate 'Método de Neville' %} - {% translate 'Métodos Numéricos' %}{% endblock %}
+{% block title %}{% trans 'Neville Method' %} - {% trans 'Numerical Methods' %}{% endblock %}
 {% block content %}
     {% load static %}
-
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
             <div class="col-lg-12">
-                <h2 class="display-4 fw-bold lh-1s">{% translate 'Método de Neville' %}</h2>
+                <h2 class="display-4 fw-bold lh-1s">{% trans 'Neville Method' %}</h2>
+                {% get_current_language as LANGUAGE_CODE %}
                 <p class="lead py-5">
-                    {% translate 'En matemáticas, el algoritmo de Neville es un algoritmo utilizado para la interpolación de polinomios que fue desarrollado por el matemático Eric Harold Neville en 1934. Dados n + 1 puntos, existe un único polinomio de grado ≤ n que pasa por los puntos dados. El algoritmo de Neville evalúa este polinomio.' %}
+                    {% if LANGUAGE_CODE == "es" %}
+                        El método de Neville es una técnica de interpolación numérica que permite calcular el valor de una función en un punto dado a partir de un conjunto de puntos conocidos, utilizando un enfoque recursivo para construir el polinomio interpolador.
+                    {% else %}
+                        The Neville method is a numerical interpolation technique that allows you to compute the value of a function at a given point from a set of known points, using a recursive approach to build the interpolating polynomial.
+                    {% endif %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
@@ -26,112 +30,198 @@
 
         <!-- Hidden calculator section -->
         <div id="calculator" style="display: none;" class="mt-5">
-            <h3 class="mb-5">{% translate 'Calculadora Método de Neville' %}</h3>
-            <div class="mb-5 p-4 bg-light rounded-3 shadow">
-
-                <h5>{% translate 'Add point' %}</h5>
-                <form class="mb-4" id="addPointForm">
-                    <div class="row">
-                        <div class="col-sm-5 mb-3">
-                            <label for="xValue" class="form-label">{% translate 'x value' %}:</label>
-                            <input type="number" class="form-control" id="xValue" step="any" required>
-                        </div>
-                        <div class="col-sm-5 mb-3">
-                            <label for="fxValue" class="form-label">{% translate 'f(x) values' %}:</label>
-                            <input type="number" class="form-control" id="fxValue" step="any" required>
-                        </div>
-
-                        <div class="col-sm-2 mb-3 d-flex justify-content-center">
-                            <button type="submit" class="btn btn-lg btn-primary mt-2" id="addPointButton">
-                                <span>{% translate 'Add point' %}</span>
-                            </button>
-                        </div>
+            <h3 class="mb-5">
+                {% if LANGUAGE_CODE == "es" %}
+                    Calculadora Método de Neville
+                {% else %}
+                    Neville Method Calculator
+                {% endif %}
+            </h3>
+            
+            <h5>
+                {% if LANGUAGE_CODE == "es" %}
+                    Agregar punto
+                {% else %}
+                    Add point
+                {% endif %}
+            </h5>
+            <form class="mb-4" id="addPointForm">
+                <div class="row">
+                    <div class="col-sm-5 mb-3">
+                        <label for="xValue" class="form-label">{% translate 'x value' %}:</label>
+                        <input type="number" class="form-control" id="xValue" step="any" required>
                     </div>
-                </form>
+                    <div class="col-sm-5 mb-3">
+                        <label for="fxValue" class="form-label">{% translate 'f(x) values' %}:</label>
+                        <input type="number" class="form-control" id="fxValue" step="any" required>
+                    </div>
 
-                <h5>{% translate 'Points table' %}</h5>
-                <table id="pointsTable" class="mb-2 table table-bordered rounded-5 table-striped">
-                    <thead>
-                    <tr>
-                        <th style="width:40%;">x</th>
-                        <th style="width:40%;">f(x)</th>
-                        <th style="width:20%;">{% translate 'Options' %}</th>
-                    </tr>
-                    </thead>
-                    <tbody id="bodyTablePoints">
-                    </tbody>
-                </table>
+                    <div class="col-sm-2 mb-3 d-flex justify-content-center">
+                        <button type="submit" class="btn btn-lg btn-primary mt-2" id="addPointButton">
+                            <span>{% translate 'Add point' %}</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
 
-                <div id="pointsMessageContainer" class="mb-5">
+            <h5>{% translate 'Points table' %}</h5>
+            <table id="pointsTable" class="mb-2 table table-bordered rounded-5 table-striped">
+                <thead>
+                <tr>
+                    <th style="width:40%;">x</th>
+                    <th style="width:40%;">f(x)</th>
+                    <th style="width:20%;">{% translate 'Options' %}</th>
+                </tr>
+                </thead>
+                <tbody id="bodyTablePoints">
+                </tbody>
+            </table>
+
+            <div id="pointsMessageContainer" class="mb-5">
+            </div>
+
+            <form id="calculateForm" class="mb-3">
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <label for="degree"
+                               class="form-label">{% translate 'Degree of the polynomial (ng)' %}:</label>
+                        <input type="number" class="form-control" id="degree" step="any" value="1" required>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <label for="valueToInterpolate"
+                               class="form-label">{% translate 'Value of x to interpolate' %}:</label>
+                        <input type="number" class="form-control" id="valueToInterpolate" step="any" required>
+                    </div>
                 </div>
 
-                <form id="calculateForm" class="mb-3">
-                    <div class="row">
-                        <div class="col-sm-6 mb-3">
-                            <label for="degree"
-                                   class="form-label">{% translate 'Degree of the polynomial (ng)' %}:</label>
-                            <input type="number" class="form-control" id="degree" step="any" value="1" required>
-                        </div>
-                        <div class="col-sm-6 mb-3">
-                            <label for="valueToInterpolate"
-                                   class="form-label">{% translate 'Value of x to interpolate' %}:</label>
-                            <input type="number" class="form-control" id="valueToInterpolate" step="any" required>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-lg btn-primary mt-2" id="calculateButton">
-                        <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;"
-                              id="loadingSpinner"></span>
-                        <span id="buttonText">{% translate 'Calculate' %}</span>
-                    </button>
-                </form>
-            </div>
-
-            <!-- Results container -->
-            <div id="responseContainer" class="mt-5" style="display: none;">
-                <div id="resultContainer" class="mt-5"></div>
-                <div id="stepsContainer" class="p-4 mt-3 bg-light rounded-3 shadow"></div>
-            </div>
+                <button type="submit" class="btn btn-lg btn-primary mt-2" id="calculateButton">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;"
+                          id="loadingSpinner"></span>
+                    <span id="buttonText">{% translate 'Calculate' %}</span>
+                </button>
+            </form>
         </div>
 
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3">
-            <h3 class="pb-3">{% translate "Explicación Método de Neville" %}</h3>
+            <h3 class="pb-3">
+                {% if LANGUAGE_CODE == "es" %}
+                    {% translate "Explicación Método de Neville" %}
+                {% else %}
+                    {% translate "Neville Method Explanation" %}
+                {% endif %}
+            </h3>
             <p class="lead">
-                {% translate "<strong>1. Preparar los datos:</strong><br><br>" %}
-                {% translate "Supón que se tiene un conjunto de puntos dados (\( x_0, y_0 \)), (\( x_1, y_1 \)), ..., (\( x_n, y_n \)), donde \( x_i \) son los valores de la variable independiente y \( y_i = f(x_i) \) son los valores de la función en dichos puntos.<br><br>" %}
+                <strong>
+                    {% if LANGUAGE_CODE == "es" %}
+                        1. Preparar los datos:
+                    {% else %}
+                        1. Prepare the data:
+                    {% endif %}
+                </strong><br><br>
 
-                {% translate "<strong>2. Construcción del polinomio de interpolación de Neville:</strong><br><br>" %}
-                {% translate "El método de Neville es un procedimiento recursivo que construye una tabla de interpolación basada en la siguiente ecuación:<br>" %}
+                {% if LANGUAGE_CODE == "es" %}
+                    Supón que se tiene un conjunto de puntos dados (\( x_0, y_0 \)), (\( x_1, y_1 \)), ..., (\( x_n, y_n \)), 
+                    donde \( x_i \) son los valores de la variable independiente y \( y_i = f(x_i) \) son los valores de la función en dichos puntos.
+                {% else %}
+                    Suppose we have a set of given points (\( x_0, y_0 \)), (\( x_1, y_1 \)), ..., (\( x_n, y_n \)), 
+                    where \( x_i \) are the values of the independent variable and \( y_i = f(x_i) \) are the function values at those points.
+                {% endif %}
+                <br><br>
+
+                <strong>
+                    {% if LANGUAGE_CODE == "es" %}
+                        2. Construcción del polinomio de interpolación de Neville:
+                    {% else %}
+                        2. Construction of Neville's interpolation polynomial:
+                    {% endif %}
+                </strong><br><br>
+
+                {% if LANGUAGE_CODE == "es" %}
+                    El método de Neville es un procedimiento recursivo que construye una tabla de interpolación basada en la siguiente ecuación:
+                {% else %}
+                    Neville's method is a recursive procedure that builds an interpolation table based on the following equation:
+                {% endif %}
+                <br>
                 \[
                 P_{i,j}(x) = \frac{(x - x_j) P_{i,j-1}(x) - (x - x_i) P_{i+1,j}(x)}{x_i - x_j}
                 \]
-                {% translate "Donde \( P_{i,j}(x) \) representa el polinomio interpolante basado en los puntos \( x_i \) a \( x_j \).<br><br>" %}
 
-                {% translate "<strong>3. Cálculo de los polinomios de interpolación:</strong><br><br>" %}
-                {% translate "La construcción comienza con los valores iniciales:<br>" %}
+                {% if LANGUAGE_CODE == "es" %}
+                    Donde \( P_{i,j}(x) \) representa el polinomio interpolante basado en los puntos \( x_i \) a \( x_j \).
+                {% else %}
+                    Where \( P_{i,j}(x) \) represents the interpolating polynomial based on points \( x_i \) to \( x_j \).
+                {% endif %}
+                <br><br>
+
+                <strong>
+                    {% if LANGUAGE_CODE == "es" %}
+                        3. Cálculo de los polinomios de interpolación:
+                    {% else %}
+                        3. Calculation of interpolation polynomials:
+                    {% endif %}
+                </strong><br><br>
+
+                {% if LANGUAGE_CODE == "es" %}
+                    La construcción comienza con los valores iniciales:
+                {% else %}
+                    The construction begins with the initial values:
+                {% endif %}
+                <br>
                 \[
                 P_{i,i}(x) = f(x_i)
                 \]
-                {% translate "Luego, utilizando la ecuación de Neville, se calculan los siguientes niveles de interpolación de manera iterativa:<br>" %}
+                {% if LANGUAGE_CODE == "es" %}
+                    Luego, utilizando la ecuación de Neville, se calculan los siguientes niveles de interpolación de manera iterativa:
+                {% else %}
+                    Then, using Neville's equation, the following interpolation levels are calculated iteratively:
+                {% endif %}
+                <br>
 
-                {% translate "Para dos puntos \( x_i \) y \( x_{i+1} \), el polinomio de primer grado es:<br>" %}
+                {% if LANGUAGE_CODE == "es" %}
+                    Para dos puntos \( x_i \) y \( x_{i+1} \), el polinomio de primer grado es:
+                {% else %}
+                    For two points \( x_i \) and \( x_{i+1} \), the first-degree polynomial is:
+                {% endif %}
+                <br>
                 \[
                 P_{i,i+1}(x) = \frac{(x - x_{i+1}) P_{i,i}(x) - (x - x_i) P_{i+1,i+1}(x)}{x_i - x_{i+1}}
                 \]
 
-                {% translate "Para tres puntos \( x_i, x_{i+1}, x_{i+2} \), el polinomio cuadrático es:<br>" %}
+                {% if LANGUAGE_CODE == "es" %}
+                    Para tres puntos \( x_i, x_{i+1}, x_{i+2} \), el polinomio cuadrático es:
+                {% else %}
+                    For three points \( x_i, x_{i+1}, x_{i+2} \), the quadratic polynomial is:
+                {% endif %}
+                <br>
                 \[
                 P_{i,i+2}(x) = \frac{(x - x_{i+2}) P_{i,i+1}(x) - (x - x_i) P_{i+1,i+2}(x)}{x_i - x_{i+2}}
                 \]
 
-                {% translate "Este proceso se repite hasta construir el polinomio de interpolación de orden \( n \):<br>" %}
+                {% if LANGUAGE_CODE == "es" %}
+                    Este proceso se repite hasta construir el polinomio de interpolación de orden \( n \):
+                {% else %}
+                    This process is repeated until the interpolation polynomial of order \( n \) is constructed:
+                {% endif %}
+                <br>
                 \[
                 P_{0,n}(x) = \frac{(x - x_n) P_{0,n-1}(x) - (x - x_0) P_{1,n}(x)}{x_0 - x_n}
                 \]
 
-                {% translate "<strong>4. Evaluación del polinomio:</strong><br><br>" %}
-                {% translate "El valor interpolado en \( x \) se obtiene al calcular \( P_{0,n}(x) \), que es la mejor aproximación de la función en dicho punto. Este método es útil porque minimiza el error numérico y evita la necesidad de calcular coeficientes explícitos como en otros métodos de interpolación." %}
+                <br>
+                <strong>
+                    {% if LANGUAGE_CODE == "es" %}
+                        4. Evaluación del polinomio:
+                    {% else %}
+                        4. Evaluation of the polynomial:
+                    {% endif %}
+                </strong><br><br>
+
+                {% if LANGUAGE_CODE == "es" %}
+                    El valor interpolado en \( x \) se obtiene al calcular \( P_{0,n}(x) \), que es la mejor aproximación de la función en dicho punto. Este método es útil porque minimiza el error numérico y evita la necesidad de calcular coeficientes explícitos como en otros métodos de interpolación.
+                {% else %}
+                    The interpolated value at \( x \) is obtained by calculating \( P_{0,n}(x) \), which is the best approximation of the function at that point. This method is useful because it minimizes numerical error and avoids the need to calculate explicit coefficients as in other interpolation methods.
+                {% endif %}
             </p>
         </div>
 

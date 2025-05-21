@@ -1,48 +1,22 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}
-    {% get_current_language as LANGUAGE_CODE %}
-    {% if LANGUAGE_CODE == "es" %}
-        Regla de Simpson de 3/8 compuesto - Métodos Numéricos
-    {% else %}
-        Composite Simpson's 3/8 Rule - Numerical Methods
-    {% endif %}
-{% endblock %}
+{% block title %}{% translate 'Regla Trapecio Simple' %} - {% translate 'Numerical Methods' %}{% endblock %}
 {% block content %}
     {% load static %}
+
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
             <div class="col-lg-12">
-                <h2 class="display-4 fw-bold lh-1s">
-                    {% if LANGUAGE_CODE == "es" %}
-                        Regla de Simpson de 3/8 compuesto
-                    {% else %}
-                        Composite Simpson's 3/8 Rule
-                    {% endif %}
-                </h2>
-                {% get_current_language as LANGUAGE_CODE %}
+                <h2 class="display-4 fw-bold lh-1s">{% translate 'Regla del Trapecio Simple' %}</h2>
                 <p class="lead py-5">
-                    {% if LANGUAGE_CODE == "es" %}
-                        La regla de Simpson 3/8 compuesta aplica la fórmula de Simpson 3/8 en varios grupos de tres subintervalos, permitiendo una mejor aproximación en intervalos más grandes y funciones más complejas.
-                    {% else %}
-                        The composite Simpson's 3/8 rule applies the Simpson's 3/8 formula to several groups of three subintervals, allowing for a better approximation over larger intervals and more complex functions.
-                    {% endif %}
+                    {% translate 'La regla del trapecio simple es una técnica de integración numérica que se utiliza para aproximar el valor de una integral definida. Consiste en reemplazar la curva de la función por una línea recta que conecta los puntos extremos del intervalo [a, b], formando así un trapecio. El área bajo la curva se aproxima entonces por el área del trapecio.' %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
-                            onclick="showCalculator()">
-                        {% if LANGUAGE_CODE == "es" %}
-                            Calculadora Gráfica
-                        {% else %}
-                            Graphing Calculator
-                        {% endif %}
+                            onclick="showCalculator()">{% translate 'Graphing Calculator' %}
                     </button>
                     <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">
-                        {% if LANGUAGE_CODE == "es" %}
-                            Explicación
-                        {% else %}
-                            Explanation
-                        {% endif %}
+                        {% translate 'Explanation' %}
                     </button>
                 </div>
             </div>
@@ -52,7 +26,7 @@
 
         <!-- Hidden calculator section -->
         <div id="calculator" style="display: none;" class="mt-5">
-            <h3 class="mb-5">{% translate 'Calculadora Simpson 3/8 Compuesto' %}</h3>
+            <h3 class="mb-5">{% translate 'Calculadora Regla Trapecio Simple' %}</h3>
             <form class="mb-5 p-4 bg-light rounded-3 shadow" id="calculatorForm">
                 <div class="mb-3">
                     <label for="functionSelect" class="form-label">{% translate 'Select Function' %}:</label>
@@ -71,17 +45,13 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-sm-4 mb-3">
+                    <div class="col-sm-6 mb-3">
                         <label for="intervalA" class="form-label">{% translate 'Interval Start' %}:</label>
                         <input type="number" class="form-control" id="intervalA" step="any" value="-3.1416" required>
                     </div>
-                    <div class="col-sm-4 mb-3">
+                    <div class="col-sm-6 mb-3">
                         <label for="intervalB" class="form-label">{% translate 'Interval End' %}:</label>
                         <input type="number" class="form-control" id="intervalB" step="any" value="6.1416" required>
-                    </div>
-                    <div class="col-sm-4 mb-3">
-                        <label for="nIntervals" class="form-label">{% translate 'Number of Subintervals (múltiplo de 3)' %}:</label>
-                        <input type="number" class="form-control" id="nIntervals" min="3" step="3" value="6" required>
                     </div>
                 </div>
 
@@ -103,12 +73,11 @@
             </div>
 
             <!-- Container for the results table -->
-            <div id="resultsTable" class="mt-5" style="display: none;">
+            {% comment %} <div id="resultsTable" class="mt-5" style="display: none;">
                 <h4 class="mb-3">{% translate 'Results table' %}</h4>
                 <table id="dataTable" class="table table-bordered rounded-5 table-striped">
                     <thead>
                     <tr>
-                        <th>i</th>
                         <th>x</th>
                         <th>{% translate 'Original Function' %}</th>
                     </tr>
@@ -117,29 +86,50 @@
                     </tbody>
                 </table>
             </div>
-        </div>
+        </div> {% endcomment %}
 
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3">
-            <h3 class="pb-3">{% translate "Explicación Simpson 3/8 Compuesto" %}</h3>
+            <h3 class="pb-3">{% translate "Explicación Regla del Trapecio Simple" %}</h3>
             <p>
-                {% translate "<strong>Paso 1:</strong> Dividir el intervalo [a, b] en n subintervalos de igual longitud, donde n debe ser múltiplo de 3." %}  
+                {% translate "<strong>Paso 1 Identificar los extremos del intervalo</strong>:  Se parte de un intervalo [a, b] donde se conoce el valor de la función f(x) en los extremos f(a) y f(b)<br><br>" %}
+                {% translate "<strong>Paso 2 Calcular la base del trapecio</strong>: La base del trapecio es la distancia entre los extremos del intervalo" %}
                 \[
-                h = \frac{b - a}{n}
+                h = b - a
                 \]
-                {% translate "<strong>Paso 2:</strong> Evaluar la función en los puntos extremos y en los puntos intermedios del intervalo." %}
-                <br><br>
-                {% translate "<strong>Paso 3:</strong> Aplicar la fórmula de Simpson 3/8 compuesto:" %}
-                \[
-                \int_{a}^{b} f(x)\,dx \approx \frac{3h}{8}\left[f(x_0) + 3\sum_{i=1,4,7,\ldots}^{n-2} (f(x_i) + f(x_{i+1})) + 2\sum_{j=3,6,9,\ldots}^{n-3} f(x_j) + f(x_n)\right]
-                \]
-                {% translate "donde \(x_0 = a\), \(x_n = b\), y \(x_i\) son los puntos intermedios." %}
-                <br><br>
-                {% translate "<strong>Paso 4:</strong> Calcular la suma y multiplicar por 3h/8 para obtener la aproximación de la integral." %}
-                <br><br>
-                {% translate "Este método es más preciso que el trapecio compuesto porque utiliza polinomios cúbicos para aproximar la función en cada subintervalo." %}
+                {% translate "<strong>Paso 3 Aplicar la fórmula del trapecio</strong>: Se usa la fórmula del área de un trapecio para aproximar el área bajo la curva:" %}
+                \begin{equation}
+                \int_{a}^{b} f(x) \cdot dx \approx \frac{h}{2}[f(a) + f(b)]
+                \end{equation}
+                {% translate "Donde h es la longitud de la base (el ancho del intervalo) y f(a) y f(b) son las alturas del trapecio en los extremos.<br><br>" %}
+                {% translate "<strong>Paso 4 Resultado</strong>: La expresión obtenida da una estimación del área bajo la curva f(x) desde a hasta b." %}
             </p>
         </div>
+
+        <!-- Sección de historial simplificada -->
+        <div class="mt-5">
+            <h3>{% translate 'Historial de cálculos' %}</h3>
+            <button type="button" class="btn btn-secondary" id="showHistoryBtn" data-url="/trapecio_history">
+                {% translate 'Mostrar historial' %}
+            </button>
+            
+            <div id="historialSection" class="mt-3 p-4 bg-light rounded-3 shadow" style="display: none;">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>{% translate 'Función' %}</th>
+                            <th>{% translate 'Intervalo' %}</th>
+                            <th>{% translate 'Resultado' %}</th>
+                            <th>{% translate 'Acciones' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historialBody">
+                        <!-- Aquí se cargarán los datos del historial -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
 
         <script>
             function showCalculator() {
@@ -171,27 +161,26 @@
                 const func = document.getElementById("functionSelect").value;
                 const a = document.getElementById("intervalA").value;
                 const b = document.getElementById("intervalB").value;
-                let n = parseInt(document.getElementById("nIntervals").value);
 
-                // Asegurar que n sea múltiplo de 3
-                n = Math.max(3, n - (n % 3));
-
+                // show loading state
                 setLoadingState(true);
 
                 // Build url with query parameters
-                const url = `/calculate-simpson-3-8-compound/?func=${encodeURIComponent(func)}&a=${a}&b=${b}&n=${n}`;
+                const url = `/calculate_trapezoid/?func=${encodeURIComponent(func)}&a=${a}&b=${b}`;
 
+                // Fetch the data from the server
                 fetch(url)
                     .then((response) => response.json())
                     .then((data) => {
+
                         if (data.error) {
                             alert("Error: " + data.error);
+                            console.log(data.error)
                             return;
                         }
 
-                        // Validar que los datos requeridos existen
-                        if (!data.x_values || !data.original_y_values) {
-                            alert("No se recibieron datos de puntos para graficar.");
+                        if (data.error) {
+                            alert(data.error);
                             return;
                         }
 
@@ -213,11 +202,9 @@
                     })
                     .catch((error) => {
                         console.error("Error:", error);
-                        alert("Ocurrió un error inesperado: " + error);
-                    })
-                    .finally(() => {
-                        setLoadingState(false);
-                    });
+                    }).finally(() => {
+                    setLoadingState(false);
+                });
             }
 
             function generateTable(xValues, originalYValues) {
@@ -258,6 +245,73 @@
                     .replace(/\bln\b/g, "log")            // ln → log (base e en SymPy)
                     .replace(/\be\b/g, "exp(1)");          // e → exp(1)
             }
+
+            // Función para mostrar el historial
+            document.getElementById("showHistoryBtn").addEventListener("click", function() {
+                const historialSection = document.getElementById("historialSection");
+                
+                if (historialSection.style.display === "none") {
+                    // Mostrar mensaje de carga
+                    const historialBody = document.getElementById("historialBody");
+                    historialBody.innerHTML = `<tr><td colspan="4" class="text-center">{% translate 'Cargando historial...' %}</td></tr>`;
+                    historialSection.style.display = "block";
+                    
+                    // Cargar los datos del historial
+                    fetch("/trapezoid_history/")
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Error en la respuesta del servidor: ' + response.status);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            historialBody.innerHTML = "";
+                            
+                            if (data.length === 0) {
+                                historialBody.innerHTML = `<tr><td colspan="4" class="text-center">{% translate 'No hay datos en el historial' %}</td></tr>`;
+                            } else {
+                                data.forEach(item => {
+                                    const row = document.createElement("tr");
+                                    row.innerHTML = `
+                                        <td>${item.funcion}</td>
+                                        <td>[${item.limite_inferior}, ${item.limite_superior}]</td>
+                                        <td>${item.resultado.toFixed(6)}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary usar-datos" 
+                                                data-funcion="${item.funcion}" 
+                                                data-inferior="${item.limite_inferior}" 
+                                                data-superior="${item.limite_superior}">
+                                                {% translate 'Usar' %}
+                                            </button>
+                                        </td>
+                                    `;
+                                    historialBody.appendChild(row);
+                                });
+                                
+                                // Añadir eventos a los botones de "Usar"
+                                document.querySelectorAll(".usar-datos").forEach(btn => {
+                                    btn.addEventListener("click", function() {
+                                        document.getElementById("functionSelect").value = this.dataset.funcion;
+                                        document.getElementById("intervalA").value = this.dataset.inferior;
+                                        document.getElementById("intervalB").value = this.dataset.superior;
+                                        
+                                        // Ocultar el historial
+                                        historialSection.style.display = "none";
+                                    });
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error al cargar el historial:", error);
+                            historialBody.innerHTML = `<tr><td colspan="4" class="text-center text-danger">{% translate 'Error al cargar el historial' %}</td></tr>`;
+                        });
+                } else {
+                    historialSection.style.display = "none";
+                }
+            });
+            
+
+            
         </script>
 
     </div>
