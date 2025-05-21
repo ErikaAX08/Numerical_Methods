@@ -337,9 +337,5 @@ def calculate_trapezoid(request):
     # Vista inicial
     return render(request, "trapecio-simple.html")
 
-
-
-
-
 def trapecio_simple(request):
     return render(request, "trapecio-simple.html")

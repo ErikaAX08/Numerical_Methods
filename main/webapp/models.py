@@ -24,15 +24,15 @@ class MetodoHistorial(models.Model):
         ('simpson 3/8 compuesto', 'Simpson 3/8 compuesto'),
     ]
     
-    usuario = models.ForeignKey(
-        User, on_delete=models.CASCADE, null=True, blank=True)
     metodo = models.CharField(max_length=50, choices=METODOS_CHOICES)
-    parametros = models.TextField()
-    resultado = models.TextField()
+    funcion = models.TextField(blank=True, null=True)
+    # Aquí puedes guardar cualquier cosa (valores, matrices, etc.)
+    datos = models.JSONField()
+    resultado = models.FloatField(null=True, blank=True)
     fecha = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.metodo} - {self.fecha.strftime('%Y-%m-%d %H:%M:%S')}"
+        return f"{self.metodo} - {self.fecha.date()}"
 
 
 class TrapecioHistorial(models.Model):
@@ -50,3 +50,19 @@ class TrapecioHistorial(models.Model):
 
     def __str__(self):
         return f"∫({self.limite_inferior}, {self.limite_superior}) {self.funcion} dx = {self.resultado:.6f}"
+    
+
+class TrapecioCompuestoHistorial(models.Model):
+    funcion = models.CharField(max_length=255)
+    limite_inferior = models.FloatField()
+    limite_superior = models.FloatField()
+    subintervalos = models.IntegerField()
+    resultado = models.FloatField()
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Historial de cálculo de trapecio"
+        verbose_name_plural = "Historial de cálculos de trapecio"
+
+    def __str__(self):
+        return f"∫({self.limite_inferior}, {self.limite_superior}), {self.subintervalos}, {self.funcion} dx = {self.resultado:.6f}"
