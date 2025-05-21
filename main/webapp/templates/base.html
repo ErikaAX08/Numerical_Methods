@@ -3,7 +3,7 @@
 {% load i18n %}
 
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{% get_current_language as LANGUAGE_CODE %}{{ LANGUAGE_CODE }}">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -41,7 +41,7 @@
 <!-- Navbar -->
 <nav class="navbar bg-primary navbar-expand-lg py-4" data-bs-theme="dark">
     <div class="container">
-        <a class="navbar-brand" href="{% url 'index' %}">{% translate 'Numerical Methods' %}</a>
+        <a class="navbar-brand" href="{% url 'index' %}">{% trans 'Numerical Methods' %}</a>
         <button
                 class="navbar-toggler"
                 type="button"
@@ -132,11 +132,27 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                        data-bs-toggle="dropdown" aria-expanded="true">
-                        {% translate 'Languages' %}
+                        {% trans 'Languages' %}
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="#">{% translate 'English' %}</a></li>
-                        <li><a class="dropdown-item" href="#">{% translate 'Spanish' %}</a></li>
+                        <li>
+                            <form action="{% url 'set_language' %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                                <button type="submit" name="language" value="en" class="dropdown-item">
+                                    English
+                                </button>
+                            </form>
+                        </li>
+                        <li>
+                            <form action="{% url 'set_language' %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                                <button type="submit" name="language" value="es" class="dropdown-item">
+                                    Español
+                                </button>
+                            </form>
+                        </li>
                     </ul>
                 </li>
             </ul>
@@ -152,7 +168,7 @@
 <!-- Footer -->
 <footer class="bg-primary text-light mt-5 py-3">
     <div class="container text-center">
-        <p>&copy; 2025 {% translate 'Numerical Methods' %}. {% translate 'All rights reserved' %}</p>
+        <p>&copy; 2025 {% trans 'Numerical Methods' %}. {% trans 'All rights reserved' %}</p>
     </div>
 </footer>
 

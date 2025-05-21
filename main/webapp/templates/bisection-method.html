@@ -1,22 +1,26 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% translate 'Bisection Method' %} - {% translate 'Numerical Methods' %}{% endblock %}
+{% block title %}{% trans 'Bisection Method' %} - {% trans 'Numerical Methods' %}{% endblock %}
 {% block content %}
     {% load static %}
-
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
             <div class="col-lg-12">
-                <h2 class="display-4 fw-bold lh-1s">{% translate 'Bisection Method' %}</h2>
+                <h2 class="display-4 fw-bold lh-1s">{% trans 'Bisection Method' %}</h2>
+                {% get_current_language as LANGUAGE_CODE %}
                 <p class="lead py-5">
-                    {% translate 'El método de bisección es un procedimiento numérico para encontrar la raíz de una función en un intervalo donde los valores de la función tienen signos opuestos. Se basa en dividir el intervalo a la mitad repetidamente y seleccionar la parte donde ocurre el cambio de signo, hasta que se obtiene una aproximación suficientemente precisa de la raíz. Es un método sencillo, confiable y siempre converge si la función es continua, aunque su velocidad de convergencia es relativamente lenta.' %}
+                    {% if LANGUAGE_CODE == "es" %}
+                        El método de bisección es un procedimiento numérico para encontrar la raíz de una función en un intervalo donde los valores de la función tienen signos opuestos. Se basa en dividir el intervalo a la mitad repetidamente y seleccionar la parte donde ocurre el cambio de signo, hasta que se obtiene una aproximación suficientemente precisa de la raíz. Es un método sencillo, confiable y siempre converge si la función es continua, aunque su velocidad de convergencia es relativamente lenta.
+                    {% else %}
+                        The bisection method is a numerical procedure to find the root of a function in an interval where the function values have opposite signs. It works by repeatedly halving the interval and selecting the part where the sign change occurs, until a sufficiently accurate approximation of the root is obtained. It is a simple, reliable method and always converges if the function is continuous, although its convergence speed is relatively slow.
+                    {% endif %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
-                            onclick="showCalculator()">{% translate 'Graphing Calculator' %}
+                            onclick="showCalculator()">{% trans 'Graphing Calculator' %}
                     </button>
                     <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">
-                        {% translate 'Explanation' %}
+                        {% trans 'Explanation' %}
                     </button>
                 </div>
             </div>
@@ -26,60 +30,47 @@
 
         <!-- Hidden calculator section -->
         <div id="calculator" style="display: none;" class="mt-5">
-            <h3 class="mb-5">{% translate 'Bisection Calculator' %}</h3>
+            <h3 class="mb-5">{% trans 'Bisection Calculator' %}</h3>
             <form class="mb-5 p-4 bg-light rounded-3 shadow" id="calculatorForm">
                 <div class="mb-3">
                     <div class="col-md-12 col-sm-6 mb-3">
-                        <label for="equation" class="form-label">{% translate 'Equation' %}:</label>
+                        <label for="equation" class="form-label">{% trans 'Equation' %}:</label>
                         <input type="text" class="form-control" id="equation" value="x^3 + 4*x^2 - 4" required>
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-sm-6 mb-3">
-                        <label for="intervalA" class="form-label">{% translate 'Interval Start' %}:</label>
+                        <label for="intervalA" class="form-label">{% trans 'Interval Start' %}:</label>
                         <input type="number" class="form-control" id="intervalA" step="any" value="1" required>
                     </div>
                     <div class="col-sm-6 mb-3">
-                        <label for="intervalB" class="form-label">{% translate 'Interval End' %}:</label>
+                        <label for="intervalB" class="form-label">{% trans 'Interval End' %}:</label>
                         <input type="number" class="form-control" id="intervalB" step="any" value="3" required>
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-sm-6 mb-3">
-                        <label for="tolerance" class="form-label">{% translate 'Tolerance' %}:</label>
+                        <label for="tolerance" class="form-label">{% trans 'Tolerance' %}:</label>
                         <input type="number" class="form-control" id="tolerance" step="any" value="0.00001" required>
                     </div>
                     <div class="col-sm-6 mb-3">
-                        <label for="maxIterations" class="form-label">{% translate 'Max Iterations' %}:</label>
+                        <label for="maxIterations" class="form-label">{% trans 'Max Iterations' %}:</label>
                         <input type="number" class="form-control" id="maxIterations" value="100" required>
                     </div>
                 </div>
 
-                <!--
-                <div class="row">
-                    <div class="col-sm-6 mb-3">
-                        <label for="p0" class="form-label">{% translate 'Initial Point p0' %}:</label>
-                        <input type="number" class="form-control" id="p0" step="any" value="1.0" required>
-                    </div>
-                    <div class="col-sm-6 mb-3">
-                        <label for="p1" class="form-label">{% translate 'Initial Point p1' %}:</label>
-                        <input type="number" class="form-control" id="p1" step="any" value="2.5" required>
-                    </div>
-                </div>
-                -->
-
                 <button type="submit" class="btn btn-lg btn-primary mt-2" id="calculateButton">
                     <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;"
                           id="loadingSpinner"></span>
-                    <span id="buttonText">{% translate 'Calculate and Graph' %}</span>
+                    <span id="buttonText">{% trans 'Calculate and Graph' %}</span>
                 </button>
             </form>
 
             <!-- Container for the graphs -->
             <div id="graphs-container" class="mt-5 p-4 bg-light rounded-3 shadow" style="display: none;">
-                <h4 class="mb-3">{% translate 'Bisection Method' %}</h4>
+                <h4 class="mb-3">{% trans 'Bisection Method' %}</h4>
                 <div class="rounded-5 mb-5" id="plot-container" style="width: 100%;">
                     <!-- Plotly chart will be rendered here -->
                 </div>
@@ -87,16 +78,16 @@
 
             <!-- Container for the results table -->
             <div id="results" class="mt-5 p-4 bg-light rounded-3 shadow" style="display: none;">
-                <h4 class="mb-3">{% translate 'Results' %}</h4>
+                <h4 class="mb-3">{% trans 'Results' %}</h4>
                 <div id="messageContainer"></div>
                 <table id="resultsTable" class="table table-bordered rounded-5 table-striped mb-5">
                     <thead>
                     <tr>
-                        <th>{% translate 'Iteration' %}</th>
-                        <th>{% translate 'p0' %}</th>
-                        <th>{% translate 'p1' %}</th>
-                        <th>{% translate 'p' %}</th>
-                        <th>{% translate 'f(p)' %}</th>
+                        <th>{% trans 'Iteration' %}</th>
+                        <th>{% trans 'p0' %}</th>
+                        <th>{% trans 'p1' %}</th>
+                        <th>{% trans 'p' %}</th>
+                        <th>{% trans 'f(p)' %}</th>
                     </tr>
                     </thead>
                     <tbody></tbody>
@@ -105,24 +96,27 @@
         </div>
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3">
-            <h3 class="pb-3">{% translate "Explicación Método de Bisección" %}</h3>
+            <h3 class="pb-3">{% trans "Bisection Method Explanation" %}</h3>
             <p class="lead">
-                {% translate "Dada una función continua f(x) en un intervalo [a, b] donde f(a) y f(b) tienen signos opuestos (f(a)f(b < 0)), el método de bisección encuentra una raíz c de f(x) en [a, b] dividiendo repetidamente el intervalo a la mitad y seleccionando el subintervalo que contiene la raíz." %}
+                {% blocktrans %}
+                Given a continuous function f(x) on an interval [a, b] where f(a) and f(b) have opposite signs (f(a)f(b) < 0), the bisection method finds a root c of f(x) in [a, b] by repeatedly halving the interval and selecting the subinterval containing the root.
+                {% endblocktrans %}
                 \[
                 c = \frac{a + b}{2}
                 \]
-                {% translate "Esta fórmula proviene de la ecuación de la recta que pasa por dos puntos (a, f(a)) y (b, f(b)), resolviendo para x cuando f(x) = 0.<br><br>" %}
-
-                {% translate "<strong>Criterio de selección del subintervalo:</strong><br><br>" %}
-                {% translate "Si f(a) * f(c) < 0, la raíz está en [a, c]<br>" %}
-                {% translate "Si f(c) * f(b) < 0, la raíz está en [c, b]<br>" %}
-                {% translate "Si f(c) = 0, entonces c es la raíz exacta<br><br>" %}
-                {% translate "<strong>Algoritmo:</strong><br><br>" %}
-                {% translate "<strong>1.</strong> Asegurarse de que \( f(x) \) es continua en el intervalo [a, b].<br><br>" %}
-                {% translate "<strong>2.</strong> Calcular el punto medio \( c = \frac{a + b}{2} \).<br><br>" %}
-                {% translate "<strong>3.</strong> Evaluar \( f(c) \).<br><br>" %}
-                {% translate "<strong>4.</strong> Determinar el nuevo intervalo. Si \( f(a) * f(c)\) < 0, la raíz está en [a, c], hacer b = c. Si \( f(c) * f(b)\) < 0 la raíz está en [c, b], hacer a = c. Si \( f(c) \) = 0, entonces c es la raíz exacta y el método termina.<br><br>" %}
-                {% translate "<strong>5.</strong> Verificar la convergencia. Si el intervalo [a, b] es suficientemente pequeño (|b - a| < ε donde ε es la tolerancia), entonces c es una aproximación de la raíz. De lo contrario, se deben repetir los pasos 2-4" %}
+                {% blocktrans %}
+                This formula comes from the equation of the line passing through two points (a, f(a)) and (b, f(b)), solving for x when f(x) = 0.<br><br>
+                <strong>Subinterval selection criteria:</strong><br><br>
+                If f(a) * f(c) < 0, the root is in [a, c]<br>
+                If f(c) * f(b) < 0, the root is in [c, b]<br>
+                If f(c) = 0, then c is the exact root<br><br>
+                <strong>Algorithm:</strong><br><br>
+                <strong>1.</strong> Ensure that \( f(x) \) is continuous on the interval [a, b].<br><br>
+                <strong>2.</strong> Compute the midpoint \( c = \frac{a + b}{2} \).<br><br>
+                <strong>3.</strong> Evaluate \( f(c) \).<br><br>
+                <strong>4.</strong> Determine the new interval. If \( f(a) * f(c)\) < 0, the root is in [a, c], set b = c. If \( f(c) * f(b)\) < 0, the root is in [c, b], set a = c. If \( f(c) \) = 0, then c is the exact root and the method ends.<br><br>
+                <strong>5.</strong> Check for convergence. If the interval [a, b] is sufficiently small (|b - a| < ε where ε is the tolerance), then c is an approximation of the root. Otherwise, repeat steps 2-4.
+                {% endblocktrans %}
             </p>
         </div>
 

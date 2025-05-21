@@ -1,20 +1,20 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% translate 'Chulesky Factorization' %} -
-    {% translate 'Métodos Numéricos' %}{% endblock %}
+{% block title %}{% translate 'Chulesky Factorization' %} - {% translate 'Métodos Numéricos' %}{% endblock %}
 {% block content %}
     {% load static %}
     {% csrf_token %}
-
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
             <div class="col-lg-12">
                 <h2 class="display-4 fw-bold lh-1s">{% translate 'Cholesky Factorization' %}</h2>
+                {% get_current_language as LANGUAGE_CODE %}
                 <p class="lead py-5">
-                    La factorización de Cholesky es un método eficiente para resolver sistemas de ecuaciones lineales
-                    cuando la matriz de coeficientes es simétrica y definida positiva.
-                    Esta factorización descompone la matriz A en el producto de una matriz triangular inferior L y su
-                    transpuesta L^T, de manera que A = L × L^T.
+                    {% if LANGUAGE_CODE == "es" %}
+                        La factorización de Cholesky es un método eficiente para resolver sistemas de ecuaciones lineales cuando la matriz de coeficientes es simétrica y definida positiva. Esta factorización descompone la matriz A en el producto de una matriz triangular inferior L y su transpuesta L^T, de manera que A = L × L^T.
+                    {% else %}
+                        Cholesky factorization is an efficient method for solving linear systems when the coefficient matrix is symmetric and positive definite. This factorization decomposes the matrix A into the product of a lower triangular matrix L and its transpose L^T, so that A = L × L^T.
+                    {% endif %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
