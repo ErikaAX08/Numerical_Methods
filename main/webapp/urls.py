@@ -23,9 +23,9 @@ from .views.trapecio_simple_views import trapecio_simple, calculate_trapezoid
 from .views.trapezoid_compound_views import trapezoid_compound, calculate_trapezoid_compound
 from .views.simpson_3_8_compuesto_views import simpson_3_8_compound, calculate_simpson_3_8_compound
 from .views.simpson_tercio_simple_views import simpson_tercio_simple_page, calculate_simpson_tercio_simple
-from .history.trapecio_history import trapezoid_history
-from .history.trapecio_compuesto_history import trapezoid_compound_history
-
+# from .history.trapecio_history import trapezoid_history
+# from .history.trapecio_compuesto_history import trapezoid_compound_history
+     
 urlpatterns = [
     path("", index, name="index"),
     path("taylor-series/", taylor_series, name="taylor_series"),
@@ -74,6 +74,6 @@ urlpatterns = [
      path("calculate-simpson-3-8-compound/", calculate_simpson_3_8_compound, name="calculate_simpson_3_8_compound"),
      path("simpson-tercio-simple/", simpson_tercio_simple_page, name="simpson_tercio_simple"),
      path("calculate-simpson-tercio-simple/", calculate_simpson_tercio_simple, name="calculate_simpson_tercio_simple"),
-    path('trapezoid_history/', trapezoid_history, name='trapezoid_history'),
-    path('trapezoid_compound_history/', trapezoid_compound_history, name='trapezoid_compound_history'),
+#     path('trapezoid_history/', trapezoid_history, name='trapezoid_history'),
+#     path('trapezoid_compound_history/', trapezoid_compound_history, name='trapezoid_compound_history'),
 ]
