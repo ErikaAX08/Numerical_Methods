@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% trans 'Gaussian elimination with back replacement' %} - {% trans 'Numerical Methods' %}{% endblock %}
+{% block title %}{% trans 'Gaussian Elimination with Column-Scaled Pivoting' %} - {% trans 'Numerical Methods' %}{% endblock %}
 {% block content %}
     {% load static %}
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
             <div class="col-lg-12">
-                <h2 class="display-4 fw-bold lh-1s">{% trans 'Gaussian elimination with back replacement' %}</h2>
+                <h2 class="display-4 fw-bold lh-1s">{% trans 'Gaussian Elimination with Column-Scaled Pivoting' %}</h2>
                 {% get_current_language as LANGUAGE_CODE %}
                 <p class="lead py-5">
                     {% if LANGUAGE_CODE == "es" %}
-                        La eliminación gaussiana con sustitución hacia atrás es un método clásico para resolver sistemas de ecuaciones lineales. Consiste en transformar la matriz aumentada del sistema en una forma triangular superior mediante operaciones elementales de fila, y luego resolver el sistema resultante usando sustitución hacia atrás.
+                        La eliminación gaussiana con pivoteo escalado por columna selecciona el pivote dividiendo cada elemento candidato por el valor máximo absoluto de su fila, eligiendo el mayor cociente. Esto mejora la estabilidad numérica en sistemas con coeficientes de diferentes magnitudes.
                     {% else %}
-                        Gaussian elimination with back substitution is a classic method for solving systems of linear equations. It consists of transforming the augmented matrix of the system into an upper triangular form using elementary row operations, and then solving the resulting system using back substitution.
+                        Gaussian elimination with column-scaled pivoting selects the pivot by dividing each candidate element by the maximum absolute value in its row, choosing the largest quotient. This improves numerical stability in systems with coefficients of different magnitudes.
                     {% endif %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
@@ -30,7 +30,7 @@
 
         <!-- Hidden calculator section -->
         <div id="calculator" style="display: none !important;" class="mt-5">
-            <h3 class="mb-5">{% translate 'Calculadora de Gaussian elimination with back replacement' %}</h3>
+            <h3 class="mb-5">{% translate 'Calculadora de Eliminación Gaussiana con Pivoteo Escalado por Columna' %}</h3>
             <div class="mb-5 p-4 bg-light rounded-3 shadow">
 
                 <!-- Header -->
@@ -106,62 +106,87 @@
 
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3 lead" style="display: none !important;">
-            <h3 class="pb-3">{% trans "Explicación de Gaussian elimination with back replacement" %}</h3>
-            {% get_current_language as LANGUAGE_CODE %}
+            <h3 class="pb-3">{% translate "Explicación de Eliminación Gaussiana con Pivoteo Escalado por Columna" %}</h3>
+
+            <h4 class="mt-4">Descripción General</h4>
             <p>
-                {% if LANGUAGE_CODE == "es" %}
-                    El método de Gauss con sustitución hacia atrás (también conocido como eliminación gaussiana) es un algoritmo fundamental en álgebra lineal para resolver sistemas de ecuaciones lineales de la forma:
-                {% else %}
-                    The Gaussian elimination method with back substitution is a fundamental algorithm in linear algebra for solving systems of linear equations of the form:
-                {% endif %}
-                \[
-                \left\{
-                \begin{array}{l}
-                a_{11}x_1 + a_{12}x_2 + \cdots + a_{1n}x_n = b_1 \\
-                a_{21}x_1 + a_{22}x_2 + \cdots + a_{2n}x_n = b_2 \\
-                \vdots \\
-                a_{m1}x_1 + a_{m2}x_2 + \cdots + a_{mn}x_n = b_m
-                \end{array}
-                \right.
-                \]
-                {% if LANGUAGE_CODE == "es" %}
-                    El método consiste en dos fases principales:<br><br>
-                    <strong>1. Eliminación de Gauss (Triangularización)</strong>: El objetivo es convertir la matriz aumentada [A|b] en una matriz triangular superior mediante operaciones elementales de fila:
-                {% else %}
-                    The method consists of two main phases:<br><br>
-                    <strong>1. Gaussian Elimination (Triangularization)</strong>: The goal is to convert the augmented matrix [A|b] into an upper triangular matrix using elementary row operations:
-                {% endif %}
+                La <strong>eliminación gaussiana con pivoteo escalado por columna</strong> es una variante del método de eliminación gaussiana que mejora la estabilidad numérica al resolver sistemas de ecuaciones lineales. Este método es especialmente útil cuando los coeficientes del sistema varían en órdenes de magnitud.
+            </p>
+
+            <h4 class="mt-4">Fundamentos Matemáticos</h4>
+            <p>
+                El método se basa en la descomposición de la matriz de coeficientes \(A\) en factores que facilitan la resolución del sistema \(A \cdot x = b\). La eliminación gaussiana tradicional puede verse afectada por errores numéricos significativos si los coeficientes tienen diferentes magnitudes. El pivoteo escalado por columna aborda este problema al seleccionar el pivote adecuado para cada paso de eliminación.
+            </p>
+
+            <h4 class="mt-4">Algoritmo de Eliminación</h4>
+            <p>
+                El algoritmo sigue los siguientes pasos:
+
+            <ol>
+                <li>Para cada columna, calcular el valor máximo absoluto en la columna (pivote de escala).</li>
+                <li>Para cada fila, calcular el cociente del elemento candidato (posible pivote) dividido por el pivote de escala correspondiente.</li>
+                <li>Seleccionar el mayor cociente como el pivote real para esa columna.</li>
+                <li>Intercambiar filas si es necesario para llevar el pivote real a la posición adecuada.</li>
+                <li>Realizar la eliminación hacia adelante y hacia atrás como en la eliminación gaussiana estándar.</li>
+            </ol>
+            </p>
+
+            <h4 class="mt-4">Ventajas del Pivoteo Escalado por Columna</h4>
+            <p>
+            <ul>
+                <li>Mejora la estabilidad numérica en comparación con la eliminación gaussiana estándar.</li>
+                <li>Reduce el riesgo de amplificación de errores en sistemas mal condicionados.</li>
+                <li>Es especialmente útil cuando se trabaja con matrices grandes y dispersas.</li>
+            </ul>
+            </p>
+
+            <h4 class="mt-4">Aplicaciones Prácticas</h4>
+            <p>
+                Este método se utiliza en diversas aplicaciones, tales como:
+            <ul>
+                <li>Resolución de sistemas de ecuaciones lineales en ingeniería y física.</li>
+                <li>Modelado y simulación de sistemas dinámicos.</li>
+                <li>Optimización de estructuras y análisis de tensiones.</li>
+                <li>Problemas de transporte y asignación en investigación operativa.</li>
+            </ul>
+            </p>
+
+            <h4 class="mt-4">Ejemplo</h4>
+            <p>
+                Considere el siguiente sistema de ecuaciones:
                 \[
                 \begin{bmatrix}
-                a_{11} & a_{12} & \cdots & a_{1n} & \vert & b_1 \\
-                a_{21} & a_{22} & \cdots & a_{2n} & \vert & b_2 \\
-                \vdots & \vdots & \ddots & \vdots & \vert & \vdots \\
-                a_{m1} & a_{m2} & \cdots & a_{mn} & \vert & b_m
+                1 & 2 & 3 \\
+                4 & 5 & 6 \\
+                7 & 8 & 10
                 \end{bmatrix}
-                \quad \longrightarrow \quad
                 \begin{bmatrix}
-                a'_{11} & a'_{12} & \cdots & a'_{1n} & \vert & b'_1 \\
-                0 & a'_{22} & \cdots & a'_{2n} & \vert & b'_2 \\
-                \vdots & \vdots & \ddots & \vdots & \vert & \vdots \\
-                0 & 0 & \cdots & a'_{mn} & \vert & b'_m
+                x_1 \\
+                x_2 \\
+                x_3
+                \end{bmatrix}
+                =
+                \begin{bmatrix}
+                14 \\
+                32 \\
+                50
                 \end{bmatrix}
                 \]
-                {% translate '<strong>Pasos de la eliminación</strong>:<br><br>' %}
-                {% translate '<strong>a)Pivoteo parcial</strong>: Seleccionar la fila con el mayor elemento en la columna actual para evitar división por cero o inestabilidad numérica.<br><br>' %}
-                {% translate '<strong>b)Eliminación hacia adelante</strong>: Para cada fila i desde 1 hasta n - 1:<br><br>' %}
-                {% translate '<strong>2.Sustitución hacia atrás</strong>: Una vez obtenida la matriz triangular superior, se resuelve el sistema desde la última ecuación hacia arriba:<br><br>' %}
+
+                La matriz de coeficientes es:
                 \[
-                \left\{
-                \begin{array}{l}
-                a'_{11}x_1 + a'_{12}x_2 + \cdots + a'_{1n}x_n = b'_1 \\
-                a'_{21}x_2 + \cdots +  a'_{2n}x_n = b'_2 \\
-                \vdots \\
-                a'_{nm}x_n  = b'_n
-                \end{array}
-                \right.
+                A =
+                \begin{bmatrix}
+                1 & 2 & 3 \\
+                4 & 5 & 6 \\
+                7 & 8 & 10
+                \end{bmatrix}
                 \]
-            </p> 
+
+                Supongamos que el pivote de escala para la primera columna es 7 (valor absoluto máximo en la columna). Si el primer candidato a pivote es 1 (en la fila 1), el cociente sería \(1/7\). Si el siguiente candidato es 4 (en la fila 2), el cociente sería \(4/7\). Como \(4/7\) es mayor, se selecciona 4 como el pivote real, y las filas se intercambian si es necesario.
+            </p>
         </div>
+
 
         <script>
             const points = [];
@@ -260,7 +285,7 @@
                 });
             });
 
-            // Evento para resolver el sistema (aquí solo recolectamos los datos)
+            // Evento para resolver el sistema
             solveBtn.addEventListener('click', function () {
                 // Limpiar alertas anteriores
                 const alertContainer = document.getElementById('alertContainer');
@@ -294,10 +319,8 @@
                 // Mostrar mensaje de éxito
                 showAlert('Matriz cargada correctamente.', 'success');
 
-                // Aquí se llamaría a la función que resuelve el sistema
-                console.log('Matriz a resolver:', matrix);
-
-                calculate()
+                // Llamar a la función que calcula la factorización
+                calculate();
 
                 // Mostrar el contenedor de respuesta
                 document.getElementById('responseContainer').style.display = 'block';
@@ -389,19 +412,20 @@
                 for (let cookie of cookies) {
                     const [name, value] = cookie.trim().split('=');
                     if (name === 'csrftoken') {
-                         return value;
+                        return value;
                     }
                 }
-    
+
                 // Alternativamente, buscar el token en el input del formulario
                 const tokenInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
                 if (tokenInput) {
                     return tokenInput.value;
                 }
-    
+
                 return '';
             }
 
+            // 1. Corrigamos el problema principal con path incorrectos
             function calculate() {
                 setLoadingState(true);
 
@@ -409,12 +433,11 @@
                 const cols = parseInt(colsInput.value);
 
                 const matrix = [];
-                const vector = [];
 
-                // Extract the matrix and vector from the inputs
+                // Extract the matrix values from the inputs
                 for (let i = 0; i < rows; i++) {
                     const rowValues = [];
-                    for (let j = 0; j < cols - 1; j++) {
+                    for (let j = 0; j < cols; j++) {
                         const input = document.querySelector(`.matrix-input[data-row="${i}"][data-col="${j}"]`);
                         const value = parseFloat(input.value);
                         if (isNaN(value)) {
@@ -424,50 +447,188 @@
                         }
                         rowValues.push(value);
                     }
-
                     matrix.push(rowValues);
-
-                    // Extract the b values (last column) for the vector
-                    const bInput = document.querySelector(`.matrix-input[data-row="${i}"][data-col="${cols-1}"]`);
-                    const bValue = parseFloat(bInput.value);
-                    if (isNaN(bValue)) {
-                        showAlert(`Por favor, ingresa un valor numérico para b${i+1}`, 'warning');
-                        setLoadingState(false);
-                        return;
-                    }
-                    vector.push(bValue);
                 }
 
-                fetch('http://127.0.0.1:8000/calculate_gauss_back_substitution/', {
+                // Asegurarse de que la URL es correcta - puede necesitar ajustarse según la configuración de tu proyecto
+                fetch('/calculate-gauss-column-scaled-pivoting/', {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "X-CSRFToken": getCSRFToken(), // Si usas CSRF Protection en Django
+                        "X-CSRFToken": getCSRFToken(),
                     },
-                    body: JSON.stringify({ matrix: matrix, vector: vector }),
+                    body: JSON.stringify({matrix: matrix}),
                 })
-                .then(response => response.json())
-                .then((data) => {
-                    if (data.error) {
-                        showAlert(data.error, 'danger');
-                        return;
+                    .then(response => {
+                        if (!response.ok) {
+                            if (response.status === 400) {
+                                return response.json().then(data => {
+                                    throw new Error(data.error || 'Error en la solicitud');
+                                });
+                            }
+                            throw new Error('Error en la comunicación con el servidor. Código: ' + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Mostrar los pasos del proceso siempre
+                        if (data.process_steps) {
+                            showProcessSteps(data.process_steps);
+                        }
+
+                        // Mostrar el resultado según el tipo de solución
+                        showResultBasedOnStatus(data);
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        showAlert(`Error: ${error.message}`, 'danger');
+                    })
+                    .finally(() => {
+                        setLoadingState(false);
+                    });
+            }
+
+            // 2. Mejora en la función showProcessSteps para evitar errores de DOM
+            function showProcessSteps(steps) {
+                if (!steps || steps.length === 0) {
+                    return;
+                }
+
+                const stepsContainer = document.getElementById("stepsContainer");
+                // Limpiar el contenedor
+                stepsContainer.innerHTML = "<h4>Desarrollo del proceso:</h4>";
+
+                steps.forEach((stepObj, index) => {
+                    let stepContent = "";
+                    let stepTitle = `<strong>Paso ${index + 1}:</strong> ${stepObj.step || ''}`;
+
+                    // Para matrices aumentadas [A|b]
+                    if (stepObj.matrix) {
+                        try {
+                            const latexMatrix = formatMatrixToLatex(stepObj.matrix, 4);
+                            stepContent += `<p>$$${latexMatrix}$$</p>`;
+                        } catch (e) {
+                            console.error("Error al formatear matriz:", e);
+                            stepContent += `<p class="text-danger">Error al formatear matriz</p>`;
+                        }
                     }
 
-                    // Mostrar los pasos del proceso siempre
-                    if (data.process_steps) {
-                        showProcessSteps(data.process_steps);
+                    // Para matrices L y L^T
+                    if (stepObj.L && stepObj.LT) {
+                        try {
+                            const latexL = formatMatrixToLatex(stepObj.L, 4, false);
+                            const latexLT = formatMatrixToLatex(stepObj.LT, 4, false);
+
+                            stepContent += `<p>Matriz L (triangular inferior):</p>
+                              <p>$$${latexL}$$</p>
+                              <p>Matriz L^T (triangular superior):</p>
+                              <p>$$${latexLT}$$</p>`;
+                        } catch (e) {
+                            console.error("Error al formatear matrices L y LT:", e);
+                            stepContent += `<p class="text-danger">Error al formatear matrices de factorización</p>`;
+                        }
                     }
 
-                    // Mostrar el resultado según el tipo de solución
-                    showResultBasedOnStatus(data);
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    showAlert(`Error en la conexión con el servidor: ${error}`, 'danger');
-                })
-                .finally(() => {
-                    setLoadingState(false);
+                    // Para verificación A = L*L^T
+                    if (stepObj.A && stepObj.LLT) {
+                        try {
+                            const latexA = formatMatrixToLatex(stepObj.A, 4, false);
+                            const latexLLT = formatMatrixToLatex(stepObj.LLT, 4, false);
+
+                            stepContent += `<p>Matriz A original:</p>
+                              <p>$$${latexA}$$</p>
+                              <p>Matriz L*L^T calculada:</p>
+                              <p>$$${latexLLT}$$</p>`;
+
+                            if (stepObj.is_valid !== undefined) {
+                                stepContent += `<p class="${stepObj.is_valid ? 'text-success' : 'text-danger'}">
+                                  <strong>Factorización ${stepObj.is_valid ? 'válida' : 'no válida'}</strong>
+                                  </p>`;
+                            }
+                        } catch (e) {
+                            console.error("Error al formatear matrices de verificación:", e);
+                            stepContent += `<p class="text-danger">Error al formatear matrices de verificación</p>`;
+                        }
+                    }
+
+                    // Para el sistema Ly = b
+                    if (stepObj.L && stepObj.b && stepObj.y) {
+                        try {
+                            const latexL = formatMatrixToLatex(stepObj.L, 4, false);
+                            const latexB = formatVectorToLatex(stepObj.b, 4);
+                            const latexY = formatVectorToLatex(stepObj.y, 4);
+
+                            stepContent += `<p>Resolviendo Ly = b:</p>
+                              <p>$$${latexL} \\cdot ${latexY} = ${latexB}$$</p>`;
+                        } catch (e) {
+                            console.error("Error al formatear sistema Ly=b:", e);
+                            stepContent += `<p class="text-danger">Error al formatear sistema de ecuaciones</p>`;
+                        }
+                    }
+
+                    // Para el sistema L^T x = y
+                    if (stepObj.LT && stepObj.y && stepObj.x) {
+                        try {
+                            const latexLT = formatMatrixToLatex(stepObj.LT, 4, false);
+                            const latexY = formatVectorToLatex(stepObj.y, 4);
+                            const latexX = formatVectorToLatex(stepObj.x, 4);
+
+                            stepContent += `<p>Resolviendo L^T x = y:</p>
+                              <p>$$${latexLT} \\cdot ${latexX} = ${latexY}$$</p>`;
+                        } catch (e) {
+                            console.error("Error al formatear sistema L^Tx=y:", e);
+                            stepContent += `<p class="text-danger">Error al formatear sistema de ecuaciones</p>`;
+                        }
+                    }
+
+                    // Para la solución final
+                    if (stepObj.solution) {
+                        try {
+                            const formattedSolution = stepObj.solution.map((val, i) => `x_{${i + 1}} = ${val.toFixed(4)}`).join(", ");
+                            stepContent += `<p><strong>Solución final:</strong> $$${formattedSolution}$$</p>`;
+                        } catch (e) {
+                            console.error("Error al formatear solución final:", e);
+                            stepContent += `<p class="text-danger">Error al formatear la solución final</p>`;
+                        }
+                    }
+
+                    // Para información de análisis de rango
+                    if (stepObj.rank !== undefined) {
+                        stepContent += `<p><strong>Rango de la matriz:</strong> ${stepObj.rank}</p>`;
+                        if (stepObj.variables !== undefined) {
+                            stepContent += `<p><strong>Número de variables:</strong> ${stepObj.variables}</p>`;
+                        }
+                        if (stepObj.free_variables !== undefined && Array.isArray(stepObj.free_variables)) {
+                            stepContent += `<p><strong>Variables libres:</strong> ${stepObj.free_variables.join(', ')}</p>`;
+                        }
+                        if (stepObj.description !== undefined) {
+                            stepContent += `<p><strong>${stepObj.description}</strong></p>`;
+                        }
+                    }
+
+                    const stepElement = document.createElement("div");
+                    stepElement.innerHTML = `
+            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
+                ${stepTitle}
+                ${stepContent}
+            </div>
+        `;
+
+                    stepsContainer.appendChild(stepElement);
                 });
+
+                // Re-renderizar el contenido LaTeX usando MathJax
+                setTimeout(() => {
+                    if (typeof MathJax !== 'undefined') {
+                        try {
+                            MathJax.typeset();
+                        } catch (e) {
+                            console.error("Error al procesar MathJax:", e);
+                        }
+                    } else {
+                        console.warn("MathJax no está disponible. Las fórmulas matemáticas no se renderizarán correctamente.");
+                    }
+                }, 100);
             }
 
             function showResultBasedOnStatus(data) {
@@ -475,43 +636,31 @@
                 responseContainer.style.display = "block";
 
                 const resultContainer = document.getElementById("resultContainer");
-                
+
                 // Determinar el tipo de resultado y mostrar el mensaje apropiado
                 if (data.status === "success") {
                     // Sistema con solución única
                     let solutionHTML = "<ul class='list-group list-group-flush'>";
                     for (let i = 0; i < data.solution.length; i++) {
-                        solutionHTML += `<li class="list-group-item">x${i+1} = ${data.solution[i].toFixed(4)}</li>`;
+                        solutionHTML += `<li class="list-group-item">x${i + 1} = ${data.solution[i].toFixed(4)}</li>`;
                     }
                     solutionHTML += "</ul>";
-                    
+
                     resultContainer.innerHTML = `
                         <div class="alert alert-success" role="alert">
                         <h4>{% translate 'Solution of the equation' %}:</h4>
                         ${solutionHTML}
                         </div>
                     `;
-                } 
-                else if (data.status === "no_solution") {
-                    // Sistema sin solución (inconsistente)
-                    let detailsHTML = "";
-                    if (data.details && data.details.explanation) {
-                        detailsHTML = "<ul class='list-group list-group-flush'>";
-                        data.details.explanation.forEach(explanation => {
-                            detailsHTML += `<li class="list-group-item">${explanation}</li>`;
-                        });
-                        detailsHTML += "</ul>";
-                    }
-                    
+                } else if (data.status === "error") {
+                    // Sistema sin solución o error
                     resultContainer.innerHTML = `
                         <div class="alert alert-danger" role="alert">
-                        <h4>{% translate 'No solution' %}:</h4>
+                        <h4>{% translate 'Error' %}:</h4>
                         <p>${data.message}</p>
-                        ${detailsHTML}
                         </div>
                     `;
-                } 
-                else if (data.status === "infinite_solutions") {
+                } else if (data.status === "infinite_solutions") {
                     // Sistema con infinitas soluciones
                     let detailsHTML = "";
                     if (data.details) {
@@ -522,7 +671,7 @@
                             <p>${data.details.description}</p>
                         `;
                     }
-                    
+
                     resultContainer.innerHTML = `
                         <div class="alert alert-warning" role="alert">
                         <h4>{% translate 'Infinite solutions' %}:</h4>
@@ -530,8 +679,7 @@
                         ${detailsHTML}
                         </div>
                     `;
-                }
-                else {
+                } else {
                     // Estado desconocido, mostrar información general
                     resultContainer.innerHTML = `
                         <div class="alert alert-info" role="alert">
@@ -542,115 +690,65 @@
                 }
             }
 
-
-
-            function showResult(result) {
-                const responseContainer = document.getElementById("responseContainer");
-                responseContainer.style.display = "block";
-
-                const resultContainer = document.getElementById("resultContainer");
-                
-                // Format the solution array nicely
-                let solutionHTML = "<ul class='list-group list-group-flush'>";
-                for (let i = 0; i < result.length; i++) {
-                    solutionHTML += `<li class="list-group-item">x${i+1} = ${result[i].toFixed(4)}</li>`;
+            // 3. Funciones de formato mejoradas
+            function formatMatrixToLatex(matrix, decimals = 4, augmented = true) {
+                if (!matrix || matrix.length === 0) {
+                    return "\\text{Empty matrix}";
                 }
-                solutionHTML += "</ul>";
-                
-                resultContainer.innerHTML = `
-                    <div class="alert alert-success" role="alert">
-                    <h4>{% translate 'Solution of the equation' %}:</h4>
-                    ${solutionHTML}
-                    </div>
-                `;
-            }
 
-            function showProcessSteps(steps) {
-    console.log("Datos recibidos para los pasos:", steps);
-
-    const stepsContainer = document.getElementById("stepsContainer");
-    stepsContainer.innerHTML = "<h4>Desarrollo del proceso:</h4>"; // Limpiar pasos anteriores y agregar título
-
-    steps.forEach((stepObj, index) => {
-        console.log(`Paso ${index + 1}:`, stepObj);
-
-        let stepContent = "";
-
-        if (stepObj.matrix) {
-            const latexMatrix = formatMatrixToLatex(stepObj.matrix, 4); // Formato con 4 decimales
-            stepContent = `<p>$$${latexMatrix}$$</p>`;
-            
-            // Agregar información adicional si está presente
-            if (stepObj.inconsistent_rows) {
-                stepContent += `<p class="text-danger"><strong>Filas inconsistentes detectadas:</strong></p>`;
-                stepObj.inconsistent_rows.forEach(row => {
-                    stepContent += `<p class="text-danger">Fila ${row.row_index} sugiere: 0 = ${row.row_values[row.row_values.length - 1]}</p>`;
-                });
-            }
-            
-            if (stepObj.rank) {
-                stepContent += `<p><strong>Rango de la matriz:</strong> ${stepObj.rank}</p>`;
-            }
-            
-            if (stepObj.free_variables) {
-                stepContent += `<p><strong>Variables libres:</strong> ${stepObj.free_variables.join(', ')}</p>`;
-            }
-        } 
-        else if (stepObj.solution) {
-            // Formateamos la solución final para que muestre los valores de x_1, x_2, x_3 directamente
-            const formattedSolution = stepObj.solution.map((val, i) => `x_${i + 1} = ${val.toFixed(4)}`).join(", ");
-            stepContent = `<p><strong>Solución final:</strong> ${formattedSolution}</p>`;
-        }
-
-        const stepElement = document.createElement("div");
-        stepElement.innerHTML = `
-            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
-                <strong>Paso ${index + 1}:</strong> ${stepObj.step}
-                ${stepContent}
-            </div>
-        `;
-
-        stepsContainer.appendChild(stepElement);
-    });
-
-    // Re-renderizar el contenido LaTeX usando MathJax
-    if (typeof MathJax !== 'undefined') {
-        MathJax.typeset();
-    }
-}
-
-
-
-        function formatMatrixToLatex(matrix, decimals = 4) {
-            if (!matrix || matrix.length === 0) {
-                return "\\text{Empty matrix}";
-            }
-            
-            const numCols = matrix[0].length;
-            // Crea un formato de columnas con una línea vertical antes de la última columna
-            // Por ejemplo, para una matriz 3x4, sería "ccc|c"
-            let columnFormat = "";
-            for (let i = 0; i < numCols; i++) {
-                columnFormat += "c";
-                // Añade la línea vertical antes de la última columna
-                if (i === numCols - 2) {
-                    columnFormat += "|";
-                }
-            }
-            
-            const rows = matrix.map(row => {
-                return row.map(val => {
-                    if (typeof val === 'number') {
-                        return val.toFixed(decimals);
+                try {
+                    const numCols = matrix[0].length;
+                    // Crear formato de columnas con una línea vertical antes de la última columna si es matriz aumentada
+                    let columnFormat = "";
+                    for (let i = 0; i < numCols; i++) {
+                        columnFormat += "c";
+                        // Añade la línea vertical antes de la última columna solo si es matriz aumentada
+                        if (augmented && i === numCols - 2) {
+                            columnFormat += "|";
+                        }
                     }
-                    return val;
-                }).join(" & ");
-            }).join(" \\\\ ");
-            
-            return "\\left[ \\begin{array}{" + columnFormat + "} " + rows + " \\end{array} \\right]";
-        }
 
+                    const rows = matrix.map(row => {
+                        return row.map(val => {
+                            if (typeof val === 'number') {
+                                // Formatear el número para evitar problemas con valores muy pequeños o NaN
+                                if (isNaN(val)) return "?";
+                                if (Math.abs(val) < 1e-10) return "0";
+                                return val.toFixed(decimals);
+                            }
+                            return val;
+                        }).join(" & ");
+                    }).join(" \\\\ ");
 
+                    return "\\left[ \\begin{array}{" + columnFormat + "} " + rows + " \\end{array} \\right]";
+                } catch (e) {
+                    console.error("Error en formatMatrixToLatex:", e);
+                    return "\\text{Error al formatear matriz}";
+                }
+            }
+
+            function formatVectorToLatex(vector, decimals = 4) {
+                if (!vector || vector.length === 0) {
+                    return "\\text{Empty vector}";
+                }
+
+                try {
+                    const elements = vector.map(val => {
+                        if (typeof val === 'number') {
+                            // Formatear el número para evitar problemas con valores muy pequeños o NaN
+                            if (isNaN(val)) return "?";
+                            if (Math.abs(val) < 1e-10) return "0";
+                            return val.toFixed(decimals);
+                        }
+                        return val;
+                    }).join(" \\\\ ");
+
+                    return "\\begin{bmatrix} " + elements + " \\end{bmatrix}";
+                } catch (e) {
+                    console.error("Error en formatVectorToLatex:", e);
+                    return "\\text{Error al formatear vector}";
+                }
+            }
         </script>
 
     </div>
