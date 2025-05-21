@@ -1,111 +1,126 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% trans 'Gaussian Elimination with back replacement' %} -
-{% trans 'Numerical Methods' %}{% endblock %}
+{% block title %}{% translate 'Newton Raphson Method' %} - {% translate 'Numerical Methods' %}{% endblock %}
 {% block content %}
 {% load static %}
-{% csrf_token %}
 
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
             <div class="col-lg-12">
-                <h2 class="display-4 fw-bold lh-1s">{% trans 'Gaussian Elimination with back replacement' %}</h2>
-                {% get_current_language as LANGUAGE_CODE %}
+                <h2 class="display-4 fw-bold lh-1s">{% translate 'Newton Raphson Method' %}</h2>
                 <p class="lead py-5">
-                    {% if LANGUAGE_CODE == "es" %}
-                        El método de Gauss con sustitución hacia atrás (también conocido como eliminación gaussiana) es un algoritmo fundamental en álgebra lineal para resolver sistemas de ecuaciones lineales de la forma: 
-                    {% else %}
-                        The Gauss elimination with back substitution method (also known as Gaussian elimination) is a fundamental algorithm in linear algebra for solving systems of linear equations of the form:
-                    {% endif %}
+                    {% translate 'El método de Newton-Raphson es un procedimiento numérico utilizado para encontrar aproximaciones de las raíces de una función. Se basa en tomar una estimación inicial y mejorarla iterativamente utilizando la pendiente de la función en ese punto. Cada nueva aproximación se obtiene desplazándose hacia donde la función se acerca a cero, lo que permite una convergencia rápida en la mayoría de los casos. Es uno de los métodos más eficientes, aunque puede fallar si la estimación inicial no es adecuada o si la función tiene comportamientos irregulares.' %}
                 </p>
-                <pre><code class="language-math">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
+                    <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
+                            onclick="showCalculator()">{% translate 'Graphing Calculator' %}
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">
+                        {% translate 'Explanation' %}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="py-3"></div>
+
+        <!-- Hidden calculator section -->
+        <div id="calculator" style="display: none;" class="mt-5">
+            <h3 class="mb-5">{% translate 'Newton Raphson Calculator' %}</h3>
+            <form class="mb-5 p-4 bg-light rounded-3 shadow" id="calculatorForm">
+                <div class="mb-3">
+                    <div class="col-md-12 col-sm-6 mb-3">
+                        <label for="equation" class="form-label">{% translate 'Equation' %}:</label>
+                        <input type="text" class="form-control" id="equation" value="x^3 + 4*x^2 - 4" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <label for="intervalA" class="form-label">{% translate 'Interval Start' %}:</label>
+                        <input type="number" class="form-control" id="intervalA" step="any" value="1" required>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <label for="intervalB" class="form-label">{% translate 'Interval End' %}:</label>
+                        <input type="number" class="form-control" id="intervalB" step="any" value="3" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <label for="tolerance" class="form-label">{% translate 'Tolerance' %}:</label>
+                        <input type="number" class="form-control" id="tolerance" step="any" value="0.00001" required>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <label for="maxIterations" class="form-label">{% translate 'Max Iterations' %}:</label>
+                        <input type="number" class="form-control" id="maxIterations" value="100" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12 mb-3">
+                        <label for="p0" class="form-label">{% translate 'Initial Point p0' %}:</label>
+                        <input type="number" class="form-control" id="p0" step="any" value="1.0" required>
+                    </div>
+                    <div class="col-sm-6 mb-3" style="display: none;">
+                        <label for="p1" class="form-label">{% translate 'Initial Point p1' %}:</label>
+                        <input type="number" class="form-control" id="p1" step="any" value="2.5" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-lg btn-primary mt-2" id="calculateButton">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;"
+                          id="loadingSpinner"></span>
+                    <span id="buttonText">{% translate 'Calculate and Graph' %}</span>
+                </button>
+            </form>
+
+            <!-- Container for the graphs -->
+            <div id="graphs-container" class="mt-5 p-4 bg-light rounded-3 shadow" style="display: none;">
+                <h4 class="mb-3">{% translate 'Newton Raphson Method' %}</h4>
+                <div class="rounded-5 mb-5" id="plot-container" style="width: 100%;">
+                    <!-- Plotly chart will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Container for the results table -->
+            <div id="results" class="mt-5 p-4 bg-light rounded-3 shadow" style="display: none;">
+                <h4 class="mb-3">{% translate 'Results' %}</h4>
+                <div id="messageContainer"></div>
+                <table id="resultsTable" class="table table-bordered rounded-5 table-striped mb-5">
+                    <thead>
+                    <tr>
+                        <th>{% translate 'Iteration' %}</th>
+                        <th>{% translate 'p0' %}</th>
+                        <th>{% translate 'p1' %}</th>
+                        <th>{% translate 'p' %}</th>
+                        <th>{% translate 'f(p)' %}</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        <!-- Hidden extensive explanation section -->
+        <div id="explanation" class="mt-4 rounded-3">
+            <h3 class="pb-3">{% translate "Explicación Método Newton-Raphson" %}</h3>
+            <p class="lead">
+                {% translate "Dado un valor inicial \( x_0 \), las siguientes aproximaciones se calculan con la fórmula:." %}
                 \[
-                \left\{
-                \begin{array}{l}
-                a_{11}x_1 + a_{12}x_2 + \cdots + a_{1n}x_n = b_1 \\
-                a_{21}x_1 + a_{22}x_2 + \cdots + a_{2n}x_n = b_2 \\
-                \vdots \\
-                a_{m1}x_1 + a_{m2}x_2 + \cdots + a_{mn}x_n = b_m
-                \end{array}
-                \right.
+                x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)}
                 \]
-                </code></pre>
-                <p>
-                    {% if LANGUAGE_CODE == "es" %}
-                        El método consiste en dos fases principales:<br><br>
-                        <strong>1.Eliminación de Gauss</strong>: Transformar la matriz aumentada del sistema en una forma escalonada (triangular superior) mediante operaciones elementales de fila.<br><br>
-                        <strong>2.Sustitución hacia atrás</strong>: Resolver el sistema desde la última ecuación hacia arriba, despejando las incógnitas en orden inverso
-                    {% else %}
-                        The method consists of two main phases:<br><br>
-                        <strong>1.Gauss Elimination</strong>: Transform the augmented matrix of the system into a row-echelon form (upper triangular) using elementary row operations.<br><br>
-                        <strong>2.Back Substitution</strong>: Solve the system starting from the last equation upwards, isolating the unknowns in reverse order
-                    {% endif %}
-                </p>
-                <pre><code class="language-math">
-                \[
-                \begin{bmatrix}
-                a_{11} & a_{12} & \cdots & a_{1n} & \vert & b_1 \\
-                a_{21} & a_{22} & \cdots & a_{2n} & \vert & b_2 \\
-                \vdots & \vdots & \ddots & \vdots & \vert & \vdots \\
-                a_{m1} & a_{m2} & \cdots & a_{mn} & \vert & b_m
-                \end{bmatrix}
-                \quad \longrightarrow \quad
-                \begin{bmatrix}
-                a'_{11} & a'_{12} & \cdots & a'_{1n} & \vert & b'_1 \\
-                0 & a'_{22} & \cdots & a'_{2n} & \vert & b'_2 \\
-                \vdots & \vdots & \ddots & \vdots & \vert & \vdots \\
-                0 & 0 & \cdots & a'_{mn} & \vert & b'_m
-                \end{bmatrix}
-                \]
-                </code></pre>
-                <p>
-                    {% if LANGUAGE_CODE == "es" %}
-                        <strong>Pasos de la eliminación</strong>:<br><br>
-                        <strong>a)Pivoteo parcial</strong>: Seleccionar la fila con el mayor elemento en la columna actual para evitar división por cero o inestabilidad numérica.<br><br>
-                        <strong>b)Eliminación hacia adelante</strong>: Para cada fila i desde 1 hasta n - 1:<br><br>
-                    {% else %}
-                        <strong>Elimination steps</strong>:<br><br>
-                        <strong>a)Partial pivoting</strong>: Select the row with the largest element in the current column to avoid division by zero or numerical instability.<br><br>
-                        <strong>b)Forward elimination</strong>: For each row i from 1 to n - 1:<br><br>
-                    {% endif %}
-                </p>
-                <pre><code class="language-math">
-                \[
-                \left\{
-                \begin{array}{l}
-                R_1: \text{Multiplicar la fila 1 por } \frac{1}{a_{11}} \text{ (hacer que el pivote sea 1)} \\
-                R_2: a_{21} \leftarrow a_{21} - a_{21} \cdot a_{12} \\
-                R_3: a_{31} \leftarrow a_{31} - a_{31} \cdot a_{13} \\
-                \vdots \\
-                R_n: a_{n1} \leftarrow a_{n1} - a_{n1} \cdot a_{1n}
-                \end{array}
-                \right.
-                \]
-                </code></pre>
-                <p>
-                    {% if LANGUAGE_CODE == "es" %}
-                        <strong>2.Sustitución hacia atrás</strong>: Una vez obtenida la matriz triangular superior, se resuelve el sistema desde la última ecuación hacia arriba:<br><br>
-                    {% else %}
-                        <strong>2.Back substitution</strong>: Once the upper triangular matrix is obtained, the system is solved from the last equation upwards:<br><br>
-                    {% endif %}
-                </p>
-                <pre><code class="language-math">
-                \[
-                \left\{
-                \begin{array}{l}
-                a'_{11}x_1 + a'_{12}x_2 + \cdots + a'_{1n}x_n = b'_1 \\
-                a'_{21}x_2 + \cdots +  a'_{2n}x_n = b'_2 \\
-                \vdots \\
-                a'_{nm}x_n  = b'_n
-                \end{array}
-                \right.
-                \]
-                </code></pre>
-            </p> 
+                {% translate "Donde \( x_n \) es la aproximación actual de la raíz, \( f(x_n) \) es el valor de la función en \( x_n \) y \( f'(x_n) \) es la derivada de la función en \( x_n \).<br><br>" %}
+
+                {% translate "<strong>Algoritmo:</strong><br><br>" %}
+                {% translate "<strong>1.</strong> Definir la función y su derivada. Función: \( f(x) = x^3 + 4x^2 -10 \). Derivada: \( f'(x) = 3x^2 + 8x \).<br><br>" %}
+                {% translate "<strong>2.</strong> Elegir una estimación inicial \( x_0 \): Se toma \( x_0 \) = 1.5 (un punto dentro del intervalo [1, 2]).<br><br>" %}
+                {% translate "<strong>3.</strong> Fórmula de iteración: \( x_{n+1} = x_n - \frac{f(x_n}{f'(x_n)}\).<br><br>" %}
+                {% translate "<strong>4.</strong> Calcular \( x_1 \) y repetir el proceso hasta que se alcance la tolerancia o el número máximo de iteraciones.<br><br>" %}
+                {% translate "<strong>5.</strong> Resultado final. Este método converge rápidamente a la raíz x ≈ 1.365. Con más iteraciones o mayor precisión, el método se acercará más a la raíz que se está buscando." %}
+            </p>
         </div>
 
         <script>
-            const points = [];
 
             function showCalculator() {
                 document.getElementById('explanation').style.display = 'none';
@@ -117,405 +132,146 @@
                 document.getElementById('explanation').style.display = 'block';
             }
 
-            // Matrix buttons
-            const rowsInput = document.getElementById('inputM');
-            const colsInput = document.getElementById('inputN');
-            const matrixBody = document.getElementById('matrixBody');
-            const solveBtn = document.getElementById('solveBtn');
-            const responseContainer = document.getElementById('responseContainer');
-            const resultContainer = document.getElementById('resultContainer');
-            const clearBtn = document.getElementById('clearBtn');
-
-            // Generate Matrix Function
-            function generateMatrix() {
-                const rows = parseInt(rowsInput.value);
-                const cols = parseInt(colsInput.value);
-
-                // Validaciones
-                if (isNaN(rows) || rows < 1 || isNaN(cols) || cols < 2) {
-                    showAlert('Por favor, ingresa valores válidos', 'warning');
-                    return;
-                }
-
-                // Limpiar la matriz actual
-                matrixBody.innerHTML = '';
-
-                // Generar filas y columnas de la matriz
-                for (let i = 0; i < rows; i++) {
-                    const row = document.createElement('tr');
-
-                    for (let j = 0; j < cols; j++) {
-                        const cell = document.createElement('td');
-
-                        // Crear un grupo de input con texto
-                        const inputGroup = document.createElement('div');
-                        inputGroup.className = 'input-group';
-
-                        // Input para el valor
-                        const input = document.createElement('input');
-                        input.type = 'number';
-                        input.step = 'any'; // Permite decimales
-                        input.className = 'form-control matrix-input';
-                        input.dataset.row = i;
-                        input.dataset.col = j;
-
-                        // Etiqueta para la variable
-                        const varLabel = document.createElement('span');
-                        varLabel.className = 'input-group-text';
-
-                        // Asignar la etiqueta adecuada dependiendo de la columna
-                        if (j === cols - 1) {
-                            // Columna del término independiente
-                            varLabel.textContent = 'b' + (i + 1);
-                            varLabel.title = 'Término independiente';
-                        } else {
-                            // Columnas de coeficientes
-                            varLabel.textContent = 'x' + (j + 1);
-                            varLabel.title = 'Variable x' + (j + 1);
-                        }
-
-                        // Añadir elementos al grupo
-                        inputGroup.appendChild(varLabel);
-                        inputGroup.appendChild(input);
-
-                        cell.appendChild(inputGroup);
-                        row.appendChild(cell);
-                    }
-
-                    matrixBody.appendChild(row);
-                }
-
-                // Mostrar el contenedor de la matriz
-                document.getElementById('calculator').style.display = 'block';
-            }
-
-            // Evento para generar la matriz cuando se cambian los valores de M y N
-            rowsInput.addEventListener('change', generateMatrix);
-            colsInput.addEventListener('change', generateMatrix);
-
-            // Evento para limpiar la matriz
-            clearBtn.addEventListener('click', function () {
-                const inputs = document.querySelectorAll('.matrix-input');
-                inputs.forEach(input => {
-                    input.value = '';
-                });
+            document.getElementById("calculatorForm").addEventListener("submit", function (event) {
+                event.preventDefault();
+                calculateAndGraph();
             });
-
-            // Evento para resolver el sistema
-            solveBtn.addEventListener('click', function () {
-                // Limpiar alertas anteriores
-                const alertContainer = document.getElementById('alertContainer');
-                if (alertContainer) {
-                    alertContainer.innerHTML = '';
-                }
-
-                const rows = parseInt(rowsInput.value);
-                const cols = parseInt(colsInput.value);
-
-                const matrix = [];
-
-                // Extraer los valores de la matriz de los inputs
-                for (let i = 0; i < rows; i++) {
-                    const rowValues = [];
-                    for (let j = 0; j < cols; j++) {
-                        const input = document.querySelector(`.matrix-input[data-row="${i}"][data-col="${j}"]`);
-                        const value = parseFloat(input.value);
-                        if (isNaN(value)) {
-                            showAlert(`Por favor, ingresa un valor numérico en la posición [${i + 1}, ${j + 1}]`, 'warning');
-                            return;
-                        }
-                        rowValues.push(value);
-                    }
-                    matrix.push(rowValues);
-                }
-
-                // Mostrar mensaje de éxito
-                showAlert('Matriz cargada correctamente.', 'success');
-
-                // Llamar a la función que calcula la factorización
-                calculate();
-
-                // Mostrar el contenedor de respuesta
-                document.getElementById('responseContainer').style.display = 'block';
-            });
-
-            // Generar la matriz inicial al cargar la página
-            document.addEventListener('DOMContentLoaded', function () {
-                const calculatorSection = document.getElementById('calculator');
-                const explanationSection = document.getElementById('explanation');
-
-                calculatorSection.style.display = 'none';
-                explanationSection.style.display = 'block';
-
-                window.showCalculator = function () {
-                    explanationSection.style.display = 'none';
-                    calculatorSection.style.display = 'block';
-                };
-
-                window.showExplanation = function () {
-                    calculatorSection.style.display = 'none';
-                    explanationSection.style.display = 'block';
-                };
-
-                generateMatrix();
-
-                setTimeout(function () {
-                    calculatorSection.style.display = 'none';
-                    explanationSection.style.display = 'block';
-                }, 100);
-            });
-
-            // Agregar estilos prioritarios inmediatamente
-            (function () {
-                const style = document.createElement('style');
-                style.textContent = `
-        #calculator { display: none !important; }
-        #explanation { display: block !important; }
-    `;
-                document.head.appendChild(style);
-
-                setTimeout(function () {
-                    document.head.removeChild(style);
-                }, 1000);
-            })();
 
             function setLoadingState(isLoading) {
-                const button = document.getElementById("solveBtn");
+                const button = document.getElementById("calculateButton");
                 const spinner = document.getElementById("loadingSpinner");
                 const buttonText = document.getElementById("buttonText");
 
                 button.disabled = isLoading;
                 spinner.style.display = isLoading ? "inline-block" : "none";
-                buttonText.textContent = isLoading ? "{% translate 'Calculating...' %}" : "{% translate 'Calculate' %}";
+                buttonText.textContent = isLoading ? "{% translate 'Calculating...' %}" : "{% translate 'Calculate and Graph' %}";
             }
 
-            function showAlert(message, type = 'danger') {
-                // Buscar o crear el contenedor de alertas
-                let alertContainer = document.getElementById('alertContainer');
+            function clearPreviousResults() {
+                // Clear tables
+                document.getElementById("resultsTable").querySelector("tbody").innerHTML = "";
 
-                // Si no existe el contenedor, lo creamos
-                if (!alertContainer) {
-                    alertContainer = document.createElement('div');
-                    alertContainer.id = 'alertContainer';
-                    alertContainer.className = 'my-3';
+                // Clear messages
+                document.getElementById("messageContainer").innerHTML = "";
 
-                    // Insertar el contenedor después del toolbar
-                    const toolbar = document.querySelector('.btn-toolbar');
-                    toolbar.parentNode.insertBefore(alertContainer, toolbar.nextSibling);
-                }
+                // Clear plots
+                Plotly.purge('plot-container');
 
-                // Limpiar alertas anteriores
-                alertContainer.innerHTML = '';
-
-                // Crear la alerta simple
-                const alertDiv = document.createElement('div');
-                alertDiv.className = `alert alert-${type}`;
-                alertDiv.role = 'alert';
-
-                // Agregar el mensaje
-                alertDiv.textContent = message;
-
-                // Agregar la alerta al contenedor
-                alertContainer.appendChild(alertDiv);
+                // Hide results and graphs containers
+                document.getElementById("results").style.display = "none";
+                document.getElementById("graphs-container").style.display = "none";
             }
 
-            function getCSRFToken() {
-                // Buscar el token CSRF en las cookies
-                const cookies = document.cookie.split(';');
-                for (let cookie of cookies) {
-                    const [name, value] = cookie.trim().split('=');
-                    if (name === 'csrftoken') {
-                        return value;
-                    }
-                }
+            function calculateAndGraph() {
+                clearPreviousResults();
 
-                // Alternativamente, buscar el token en el input del formulario
-                const tokenInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
-                if (tokenInput) {
-                    return tokenInput.value;
-                }
+                const equation = document.getElementById("equation").value;
+                const a = document.getElementById("intervalA").value;
+                const b = document.getElementById("intervalB").value;
+                const tolerance = document.getElementById("tolerance").value;
+                const maxIterations = document.getElementById("maxIterations").value;
+                const p0 = document.getElementById("p0").value;
+                const p1 = document.getElementById("p1").value;
 
-                return '';
-            }
-
-            function calculate() {
                 setLoadingState(true);
 
-                const rows = parseInt(rowsInput.value);
-                const cols = parseInt(colsInput.value);
+                const url = `/calculate-newton-raphson-method/?equation=${encodeURIComponent(equation)}&a=${a}&b=${b}&tol=${tolerance}&maxIterations=${maxIterations}&p0=${p0}&p1=${p1}`;
 
-                const matrix = [];
-
-                // Extraer los valores de la matriz de los inputs
-                for (let i = 0; i < rows; i++) {
-                    const rowValues = [];
-                    for (let j = 0; j < cols; j++) {
-                        const input = document.querySelector(`.matrix-input[data-row="${i}"][data-col="${j}"]`);
-                        const value = parseFloat(input.value);
-                        if (isNaN(value)) {
-                            showAlert(`Por favor, ingresa un valor numérico en la posición [${i + 1}, ${j + 1}]`, 'warning');
-                            setLoadingState(false);
-                            return;
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
                         }
-                        rowValues.push(value);
-                    }
-                    matrix.push(rowValues);
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.error) {
+                            throw new Error(data.message);
+                        }
+
+                        const plotData = JSON.parse(data.graph);
+
+                        // Update the layout to be responsive
+                        plotData.layout.autosize = true;
+                        plotData.layout.height = undefined;
+                        plotData.layout.width = undefined;
+
+                        const config = {
+                            responsive: true,
+                            displayModeBar: true,
+                            scrollZoom: true,
+                            showLink: false,
+                            displaylogo: false,
+                            modeBarButtonsToAdd: ['drawopenpath', 'eraseshape'],
+                            modeBarButtonsToRemove: ['lasso2d']
+                        };
+
+                        Plotly.newPlot('plot-container', plotData.data, plotData.layout, config);
+
+                        document.getElementById("graphs-container").style.display = "block";
+                        document.getElementById("results").style.display = "block";
+                        console.log(data)
+
+                        displayResults(data);
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        document.getElementById("messageContainer").innerHTML = `
+                            <div class="alert alert-danger">
+                                <strong>Error:</strong> ${error.message}
+                            </div>`;
+                        document.getElementById("results").style.display = "block";
+                    })
+                    .finally(() => {
+                        setLoadingState(false);
+                    });
+            }
+
+            function displayResults(data) {
+                // Display regular Regula Falsi results
+                populateResultsTable(
+                    "resultsTable",
+                    "messageContainer",
+                    data.results.results
+                );
+            }
+
+            function populateResultsTable(tableId, messageId, results) {
+                const table = document.getElementById(tableId);
+                const tbody = table.querySelector("tbody");
+                tbody.innerHTML = "";
+
+                const messageContainer = document.getElementById(messageId);
+                messageContainer.innerHTML = "";
+
+                if (results.converged) {
+                    messageContainer.innerHTML = `
+                        <div class="alert alert-success">
+                            <strong>{% translate 'Root found' %}:</strong> ${results.root.toFixed(6)}
+                        </div>`;
+                } else {
+                    messageContainer.innerHTML = `
+                        <div class="alert alert-warning">
+                            {% translate 'Method did not converge within the maximum number of iterations' %}.
+                        </div>`;
                 }
 
-                // Realizar la petición al servidor usando POST
-                fetch('/calculate-gauss-back-substitution/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCSRFToken()
-                    },
-                    body: JSON.stringify({ matrix: matrix })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Error en la comunicación con el servidor. Código: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Mostrar los pasos del proceso siempre
-                    if (data.process_steps) {
-                        showProcessSteps(data.process_steps);
-                    }
+                console.log(results)
 
-                    // Mostrar el resultado según el tipo de solución
-                    showResultBasedOnStatus(data);
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    showAlert(`Error: ${error.message}`, 'danger');
-                })
-                .finally(() => {
-                    setLoadingState(false);
+                results.iterations.forEach(iter => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${iter.iteration}</td>
+                        <td>${iter.p0.toFixed(6)}</td>
+                        <td>${iter.p1.toFixed(6)}</td>
+                        <td>${iter['f(p0)'].toFixed(6)}</td>
+                        <td>${iter['f(p1)'].toFixed(6)}</td>
+                    `;
+                    tbody.appendChild(row);
                 });
             }
 
-            function showResultBasedOnStatus(data) {
-                const responseContainer = document.getElementById("responseContainer");
-                responseContainer.style.display = "block";
-
-                const resultContainer = document.getElementById("resultContainer");
-
-                // Determinar el tipo de resultado y mostrar el mensaje apropiado
-                if (data.status === "success") {
-                    // Sistema con solución única
-                    let solutionHTML = "<ul class='list-group list-group-flush'>";
-                    for (let i = 0; i < data.solution.length; i++) {
-                        solutionHTML += `<li class="list-group-item">x${i + 1} = ${data.solution[i].toFixed(4)}</li>`;
-                    }
-                    solutionHTML += "</ul>";
-
-                    resultContainer.innerHTML = `
-                        <div class="alert alert-success" role="alert">
-                        <h4>{% translate 'Solution of the equation' %}:</h4>
-                        ${solutionHTML}
-                        </div>
-                    `;
-                } else if (data.status === "error") {
-                    // Sistema sin solución o error
-                    resultContainer.innerHTML = `
-                        <div class="alert alert-danger" role="alert">
-                        <h4>{% translate 'Error' %}:</h4>
-                        <p>${data.message}</p>
-                        </div>
-                    `;
-                } else if (data.status === "infinite_solutions") {
-                    // Sistema con infinitas soluciones
-                    let detailsHTML = "";
-                    if (data.details) {
-                        detailsHTML = `
-                            <p>Rango de la matriz: ${data.details.rank}</p>
-                            <p>Número de variables: ${data.details.variables}</p>
-                            <p>Variables libres: ${data.details.free_variables.join(', ')}</p>
-                            <p>${data.details.description}</p>
-                        `;
-                    }
-
-                    resultContainer.innerHTML = `
-                        <div class="alert alert-warning" role="alert">
-                        <h4>{% translate 'Infinite solutions' %}:</h4>
-                        <p>${data.message}</p>
-                        ${detailsHTML}
-                        </div>
-                    `;
-                } else {
-                    // Estado desconocido, mostrar información general
-                    resultContainer.innerHTML = `
-                        <div class="alert alert-info" role="alert">
-                        <h4>Resultado del cálculo:</h4>
-                        <pre>${JSON.stringify(data, null, 2)}</pre>
-                        </div>
-                    `;
-                }
-            }
-
-            // 3. Funciones de formato mejoradas
-            function formatMatrixToLatex(matrix, decimals = 4, augmented = true) {
-                if (!matrix || matrix.length === 0) {
-                    return "\\text{Empty matrix}";
-                }
-                
-                try {
-                    const numCols = matrix[0].length;
-                    // Crear formato de columnas con una línea vertical antes de la última columna si es matriz aumentada
-                    let columnFormat = "";
-                    for (let i = 0; i < numCols; i++) {
-                        columnFormat += "c";
-                        // Añade la línea vertical antes de la última columna solo si es matriz aumentada
-                        if (augmented && i === numCols - 2) {
-                            columnFormat += "|";
-                        }
-                    }
-                    
-                    const rows = matrix.map(row => {
-                        return row.map(val => {
-                            if (typeof val === 'number') {
-                                // Formatear el número para evitar problemas con valores muy pequeños o NaN
-                                if (isNaN(val)) return "?";
-                                if (Math.abs(val) < 1e-10) return "0";
-                                return val.toFixed(decimals);
-                            }
-                            return val;
-                        }).join(" & ");
-                    }).join(" \\\\ ");
-
-                    return "\\left[ \\begin{array}{" + columnFormat + "} " + rows + " \\end{array} \\right]";
-                } catch (e) {
-                    console.error("Error en formatMatrixToLatex:", e);
-                    return "\\text{Error al formatear matriz}";
-                }
-            }
-
-            function formatVectorToLatex(vector, decimals = 4) {
-                if (!vector || vector.length === 0) {
-                    return "\\text{Empty vector}";
-                }
-
-                try {
-                    const elements = vector.map(val => {
-                        if (typeof val === 'number') {
-                            // Formatear el número para evitar problemas con valores muy pequeños o NaN
-                            if (isNaN(val)) return "?";
-                            if (Math.abs(val) < 1e-10) return "0";
-                            return val.toFixed(decimals);
-                        }
-                        return val;
-                    }).join(" \\\\ ");
-
-                    return "\\begin{bmatrix} " + elements + " \\end{bmatrix}";
-                } catch (e) {
-                    console.error("Error en formatVectorToLatex:", e);
-                    return "\\text{Error al formatear vector}";
-                }
-            }
         </script>
 
     </div>
-
-
 {% endblock %}

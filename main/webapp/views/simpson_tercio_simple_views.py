@@ -209,4 +209,4 @@ def calculate_simpson_tercio_simple(request):
 
 
 def simpson_tercio_simple_page(request):
-    return render(request, "simpson-tercio-simple.html")
+    return render(request, "simpson_tercio_simple.html")
