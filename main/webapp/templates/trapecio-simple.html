@@ -73,7 +73,7 @@
             </div>
 
             <!-- Container for the results table -->
-            <div id="resultsTable" class="mt-5" style="display: none;">
+            {% comment %} <div id="resultsTable" class="mt-5" style="display: none;">
                 <h4 class="mb-3">{% translate 'Results table' %}</h4>
                 <table id="dataTable" class="table table-bordered rounded-5 table-striped">
                     <thead>
@@ -86,7 +86,7 @@
                     </tbody>
                 </table>
             </div>
-        </div>
+        </div> {% endcomment %}
 
         <!-- Hidden extensive explanation section -->
         <div id="explanation" class="mt-4 rounded-3">
@@ -104,6 +104,30 @@
                 {% translate "Donde h es la longitud de la base (el ancho del intervalo) y f(a) y f(b) son las alturas del trapecio en los extremos.<br><br>" %}
                 {% translate "<strong>Paso 4 Resultado</strong>: La expresión obtenida da una estimación del área bajo la curva f(x) desde a hasta b." %}
             </p>
+        </div>
+
+        <!-- Sección de historial simplificada -->
+        <div class="mt-5">
+            <h3>{% translate 'Historial de cálculos' %}</h3>
+            <button type="button" class="btn btn-secondary" id="showHistoryBtn">
+                {% translate 'Mostrar historial' %}
+            </button>
+            
+            <div id="historialSection" class="mt-3 p-4 bg-light rounded-3 shadow" style="display: none;">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>{% translate 'Función' %}</th>
+                            <th>{% translate 'Intervalo' %}</th>
+                            <th>{% translate 'Resultado' %}</th>
+                            <th>{% translate 'Acciones' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historialBody">
+                        <!-- Aquí se cargarán los datos del historial -->
+                    </tbody>
+                </table>
+            </div>
         </div>
 
 
@@ -221,6 +245,73 @@
                     .replace(/\bln\b/g, "log")            // ln → log (base e en SymPy)
                     .replace(/\be\b/g, "exp(1)");          // e → exp(1)
             }
+
+            // Función para mostrar el historial
+            document.getElementById("showHistoryBtn").addEventListener("click", function() {
+                const historialSection = document.getElementById("historialSection");
+                
+                if (historialSection.style.display === "none") {
+                    // Mostrar mensaje de carga
+                    const historialBody = document.getElementById("historialBody");
+                    historialBody.innerHTML = `<tr><td colspan="4" class="text-center">{% translate 'Cargando historial...' %}</td></tr>`;
+                    historialSection.style.display = "block";
+                    
+                    // Cargar los datos del historial
+                    fetch("/trapezoid_history/")
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Error en la respuesta del servidor: ' + response.status);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            historialBody.innerHTML = "";
+                            
+                            if (data.length === 0) {
+                                historialBody.innerHTML = `<tr><td colspan="4" class="text-center">{% translate 'No hay datos en el historial' %}</td></tr>`;
+                            } else {
+                                data.forEach(item => {
+                                    const row = document.createElement("tr");
+                                    row.innerHTML = `
+                                        <td>${item.funcion}</td>
+                                        <td>[${item.limite_inferior}, ${item.limite_superior}]</td>
+                                        <td>${item.resultado.toFixed(6)}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary usar-datos" 
+                                                data-funcion="${item.funcion}" 
+                                                data-inferior="${item.limite_inferior}" 
+                                                data-superior="${item.limite_superior}">
+                                                {% translate 'Usar' %}
+                                            </button>
+                                        </td>
+                                    `;
+                                    historialBody.appendChild(row);
+                                });
+                                
+                                // Añadir eventos a los botones de "Usar"
+                                document.querySelectorAll(".usar-datos").forEach(btn => {
+                                    btn.addEventListener("click", function() {
+                                        document.getElementById("functionSelect").value = this.dataset.funcion;
+                                        document.getElementById("intervalA").value = this.dataset.inferior;
+                                        document.getElementById("intervalB").value = this.dataset.superior;
+                                        
+                                        // Ocultar el historial
+                                        historialSection.style.display = "none";
+                                    });
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error al cargar el historial:", error);
+                            historialBody.innerHTML = `<tr><td colspan="4" class="text-center text-danger">{% translate 'Error al cargar el historial' %}</td></tr>`;
+                        });
+                } else {
+                    historialSection.style.display = "none";
+                }
+            });
+            
+
+            
         </script>
 
     </div>
