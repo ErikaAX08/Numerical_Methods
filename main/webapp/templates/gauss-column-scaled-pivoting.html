@@ -69,6 +69,20 @@
                 <div id="alertContainer" class="my-3">
                     <!-- Alerts -->
                 </div>
+
+                <!-- Preloaded matrices dropdown -->
+                <div class="mb-3">
+                    <label for="preloadedMatrices" class="form-label">Matrices predefinidas:</label>
+                    <select class="form-select" id="preloadedMatrices" onchange="loadPredefinedMatrix()">
+                        <option value="" selected>Selecciona una matriz de ejemplo</option>
+                        <option value="2x3_1">Sistema 2x2 (Solución única)</option>
+                        <option value="3x4_1">Sistema 3x3 (Solución única)</option>
+                        <option value="3x4_2">Sistema 3x3 (Sin solución)</option>
+                        <option value="3x4_3">Sistema 3x3 (Infinitas soluciones)</option>
+                        <option value="4x5_1">Sistema 4x4 (Solución única)</option>
+                    </select>
+                </div>
+
                 <!-- Matrix -->
                 <div class="card-body">
                     <div class="matrix-container overflow-auto">
@@ -97,6 +111,17 @@
 
                 <!-- Section to show the steps -->
                 <div id="stepsContainer" class="p-4 mt-3 bg-light rounded-3 shadow"></div>
+
+                <!-- History section -->
+                <div id="historyContainer" class="p-4 mt-5 bg-light rounded-3 shadow">
+                    <h4>Historial de cálculos</h4>
+                    <div id="historyList" class="mt-3">
+                        <!-- History items will be added here -->
+                    </div>
+                    <button id="clearHistoryBtn" class="btn btn-outline-danger mt-3">
+                        <i class="bi bi-trash"></i> Limpiar historial
+                    </button>
+                </div>
             </div>
 
         </div>
@@ -174,10 +199,61 @@
 
         <script>
             const points = [];
+            let calculationHistory = JSON.parse(localStorage.getItem('gaussColumnScaledHistory')) || [];
+
+            // Predefined matrices
+            const predefinedMatrices = {
+                '2x3_1': {
+                    name: 'Sistema 2x2 (Solución única)',
+                    matrix: [
+                        [2, 3, 8],
+                        [1, -1, 1]
+                    ],
+                    description: 'Sistema simple con solución única: x₁=2.2, x₂=1.2'
+                },
+                '3x4_1': {
+                    name: 'Sistema 3x3 (Solución única)',
+                    matrix: [
+                        [1, 1, 1, 6],
+                        [0, 2, 5, -4],
+                        [2, 5, -1, 27]
+                    ],
+                    description: 'Sistema 3x3 con solución única: x₁=5, x₂=3, x₃=-2'
+                },
+                '3x4_2': {
+                    name: 'Sistema 3x3 (Sin solución)',
+                    matrix: [
+                        [1, 1, 1, 6],
+                        [0, 1, 1, 4],
+                        [0, 0, 0, 1]
+                    ],
+                    description: 'Sistema inconsistente sin solución (0=1 en última fila)'
+                },
+                '3x4_3': {
+                    name: 'Sistema 3x3 (Infinitas soluciones)',
+                    matrix: [
+                        [1, 1, 1, 6],
+                        [0, 1, 1, 4],
+                        [0, 0, 0, 0]
+                    ],
+                    description: 'Sistema con infinitas soluciones (x₃ es variable libre)'
+                },
+                '4x5_1': {
+                    name: 'Sistema 4x4 (Solución única)',
+                    matrix: [
+                        [2, 1, -1, 2, 5],
+                        [4, 5, -3, 6, 9],
+                        [-2, 5, -2, 6, 4],
+                        [4, 11, -4, 8, 2]
+                    ],
+                    description: 'Sistema 4x4 con solución única: x₁=1, x₂=-2, x₃=3, x₄=4'
+                }
+            };
 
             function showCalculator() {
                 document.getElementById('explanation').style.display = 'none';
                 document.getElementById('calculator').style.display = 'block';
+                updateHistoryDisplay();
             }
 
             function showExplanation() {
@@ -191,6 +267,7 @@
             const clearBtn = document.getElementById('clearBtn');
             const solveBtn = document.getElementById('solveBtn');
             const matrixBody = document.getElementById('matrixBody');
+            const clearHistoryBtn = document.getElementById('clearHistoryBtn');
 
             rowsInput.value = 3;
             colsInput.value = 4;
@@ -258,6 +335,36 @@
                 document.getElementById('calculator').style.display = 'block';
             }
 
+            // Load predefined matrix
+            function loadPredefinedMatrix() {
+                const selectedMatrix = document.getElementById('preloadedMatrices').value;
+                if (!selectedMatrix) return;
+
+                const matrixData = predefinedMatrices[selectedMatrix];
+                if (!matrixData) return;
+
+                // Set matrix dimensions
+                const rows = matrixData.matrix.length;
+                const cols = matrixData.matrix[0].length;
+                rowsInput.value = rows;
+                colsInput.value = cols;
+
+                // Generate the matrix structure
+                generateMatrix();
+
+                // Fill the matrix with values
+                for (let i = 0; i < rows; i++) {
+                    for (let j = 0; j < cols; j++) {
+                        const input = document.querySelector(`.matrix-input[data-row="${i}"][data-col="${j}"]`);
+                        if (input) {
+                            input.value = matrixData.matrix[i][j];
+                        }
+                    }
+                }
+
+                showAlert(`Matriz predefinida cargada: ${matrixData.name}`, 'success');
+            }
+
             // Evento para generar la matriz cuando se cambian los valores de M y N
             rowsInput.addEventListener('change', generateMatrix);
             colsInput.addEventListener('change', generateMatrix);
@@ -270,7 +377,15 @@
                 });
             });
 
-            // Evento para resolver el sistema (aquí solo recolectamos los datos)
+            // Evento para limpiar el historial
+            clearHistoryBtn.addEventListener('click', function() {
+                calculationHistory = [];
+                localStorage.setItem('gaussColumnScaledHistory', JSON.stringify(calculationHistory));
+                updateHistoryDisplay();
+                showAlert('Historial limpiado correctamente', 'success');
+            });
+
+            // Evento para resolver el sistema
             solveBtn.addEventListener('click', function () {
                 // Limpiar alertas anteriores
                 const alertContainer = document.getElementById('alertContainer');
@@ -304,14 +419,118 @@
                 // Mostrar mensaje de éxito
                 showAlert('Matriz cargada correctamente. Procesando...', 'success');
 
-                // Aquí se llamaría a la función que resuelve el sistema
-                console.log('Matriz a resolver:', matrix);
-
-                calculate()
+                calculate();
 
                 // Mostrar el contenedor de respuesta
                 document.getElementById('responseContainer').style.display = 'block';
             });
+
+            // Update history display
+            function updateHistoryDisplay() {
+                const historyList = document.getElementById('historyList');
+                historyList.innerHTML = '';
+
+                if (calculationHistory.length === 0) {
+                    historyList.innerHTML = '<p class="text-muted">No hay cálculos en el historial</p>';
+                    return;
+                }
+
+                calculationHistory.forEach((item, index) => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'card mb-2';
+                    historyItem.innerHTML = `
+                        <div class="card-body">
+                            <h5 class="card-title">Cálculo #${index + 1}</h5>
+                            <p class="card-text">
+                                <small class="text-muted">${item.timestamp}</small><br>
+                                Matriz ${item.matrix.length}x${item.matrix[0].length}
+                            </p>
+                            <button class="btn btn-sm btn-outline-primary" onclick="loadFromHistory(${index})">
+                                <i class="bi bi-arrow-repeat"></i> Cargar
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" onclick="showHistoryDetails(${index})">
+                                <i class="bi bi-eye"></i> Ver detalles
+                            </button>
+                        </div>
+                    `;
+                    historyList.appendChild(historyItem);
+                });
+            }
+
+            // Load matrix from history
+            function loadFromHistory(index) {
+                if (index < 0 || index >= calculationHistory.length) return;
+
+                const historyItem = calculationHistory[index];
+                const rows = historyItem.matrix.length;
+                const cols = historyItem.matrix[0].length;
+
+                // Set dimensions
+                rowsInput.value = rows;
+                colsInput.value = cols;
+                generateMatrix();
+
+                // Fill values
+                for (let i = 0; i < rows; i++) {
+                    for (let j = 0; j < cols; j++) {
+                        const input = document.querySelector(`.matrix-input[data-row="${i}"][data-col="${j}"]`);
+                        if (input) {
+                            input.value = historyItem.matrix[i][j];
+                        }
+                    }
+                }
+
+                showAlert(`Cálculo #${index + 1} cargado del historial`, 'success');
+            }
+
+            // Show history details
+            function showHistoryDetails(index) {
+                if (index < 0 || index >= calculationHistory.length) return;
+
+                const historyItem = calculationHistory[index];
+                const resultContainer = document.getElementById('resultContainer');
+                const stepsContainer = document.getElementById('stepsContainer');
+
+                // Show the result
+                resultContainer.innerHTML = `
+                    <div class="alert alert-success" role="alert">
+                      <h4>{% translate 'Solution of the equation' %}: ${historyItem.result}</h4>
+                    </div>
+                `;
+
+                // Show the steps if available
+                if (historyItem.process_steps) {
+                    showProcessSteps(historyItem.process_steps);
+                }
+
+                // Scroll to results
+                document.getElementById('responseContainer').style.display = 'block';
+                resultContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            // Add calculation to history
+            function addToHistory(matrix, result, process_steps) {
+                const historyItem = {
+                    timestamp: new Date().toLocaleString(),
+                    matrix: matrix,
+                    result: result,
+                    process_steps: process_steps
+                };
+
+                // Add to beginning of array (newest first)
+                calculationHistory.unshift(historyItem);
+
+                // Keep only last 10 items
+                if (calculationHistory.length > 10) {
+                    calculationHistory = calculationHistory.slice(0, 10);
+                }
+
+                // Save to localStorage
+                localStorage.setItem('gaussColumnScaledHistory', JSON.stringify(calculationHistory));
+
+                // Update display
+                updateHistoryDisplay();
+            }
 
             // Generar la matriz inicial al cargar la página
             document.addEventListener('DOMContentLoaded', function () {
@@ -330,6 +549,9 @@
                     calculatorSection.style.display = 'none';
                     explanationSection.style.display = 'block';
                 };
+
+                window.loadFromHistory = loadFromHistory;
+                window.showHistoryDetails = showHistoryDetails;
 
                 generateMatrix();
 
@@ -423,12 +645,11 @@
                 // Mostrar mensaje de éxito
                 showAlert('Matriz cargada correctamente. Procesando...', 'success');
 
-                // Preparar los datos como parámetros de URL (como en el ejemplo de cubic_spline)
+                // Preparar los datos como parámetros de URL
                 const params = new URLSearchParams({
                     matrix: JSON.stringify(matrix)
                 });
 
-                // Usar la URL correcta según el archivo urls.py
                 fetch(`/calculate-gauss-column-scaled-pivoting/?${params.toString()}`)
                     .then(response => {
                         if (!response.ok) {
@@ -461,6 +682,9 @@
 
                         showResult(data.result);
                         showProcessSteps(data.process_steps);
+                        
+                        // Add to history
+                        addToHistory(matrix, data.result, data.process_steps);
                     })
                     .catch(error => {
                         console.error("Error:", error);
@@ -529,7 +753,6 @@
                     if (step.equation) {
                         const equationElement = document.createElement("div");
                         equationElement.className = "step-equation my-2";
-                        // Usar innerHTML en lugar de textContent para renderizar correctamente
                         equationElement.innerHTML = `<div class="math-display">$$${step.equation}$$</div>`;
                         stepContainer.appendChild(equationElement);
                     }
@@ -538,7 +761,6 @@
                     if (step.matrix) {
                         const matrixElement = document.createElement("div");
                         matrixElement.className = "step-matrix my-3";
-                        // Usar innerHTML en lugar de textContent para renderizar correctamente
                         matrixElement.innerHTML = `<div class="math-display">$$${step.matrix}$$</div>`;
                         stepContainer.appendChild(matrixElement);
                     }
@@ -563,7 +785,4 @@
         </script>
 
     </div>
-
-
 {% endblock %}
-

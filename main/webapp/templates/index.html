@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% translate 'Home' %} - {% translate 'Numerical Methods' %}{% endblock %}
+{% block title %}{% trans 'Home' %} - {% trans 'Numerical Methods' %}{% endblock %}
 {% block content %}
 {% load static %}
 
@@ -16,10 +16,10 @@
       <img src="{% static 'images/carousel/taylor.jpg' %}" class="d-block w-100 img-fluid" alt="Taylor Series Visualization">
       <div class="container">
         <div class="carousel-caption text-start">
-          <h1>{% translate 'Taylor and Maclaurin Series' %}</h1>
-          <p class="opacity-75">{% translate 'Explore the Taylor and Maclaurin series with our interactive calculator and detailed explanations.' %}</p>
+          <h1>{% trans 'Taylor and Maclaurin Series' %}</h1>
+          <p class="opacity-75">{% trans 'Explore the Taylor and Maclaurin series with our interactive calculator and detailed explanations.' %}</p>
           <p><a class="btn btn-lg btn-primary" href="{% url 'taylor_series' %}">
-            <i class="bi bi-calculator"></i> {% translate 'Learn More' %}
+            <i class="bi bi-calculator"></i> {% trans 'Learn More' %}
           </a></p>
         </div>
       </div>
@@ -28,10 +28,10 @@
       <img src="{% static 'images/carousel/carousel.jpg' %}" class="d-block w-100 img-fluid" alt="Root Finding Methods">
       <div class="container">
         <div class="carousel-caption">
-          <h1>{% translate 'Root Finding Methods' %}</h1>
-          <p>{% translate 'Discover methods like Bisection, Newton-Raphson, and Secant for solving equations.' %}</p>
+          <h1>{% trans 'Root Finding Methods' %}</h1>
+          <p>{% trans 'Discover methods like Bisection, Newton-Raphson, and Secant for solving equations.' %}</p>
           <p><a class="btn btn-lg btn-secondary" href="#">
-            <i class="bi bi-search"></i> {% translate 'Explore' %}
+            <i class="bi bi-search"></i> {% trans 'Explore' %}
           </a></p>
         </div>
       </div>
@@ -40,10 +40,10 @@
       <img src="{% static 'images/carousel/carousel.jpg' %}" class="d-block w-100 img-fluid" alt="Graph Visualization">
       <div class="container">
         <div class="carousel-caption text-end">
-          <h1>{% translate 'Graphs and Visualization' %}</h1>
-          <p>{% translate 'Visualize complex mathematical concepts with interactive graphs.' %}</p>
+          <h1>{% trans 'Graphs and Visualization' %}</h1>
+          <p>{% trans 'Visualize complex mathematical concepts with interactive graphs.' %}</p>
           <p><a class="btn btn-lg btn-secondary" href="#">
-            <i class="bi bi-bar-chart-line"></i> {% translate 'View Graphs' %}
+            <i class="bi bi-bar-chart-line"></i> {% trans 'View Graphs' %}
           </a></p>
         </div>
       </div>
@@ -51,18 +51,18 @@
   </div>
   <button class="carousel-control-prev" type="button" data-bs-target="#myCarousel" data-bs-slide="prev">
     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Previous</span>
+    <span class="visually-hidden">{% trans 'Previous' %}</span>
   </button>
   <button class="carousel-control-next" type="button" data-bs-target="#myCarousel" data-bs-slide="next">
     <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Next</span>
+    <span class="visually-hidden">{% trans 'Next' %}</span>
   </button>
 </div>
 
 <!-- Acerca del Proyecto -->
 <div class="container px-4 py-5 mt-5" id="hanging-icons">
-  <h2 class="pb-2 border-bottom">🚀 {% translate 'About the Project' %}</h2>
-  <p class="py-3">{% translate 'This project was developed by students from BUAP as part of the Numerical Methods course. It includes interactive calculators, graphs, and theoretical documentation to solve mathematical problems using numerical methods. The goal is to provide an intuitive and educational platform for students and professionals to explore and apply numerical techniques in real-world scenarios.' %}</p>
+  <h2 class="pb-2 border-bottom">🚀 {% trans 'About the Project' %}</h2>
+  <p class="py-3">{% trans 'This project was developed by students from BUAP as part of the Numerical Methods course. It includes interactive calculators, graphs, and theoretical documentation to solve mathematical problems using numerical methods. The goal is to provide an intuitive and educational platform for students and professionals to explore and apply numerical techniques in real-world scenarios.' %}</p>
   <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
     <div class="col d-flex align-items-start">
       <div class="icon-square text-body-emphasis p-4 rounded-3 bg-body-secondary d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
@@ -110,66 +110,18 @@
   }
 </style>
 
-<!-- Calculadoras y Herramientas -->
-<section id="calculadoras" class="py-5 bg-light">
-  <div class="container">
-    <h2 class="mb-4 border-bottom pb-3">📝 {% translate 'Calculators and Tools' %}</h2>
-    <div class="row">
-      <!-- Tarjeta 1 -->
-      <div class="col-md-4 mb-4">
-        <div class="card shadow-sm h-100 border-0">
-          <img src="{% static 'images/thumbnails/taylor.jpg' %}" class="card-img-top rounded-top" alt="Taylor and Maclaurin Series">
-          <div class="card-body">
-            <h5 class="card-title">{% translate 'Taylor and Maclaurin Series' %}</h5>
-            <p class="card-text">{% translate 'Explore the Taylor and Maclaurin series with our interactive calculator and detailed explanations.' %}</p>
-            <a href="{% url 'taylor_series' %}" class="btn btn-primary">
-              <i class="bi bi-calculator"></i> {% translate 'Explore' %}
-            </a>
-          </div>
-        </div>
-      </div>
-      <!-- Tarjeta 2 -->
-      <div class="col-md-4 mb-4">
-        <div class="card shadow-sm h-100 border-0">
-          <img src="{% static 'images/thumbnails/bisection.jpg' %}" class="card-img-top rounded-top" alt="Bisection Method">
-          <div class="card-body">
-            <h5 class="card-title">{% translate 'Bisection Method' %}</h5>
-            <p class="card-text">{% translate 'Learn how to find roots of equations using the Bisection method.' %}</p>
-            <a href="#" class="btn btn-primary">
-              <i class="bi bi-search"></i> {% translate 'Explore' %}
-            </a>
-          </div>
-        </div>
-      </div>
-      <!-- Tarjeta 3 -->
-      <div class="col-md-4 mb-4">
-        <div class="card shadow-sm h-100 border-0">
-          <img src="{% static 'images/thumbnails/newton.jpg' %}" class="card-img-top rounded-top" alt="Newton-Raphson Method">
-          <div class="card-body">
-            <h5 class="card-title">{% translate 'Newton-Raphson Method' %}</h5>
-            <p class="card-text">{% translate 'Discover the Newton-Raphson method for solving equations numerically.' %}</p>
-            <a href="#" class="btn btn-primary">
-              <i class="bi bi-search"></i> {% translate 'Explore' %}
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- Gráficas y Visualización -->
 <section class="py-5">
   <div class="container">
-    <h2 class="text-center mb-4">📊 {% translate 'Graphs and Visualization' %}</h2>
+    <h2 class="text-center mb-4">📊 {% trans 'Graphs and Visualization' %}</h2>
     <div class="row">
       <div class="col-md-6 mb-4">
-        <img src="{% static 'images/graphs/graph1.jpg' %}" alt="Graph 1: Taylor Series Approximation" class="img-fluid rounded shadow-sm" />
-        <p class="text-center mt-2">{% translate 'Taylor Series Approximation' %}</p>
+        <img src="{% static 'images/biseccion prev.png' %}" alt="Graph 1: Taylor Series Approximation" class="img-fluid rounded shadow-sm" />
+        <p class="text-center mt-2">{% trans 'Taylor Series Approximation' %}</p>
       </div>
       <div class="col-md-6 mb-4">
-        <img src="{% static 'images/graphs/graph2.jpg' %}" alt="Graph 2: Root Finding Visualization" class="img-fluid rounded shadow-sm" />
-        <p class="text-center mt-2">{% translate 'Root Finding Visualization' %}</p>
+        <img src="{% static 'images/taylor_prev.png' %}" alt="Graph 2: Root Finding Visualization" class="img-fluid rounded shadow-sm" />
+        <p class="text-center mt-2">{% trans 'Root Finding Visualization' %}</p>
       </div>
     </div>
   </div>
@@ -178,31 +130,31 @@
 <!-- Equipo -->
 <section class="py-5 bg-light">
   <div class="container">
-    <h2 class="mb-5 border-bottom py-3">👩‍💻 {% translate 'Our Team' %}</h2>
+    <h2 class="mb-5 border-bottom py-3">👩‍💻 {% trans 'Our Team' %}</h2>
     <div class="row mt-5">
       <!-- Erika -->
       <div class="col-lg-4 text-center mb-4">
-        <img src="{% static 'images/team/erika.jpg' %}" class="rounded-circle mb-3" width="140" height="140" alt="Erika Amastal">
-        <h2 class="fw-normal py-3">Erika Amastal</h2>
-        <p>{% translate 'Erika is a dedicated developer with a passion for numerical methods and educational tools.' %}</p>
+        <img src="https://github.com/ErikaAX08.png" class="rounded-circle mb-3" width="140" height="140" alt="{% trans 'Erika Amastal' %}">
+        <h2 class="fw-normal py-3">{% trans 'Erika Amastal' %}</h2>
+        <p>{% trans 'Erika is a dedicated developer with a passion for numerical methods and educational tools.' %}</p>
         <p><a class="btn btn-outline-primary" href="https://github.com/ErikaAX08" target="_blank">
           <i class="bi bi-github"></i> GitHub
         </a></p>
       </div>
       <!-- Guillermo -->
       <div class="col-lg-4 text-center mb-4">
-        <img src="{% static 'images/team/guillermo.jpg' %}" class="rounded-circle mb-3" width="140" height="140" alt="Guillermo Campos">
-        <h2 class="fw-normal py-3">Guillermo Campos</h2>
-        <p>{% translate 'Guillermo specializes in backend development and has contributed significantly to this project.' %}</p>
+        <img src="https://github.com/Meitos24.png" class="rounded-circle mb-3" width="140" height="140" alt="{% trans 'Guillermo Campos' %}">
+        <h2 class="fw-normal py-3">{% trans 'Guillermo Campos' %}</h2>
+        <p>{% trans 'Guillermo specializes in backend development and has contributed significantly to this project.' %}</p>
         <p><a class="btn btn-outline-primary" href="https://github.com/Meitos24" target="_blank">
           <i class="bi bi-github"></i> GitHub
         </a></p>
       </div>
       <!-- Ivan -->
       <div class="col-lg-4 text-center mb-4">
-        <img src="{% static 'images/team/ivan.jpg' %}" class="rounded-circle mb-3" width="140" height="140" alt="Ivan Luna">
-        <h2 class="fw-normal py-3">Ivan Luna</h2>
-        <p>{% translate 'Ivan is a front-end developer with a keen eye for design and user experience.' %}</p>
+        <img src="https://github.com/N0x370z.png" class="rounded-circle mb-3" width="140" height="140" alt="{% trans 'Ivan Luna' %}">
+        <h2 class="fw-normal py-3">{% trans 'Ivan Luna' %}</h2>
+        <p>{% trans 'Ivan is a front-end developer with a keen eye for design and user experience.' %}</p>
         <p><a class="btn btn-outline-primary" href="https://github.com/N0x370z" target="_blank">
           <i class="bi bi-github"></i> GitHub
         </a></p>
@@ -214,22 +166,22 @@
 <!-- Contact Us -->
 <section class="py-5">
   <div class="container">
-    <h2 class="mb-4 border-bottom pb-3">📞 {% translate 'Contact Us' %}</h2>
+    <h2 class="mb-4 border-bottom pb-3">📞 {% trans 'Contact Us' %}</h2>
     <form id="contactForm">
       <div class="mb-3">
-        <label for="name" class="form-label">{% translate 'Name' %}</label>
+        <label for="name" class="form-label">{% trans 'Name' %}</label>
         <input type="text" class="form-control" id="name" required>
       </div>
       <div class="mb-3">
-        <label for="email" class="form-label">{% translate 'Email' %}</label>
+        <label for="email" class="form-label">{% trans 'Email' %}</label>
         <input type="email" class="form-control" id="email" required>
       </div>
       <div class="mb-3">
-        <label for="message" class="form-label">{% translate 'Message' %}</label>
+        <label for="message" class="form-label">{% trans 'Message' %}</label>
         <textarea class="form-control" id="message" rows="4" required></textarea>
       </div>
       <button type="submit" class="btn btn-primary">
-        <i class="bi bi-envelope"></i> {% translate 'Submit' %}
+        <i class="bi bi-envelope"></i> {% trans 'Submit' %}
       </button>
     </form>
   </div>

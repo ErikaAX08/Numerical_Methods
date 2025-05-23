@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from sympy import exp, sin, cos, sinh, cosh, log, symbols, lambdify, sympify
 from django.views.decorators.csrf import csrf_exempt
+from webapp.models import TrapecioCompuestoHistorial
 
 # Definir la variable simbólica
 x = symbols('x')
@@ -432,64 +433,71 @@ def calculate_trapezoid(request):
 
 @csrf_exempt
 def calculate_trapezoid_compound(request):
-    global x
-    x = symbols('x')
-    if request.method == "GET":
+    # Si es GET con parámetros (cálculo desde el frontend)
+    if request.method == "GET" and request.GET.get("func"):
+        # Obtener los parámetros desde la URL
+        func = request.GET.get("func")
+        a = float(request.GET.get("a"))
+        b = float(request.GET.get("b"))
+        n = int(request.GET.get("n"))
+
         try:
-            func = request.GET.get("func")
-            a = request.GET.get("a")
-            b = request.GET.get("b")
-            n = request.GET.get("n")
+            # Validar y convertir la función
+            parsed_func = sympify(func)
 
-            # Validación de parámetros
-            if func is None or a is None or b is None or n is None:
-                return JsonResponse({"error": "Faltan parámetros requeridos."}, status=400)
+            # Crear función evaluable
+            f = lambdify(x, parsed_func, "numpy")
 
-            try:
-                a = float(a)
-                b = float(b)
-                n = int(n)
-            except Exception as e:
-                return JsonResponse({"error": f"Parámetros numéricos inválidos: {str(e)}"}, status=400)
+            # Aplicar la regla del trapecio
+            integral_value, x_values, y_values = trapezoid_compound_rule(
+                parsed_func, a, b, n)
 
-            # Parsear la función
-            try:
-                sym_func = sympify(func)
-            except Exception as e:
-                return JsonResponse({"error": f"Función no válida: {str(e)}"}, status=400)
+            # Generar el gráfico estático
+            plot_buffer = generate_trapezoid_graph(parsed_func, a, b, [1])
+            plot_image = base64.b64encode(
+                plot_buffer.getvalue()).decode('utf-8')
 
-            # Calcular la integral y los puntos para el n solicitado
-            try:
-                integral, x_points, y_points = trapezoid_compound_rule(sym_func, a, b, n)
-            except Exception as e:
-                return JsonResponse({"error": f"Error en el cálculo numérico: {str(e)}"}, status=500)
+            # Generar el gráfico interactivo
+            plot_json = generate_interactive_trapezoid_graph(
+                parsed_func, a, b, 1)
 
-            # Generar gráfico estático
-            try:
-                graph_buffer = generate_trapezoid_graph(sym_func, a, b, [n])
-                image_base64 = base64.b64encode(graph_buffer.getvalue()).decode("utf-8")
-            except Exception as e:
-                image_base64 = ""
-            
-            # Generar gráfico interactivo
-            try:
-                plot_json = generate_interactive_trapezoid_graph(sym_func, a, b, max_subintervals=max(10, n))
-            except Exception as e:
-                plot_json = "{}"
+            # Guardar en historial
+            TrapecioCompuestoHistorial.objects.create(
+                funcion=func,
+                limite_inferior=a,
+                limite_superior=b,
+                subintervalos=n,
+                resultado=float(integral_value)
+            )
 
-            response = {
-                "image": image_base64,
-                "plot_json": plot_json,
-                "x_values": x_points.tolist(),
-                "original_y_values": y_points.tolist(),
-                "integral": float(integral)
-            }
-            return JsonResponse(response)
+            # Devolver los resultados como JSON
+            return JsonResponse({
+                "error": None,
+                "integral_value": float(integral_value),
+                "x_values": x_values.tolist(),
+                "original_y_values": y_values.tolist(),
+                "image": plot_image,
+                "plot_json": plot_json
+            })
+
         except Exception as e:
-            print(f"Error: {str(e)}")
-            return JsonResponse({"error": str(e)}, status=500)
-    else:
-        return JsonResponse({"error": "Método no permitido"}, status=405)
+            return JsonResponse({"error": str(e)})
+
+    # Si es GET sin parámetros (petición AJAX para cargar últimos valores usados)
+    elif request.method == "GET" and request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        ultimo = TrapecioCompuestoHistorial.objects.order_by("-id").first()
+        if ultimo:
+            return JsonResponse({
+                "funcion": ultimo.funcion,
+                "limite_inferior": ultimo.limite_inferior,
+                "limite_superior": ultimo.limite_superior,
+                "subintervalos": ultimo.subintervalos
+            })
+        else:
+            return JsonResponse({"error": "No hay datos guardados"})
+
+    # Vista inicial
+    return render(request, "trapezoid_compound.html")
 
 
 def trapezoid_compound(request):

@@ -1,5 +1,4 @@
 from django.urls import path
-
 from .views.gauss_maximum_column_pivoting_views import gauss_maximum_column_pivoting
 from .views.home_views import index
 from .views.taylor_series_views import calculate_taylor, taylor_series
@@ -25,6 +24,8 @@ from .views.trapezoid_compound_views import trapezoid_compound, calculate_trapez
 from .views.simpson_3_8_compuesto_views import simpson_3_8_compound, calculate_simpson_3_8_compound
 from .views.simpson_tercio_simple_views import simpson_tercio_simple_page, calculate_simpson_tercio_simple
 from .views.romberg_method_views import romberg_method, calculate_romberg_method
+from .views.fixed_point_iteration_views import fixed_point_iteration_page, calculate_fixed_point_iteration
+
 
 urlpatterns = [
     path("", index, name="index"),
@@ -76,4 +77,7 @@ urlpatterns = [
      path("calculate-simpson-tercio-simple/", calculate_simpson_tercio_simple, name="calculate_simpson_tercio_simple"),
      path("romberg-method/", romberg_method, name="romberg_method"),
      path("calculate-romberg-method/", calculate_romberg_method, name="calculate_romberg_method"),
+
+     path("fixed-point-iteration/", fixed_point_iteration_page, name="fixed_point_iteration"),
+     path("calculate-fixed-point-iteration/", calculate_fixed_point_iteration, name="calculate_fixed_point_iteration"),
 ]

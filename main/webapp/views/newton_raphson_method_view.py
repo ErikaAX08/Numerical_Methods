@@ -49,4 +49,4 @@ def calculate_newton_raphson(request):
 
 
 def newton_raphson(request):
-    return render(request, 'newthon-raphson-method.html')
+    return render(request, 'newton_raphson_method.html')

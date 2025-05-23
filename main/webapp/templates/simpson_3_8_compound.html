@@ -1,22 +1,48 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% translate 'Simpson 3/8 Compuesto' %} - {% translate 'Numerical Methods' %}{% endblock %}
+{% block title %}
+    {% get_current_language as LANGUAGE_CODE %}
+    {% if LANGUAGE_CODE == "es" %}
+        Regla de Simpson de 3/8 compuesto - Métodos Numéricos
+    {% else %}
+        Composite Simpson's 3/8 Rule - Numerical Methods
+    {% endif %}
+{% endblock %}
 {% block content %}
     {% load static %}
-
     <div class="container-sm p-5">
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
             <div class="col-lg-12">
-                <h2 class="display-4 fw-bold lh-1s">{% translate 'Método de Simpson 3/8 Compuesto' %}</h2>
+                <h2 class="display-4 fw-bold lh-1s">
+                    {% if LANGUAGE_CODE == "es" %}
+                        Regla de Simpson de 3/8 compuesto
+                    {% else %}
+                        Composite Simpson's 3/8 Rule
+                    {% endif %}
+                </h2>
+                {% get_current_language as LANGUAGE_CODE %}
                 <p class="lead py-5">
-                    {% translate 'El método de Simpson 3/8 compuesto es una técnica de integración numérica que mejora la precisión al dividir el intervalo [a, b] en n subintervalos (múltiplos de 3) y aplicar la regla de Simpson 3/8 en cada segmento. Este método utiliza polinomios cúbicos para aproximar la función en cada subintervalo.' %}
+                    {% if LANGUAGE_CODE == "es" %}
+                        La regla de Simpson 3/8 compuesta aplica la fórmula de Simpson 3/8 en varios grupos de tres subintervalos, permitiendo una mejor aproximación en intervalos más grandes y funciones más complejas.
+                    {% else %}
+                        The composite Simpson's 3/8 rule applies the Simpson's 3/8 formula to several groups of three subintervals, allowing for a better approximation over larger intervals and more complex functions.
+                    {% endif %}
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
                     <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
-                            onclick="showCalculator()">{% translate 'Graphing Calculator' %}
+                            onclick="showCalculator()">
+                        {% if LANGUAGE_CODE == "es" %}
+                            Calculadora Gráfica
+                        {% else %}
+                            Graphing Calculator
+                        {% endif %}
                     </button>
                     <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">
-                        {% translate 'Explanation' %}
+                        {% if LANGUAGE_CODE == "es" %}
+                            Explicación
+                        {% else %}
+                            Explanation
+                        {% endif %}
                     </button>
                 </div>
             </div>
