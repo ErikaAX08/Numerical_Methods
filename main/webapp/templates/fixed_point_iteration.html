@@ -289,6 +289,25 @@
                 });
             }
 
+            function generateTable(xValues, yValues, weights) {
+                const tableContainer = document.getElementById("resultsTable");
+                const tbody = tableContainer.querySelector("tbody");
+                tbody.innerHTML = "";
+
+                // Modificar la generación de filas para soportar números complejos
+                xValues.forEach((x, index) => {
+                    const row = document.createElement("tr");
+                    const isComplex = typeof x === 'object' && x.hasOwnProperty('real');
+                    
+                    row.innerHTML = `
+                        <td class="fw-bold">${index + 1}</td>
+                        <td>${isComplex ? `${x.real.toFixed(6)} + ${x.imag.toFixed(6)}i` : x.toFixed(6)}</td>
+                        <td>${isComplex ? `${y[index].real.toFixed(6)} + ${y[index].imag.toFixed(6)}i` : y[index].toFixed(6)}</td>
+                        <td>${weights[index].toFixed(6)}</td>`;
+                    tbody.appendChild(row);
+                });
+            }
+
         </script>
 
     </div>
