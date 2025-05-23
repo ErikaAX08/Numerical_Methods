@@ -8,6 +8,7 @@
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
             <div class="col-lg-12">
                 <h2 class="display-4 fw-bold lh-1s">{% translate 'Fixed Point Iteration' %}</h2>
+                {% get_current_language as LANGUAGE_CODE %}
                 <p class="lead py-5">
                     {% if LANGUAGE_CODE == "es" %}
                         El método de iteración de punto fijo es una técnica para encontrar puntos fijos de una función mediante un proceso iterativo. Un punto fijo es un valor que, cuando se aplica a una función, devuelve el mismo valor. El método consiste en reformular la ecuación f(x) = 0 como x = g(x) y generar una secuencia de aproximaciones mediante iteraciones sucesivas.
@@ -32,10 +33,108 @@
         <div id="calculator" style="display: none;" class="mt-5">
             <h3 class="mb-5">{% translate 'Fixed Point Iteration Calculator' %}</h3>
             <form class="mb-5 p-4 bg-light rounded-3 shadow" id="calculatorForm">
+                <!-- Ecuaciones predefinidas -->
+                <div class="mb-3">
+                    <label for="presetEquations" class="form-label">
+                        {% if LANGUAGE_CODE == "es" %}
+                            Funciones Predefinidas g(x):
+                        {% else %}
+                            Preset Functions g(x):
+                        {% endif %}
+                    </label>
+                    <select class="form-select" id="presetEquations" onchange="loadPresetEquation()">
+                        <option value="custom">
+                            {% if LANGUAGE_CODE == "es" %}
+                                Función personalizada
+                            {% else %}
+                                Custom function
+                            {% endif %}
+                        </option>
+                        <option value="x - (x^3 + 4*x^2 - 10)/8" data-interval-a="1" data-interval-b="3" data-p0="1.5" data-original="x³ + 4x² - 10 = 0">
+                            g(x) = x - (x³ + 4x² - 10)/8
+                        </option>
+                        <option value="2/x" data-interval-a="0.5" data-interval-b="2.5" data-p0="1.5" data-original="x² - 2 = 0">
+                            g(x) = 2/x (para √2 ≈ 1.414)
+                        </option>
+                        <option value="cos(x)" data-interval-a="0" data-interval-b="1" data-p0="0.5" data-original="cos(x) - x = 0">
+                            g(x) = cos(x)
+                        </option>
+                        <option value="(x + 2/x)/2" data-interval-a="0.5" data-interval-b="2.5" data-p0="1.0" data-original="x² - 2 = 0">
+                            g(x) = (x + 2/x)/2 (método de Herón para √2)
+                        </option>
+                        <option value="(x^2 + 2)/(2*x + 1)" data-interval-a="0.5" data-interval-b="2" data-p0="1.0" data-original="x² - 2x - 2 = 0">
+                            g(x) = (x² + 2)/(2x + 1)
+                        </option>
+                        <option value="sqrt(x + 1)" data-interval-a="1" data-interval-b="3" data-p0="1.5" data-original="x² - x - 1 = 0">
+                            g(x) = √(x + 1)
+                        </option>
+                        <option value="exp(x)/3" data-interval-a="0" data-interval-b="2" data-p0="1.0" data-original="3ln(x) - x = 0">
+                            g(x) = eˣ/3
+                        </option>
+                        <option value="sin(x) + x" data-interval-a="-1" data-interval-b="1" data-p0="0.0" data-original="x - sin(x) - x = 0">
+                            g(x) = sin(x) + x
+                        </option>
+                        <option value="(10 - x^3)/(4*x)" data-interval-a="1" data-interval-b="2" data-p0="1.3" data-original="x³ + 4x² - 10 = 0">
+                            g(x) = (10 - x³)/(4x)
+                        </option>
+                        <option value="1 + 1/x" data-interval-a="0.5" data-interval-b="3" data-p0="1.5" data-original="x² - x - 1 = 0">
+                            g(x) = 1 + 1/x
+                        </option>
+                        <option value="atan(x)" data-interval-a="0" data-interval-b="2" data-p0="1.0" data-original="tan(x) - x = 0">
+                            g(x) = arctan(x)
+                        </option>
+                        <option value="(x + 3/x)/2" data-interval-a="1" data-interval-b="3" data-p0="2.0" data-original="x² - 3 = 0">
+                            g(x) = (x + 3/x)/2 (para √3 ≈ 1.732)
+                        </option>
+                        <option value="x/2 + 1/x" data-interval-a="0.5" data-interval-b="3" data-p0="1.5" data-original="x² - x/2 - 1 = 0">
+                            g(x) = x/2 + 1/x (convergencia lenta)
+                        </option>
+                    </select>
+                    <div class="form-text">
+                        {% if LANGUAGE_CODE == "es" %}
+                            Selecciona una función g(x) para encontrar su punto fijo x = g(x)
+                        {% else %}
+                            Select a function g(x) to find its fixed point x = g(x)
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Información de la ecuación original -->
+                <div class="alert alert-info" id="originalEquationInfo" style="display: none;">
+                    <h6 class="alert-heading">
+                        {% if LANGUAGE_CODE == "es" %}
+                            📝 Ecuación Original:
+                        {% else %}
+                            📝 Original Equation:
+                        {% endif %}
+                    </h6>
+                    <p class="mb-0" id="originalEquationText"></p>
+                    <small class="text-muted" id="reformulationText">
+                        {% if LANGUAGE_CODE == "es" %}
+                            Reformulada como x = g(x) para aplicar iteración de punto fijo
+                        {% else %}
+                            Reformulated as x = g(x) to apply fixed point iteration
+                        {% endif %}
+                    </small>
+                </div>
+
                 <div class="mb-3">
                     <div class="col-md-12 col-sm-6 mb-3">
-                        <label for="equation" class="form-label">{% translate 'Function g(x)' %}:</label>
+                        <label for="equation" class="form-label">
+                            {% if LANGUAGE_CODE == "es" %}
+                                Función g(x):
+                            {% else %}
+                                Function g(x):
+                            {% endif %}
+                        </label>
                         <input type="text" class="form-control" id="equation" value="x - (x^3 + 4*x^2 - 10)/8" required>
+                        <div class="form-text">
+                            {% if LANGUAGE_CODE == "es" %}
+                                La función de iteración donde x_{n+1} = g(x_n)
+                            {% else %}
+                                The iteration function where x_{n+1} = g(x_n)
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
 
@@ -64,7 +163,14 @@
                 <div class="row">
                     <div class="col-sm-12 mb-3">
                         <label for="p0" class="form-label">{% translate 'Initial Point x0' %}:</label>
-                        <input type="number" class="form-control" id="p0" step="any" value="1.0" required>
+                        <input type="number" class="form-control" id="p0" step="any" value="1.5" required>
+                        <div class="form-text">
+                            {% if LANGUAGE_CODE == "es" %}
+                                Punto inicial para comenzar las iteraciones. La convergencia depende de este valor.
+                            {% else %}
+                                Initial point to start iterations. Convergence depends on this value.
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
 
@@ -87,18 +193,34 @@
             <div id="results" class="mt-5 p-4 bg-light rounded-3 shadow" style="display: none;">
                 <h4 class="mb-3">{% translate 'Results' %}</h4>
                 <div id="messageContainer"></div>
-                <table id="resultsTable" class="table table-bordered rounded-5 table-striped mb-5">
-                    <thead>
-                    <tr>
-                        <th>{% translate 'Iteration' %}</th>
-                        <th>{% translate 'x_n' %}</th>
-                        <th>{% translate 'x_n1' %}</th>
-                        <th>{% translate 'Error' %}</th>
-                        <th>{% translate 'g(x)' %}</th>
-                    </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table id="resultsTable" class="table table-bordered rounded-5 table-striped mb-5">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>{% translate 'Iteration' %}</th>
+                            <th>{% translate 'x_n' %}</th>
+                            <th>{% translate 'g(x_n)' %}</th>
+                            <th>{% translate 'x_{n+1}' %}</th>
+                            <th>{% translate 'Error' %}</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                
+                <!-- Convergence analysis -->
+                <div class="mt-4 p-3 bg-light rounded" id="convergenceAnalysis" style="display: none">
+                    <h5 class="text-primary">
+                        {% if LANGUAGE_CODE == "es" %}
+                            📊 Análisis de Convergencia
+                        {% else %}
+                            📊 Convergence Analysis
+                        {% endif %}
+                    </h5>
+                    <div id="convergenceInfo">
+                        <!-- Analysis will be populated here -->
+                    </div>
+                </div>
             </div>
         </div>
         <!-- Hidden extensive explanation section -->
@@ -131,15 +253,76 @@
                 \]
                 {% if LANGUAGE_CODE == "es" %}
                     <strong>3.</strong> Continuar hasta que |xₙ₊₁ - xₙ| < tolerancia o se alcance el máximo de iteraciones.<br><br>
-                    <strong>4.</strong> La convergencia depende de que |g'(x)| < 1 cerca del punto fijo.
+                    <strong>Condición de Convergencia:</strong><br>
+                    El método converge si |g'(x)| < 1 cerca del punto fijo. Si |g'(x)| ≥ 1, el método puede diverger.<br><br>
+                    <strong>Tipos de Convergencia:</strong><br>
+                    • Si 0 < |g'(x)| < 1: Convergencia lineal<br>
+                    • Si g'(x) = 0: Convergencia cuadrática<br>
+                    • Si |g'(x)| > 1: Divergencia
                 {% else %}
                     <strong>3.</strong> Continue until |xₙ₊₁ - xₙ| < tolerance or maximum iterations reached.<br><br>
-                    <strong>4.</strong> Convergence depends on |g'(x)| < 1 near the fixed point.
+                    <strong>Convergence Condition:</strong><br>
+                    The method converges if |g'(x)| < 1 near the fixed point. If |g'(x)| ≥ 1, the method may diverge.<br><br>
+                    <strong>Types of Convergence:</strong><br>
+                    • If 0 < |g'(x)| < 1: Linear convergence<br>
+                    • If g'(x) = 0: Quadratic convergence<br>
+                    • If |g'(x)| > 1: Divergence
                 {% endif %}
             </p>
         </div>
 
         <script>
+            // Función para cargar ecuación predefinida
+            function loadPresetEquation() {
+                const select = document.getElementById('presetEquations');
+                const selectedOption = select.options[select.selectedIndex];
+                const equationInput = document.getElementById('equation');
+                const intervalAInput = document.getElementById('intervalA');
+                const intervalBInput = document.getElementById('intervalB');
+                const p0Input = document.getElementById('p0');
+                const originalEquationInfo = document.getElementById('originalEquationInfo');
+                const originalEquationText = document.getElementById('originalEquationText');
+
+                if (select.value !== 'custom') {
+                    equationInput.value = select.value;
+                    intervalAInput.value = selectedOption.getAttribute('data-interval-a');
+                    intervalBInput.value = selectedOption.getAttribute('data-interval-b');
+                    p0Input.value = selectedOption.getAttribute('data-p0');
+                    
+                    // Mostrar información de la ecuación original
+                    const originalEq = selectedOption.getAttribute('data-original');
+                    if (originalEq) {
+                        originalEquationText.textContent = originalEq;
+                        originalEquationInfo.style.display = 'block';
+                    } else {
+                        originalEquationInfo.style.display = 'none';
+                    }
+                } else {
+                    originalEquationInfo.style.display = 'none';
+                }
+            }
+
+            // Función para detectar cuando el usuario modifica manualmente la ecuación
+            document.getElementById('equation').addEventListener('input', function() {
+                const presetSelect = document.getElementById('presetEquations');
+                const currentEquation = this.value;
+                
+                // Buscar si la ecuación actual coincide con alguna predefinida
+                let foundMatch = false;
+                for (let i = 0; i < presetSelect.options.length; i++) {
+                    if (presetSelect.options[i].value === currentEquation) {
+                        presetSelect.selectedIndex = i;
+                        foundMatch = true;
+                        break;
+                    }
+                }
+                
+                // Si no coincide con ninguna predefinida, seleccionar "custom"
+                if (!foundMatch) {
+                    presetSelect.value = 'custom';
+                    document.getElementById('originalEquationInfo').style.display = 'none';
+                }
+            });
 
             function showCalculator() {
                 document.getElementById('explanation').style.display = 'none';
@@ -172,6 +355,9 @@
 
                 // Clear messages
                 document.getElementById("messageContainer").innerHTML = "";
+
+                // Clear convergence analysis
+                document.getElementById("convergenceInfo").innerHTML = "";
 
                 // Clear plots
                 Plotly.purge('plot-container');
@@ -246,12 +432,15 @@
             }
 
             function displayResults(data) {
-                // Display regular Regula Falsi results
+                // Display results
                 populateResultsTable(
                     "resultsTable",
                     "messageContainer",
                     data.results.results
                 );
+
+                // Display convergence analysis
+                displayConvergenceAnalysis(data.results.results);
             }
 
             function populateResultsTable(tableId, messageId, results) {
@@ -265,12 +454,40 @@
                 if (results.converged) {
                     messageContainer.innerHTML = `
                         <div class="alert alert-success">
-                            <strong>{% translate 'Root found' %}:</strong> ${results.root.toFixed(6)}
+                            <strong>
+                                {% if LANGUAGE_CODE == "es" %}
+                                    ✅ Punto fijo encontrado:
+                                {% else %}
+                                    ✅ Fixed point found:
+                                {% endif %}
+                            </strong> ${results.root.toFixed(8)}
+                            <br><small class="text-muted">
+                                {% if LANGUAGE_CODE == "es" %}
+                                    Convergencia en ${results.iterations.length} iteraciones
+                                {% else %}
+                                    Converged in ${results.iterations.length} iterations
+                                {% endif %}
+                            </small>
                         </div>`;
                 } else {
+                    const lastIteration = results.iterations[results.iterations.length - 1];
                     messageContainer.innerHTML = `
                         <div class="alert alert-warning">
-                            {% translate 'Method did not converge within the maximum number of iterations' %}.
+                            <strong>
+                                {% if LANGUAGE_CODE == "es" %}
+                                    ⚠️ El método no convergió:
+                                {% else %}
+                                    ⚠️ Method did not converge:
+                                {% endif %}
+                            </strong>
+                            <br>
+                            {% if LANGUAGE_CODE == "es" %}
+                                Última aproximación: ${lastIteration ? lastIteration.x_n1.toFixed(6) : 'N/A'}
+                                <br><small class="text-muted">Prueba con un punto inicial diferente o verifica que |g'(x)| < 1</small>
+                            {% else %}
+                                Last approximation: ${lastIteration ? lastIteration.x_n1.toFixed(6) : 'N/A'}
+                                <br><small class="text-muted">Try a different initial point or verify that |g'(x)| < 1</small>
+                            {% endif %}
                         </div>`;
                 }
 
@@ -281,12 +498,155 @@
                     row.innerHTML = `
                         <td>${iter.iteration}</td>
                         <td>${iter.x_n.toFixed(6)}</td>
+                        <td>${iter['g(x)'].toFixed(6)}</td>
                         <td>${iter.x_n1.toFixed(6)}</td>
                         <td>${iter.error.toFixed(6)}</td>
-                        <td>${iter['g(x)'].toFixed(6)}</td>
                     `;
                     tbody.appendChild(row);
                 });
+            }
+
+            function displayConvergenceAnalysis(results) {
+                const convergenceInfo = document.getElementById('convergenceInfo');
+                const iterations = results.iterations;
+                
+                if (iterations.length < 2) {
+                    convergenceInfo.innerHTML = `
+                        <p class="text-muted">
+                            {% if LANGUAGE_CODE == "es" %}
+                                Insuficientes iteraciones para análisis de convergencia
+                            {% else %}
+                                Insufficient iterations for convergence analysis
+                            {% endif %}
+                        </p>`;
+                    return;
+                }
+
+                // Calcular razón de convergencia promedio
+                let ratios = [];
+                for (let i = 2; i < iterations.length; i++) {
+                    const currentError = Math.abs(iterations[i].error);
+                    const previousError = Math.abs(iterations[i-1].error);
+                    if (previousError > 0 && currentError > 0) {
+                        ratios.push(currentError / previousError);
+                    }
+                }
+
+                let analysisHTML = '<div class="row">';
+                
+                // Convergence rate
+                analysisHTML += '<div class="col-md-6">';
+                analysisHTML += `<div class="card border-info h-100">
+                    <div class="card-body">
+                        <h6 class="card-title text-info">
+                            {% if LANGUAGE_CODE == "es" %}
+                                📈 Tasa de Convergencia
+                            {% else %}
+                                📈 Convergence Rate
+                            {% endif %}
+                        </h6>`;
+
+                if (ratios.length > 0) {
+                    const avgRatio = ratios.reduce((a, b) => a + b, 0) / ratios.length;
+                    analysisHTML += `<p class="mb-1"><strong>
+                        {% if LANGUAGE_CODE == "es" %}
+                            Razón promedio:
+                        {% else %}
+                            Average ratio:
+                        {% endif %}
+                    </strong> ${avgRatio.toFixed(4)}</p>`;
+                    
+                    if (avgRatio < 0.1) {
+                        analysisHTML += `<div class="alert alert-success alert-sm mt-2 mb-0">
+                            {% if LANGUAGE_CODE == "es" %}
+                                🚀 Convergencia rápida
+                            {% else %}
+                                🚀 Fast convergence
+                            {% endif %}
+                        </div>`;
+                    } else if (avgRatio < 0.5) {
+                        analysisHTML += `<div class="alert alert-info alert-sm mt-2 mb-0">
+                            {% if LANGUAGE_CODE == "es" %}
+                                ⚡ Convergencia buena
+                            {% else %}
+                                ⚡ Good convergence
+                            {% endif %}
+                        </div>`;
+                    } else if (avgRatio < 0.9) {
+                        analysisHTML += `<div class="alert alert-warning alert-sm mt-2 mb-0">
+                            {% if LANGUAGE_CODE == "es" %}
+                                🐌 Convergencia lenta
+                            {% else %}
+                                🐌 Slow convergence
+                            {% endif %}
+                        </div>`;
+                    } else {
+                        analysisHTML += `<div class="alert alert-danger alert-sm mt-2 mb-0">
+                            {% if LANGUAGE_CODE == "es" %}
+                                ⚠️ Convergencia muy lenta o posible divergencia
+                            {% else %}
+                                ⚠️ Very slow convergence or possible divergence
+                            {% endif %}
+                        </div>`;
+                    }
+                } else {
+                    analysisHTML += `<p class="text-muted">
+                        {% if LANGUAGE_CODE == "es" %}
+                            No se pudo calcular la tasa de convergencia
+                        {% else %}
+                            Could not calculate convergence rate
+                        {% endif %}
+                    </p>`;
+                }
+                analysisHTML += '</div></div>';
+
+                // Iteration behavior
+                analysisHTML += '<div class="col-md-6">';
+                analysisHTML += `<div class="card border-success h-100">
+                    <div class="card-body">
+                        <h6 class="card-title text-success">
+                            {% if LANGUAGE_CODE == "es" %}
+                                🎯 Comportamiento
+                            {% else %}
+                                🎯 Behavior
+                            {% endif %}
+                        </h6>
+                        <p class="mb-1"><strong>
+                            {% if LANGUAGE_CODE == "es" %}
+                                Total de iteraciones:
+                            {% else %}
+                                Total iterations:
+                            {% endif %}
+                        </strong> ${iterations.length}</p>
+                        <p class="mb-1"><strong>
+                            {% if LANGUAGE_CODE == "es" %}
+                                Error final:
+                            {% else %}
+                                Final error:
+                            {% endif %}
+                        </strong> ${iterations[iterations.length-1].error.toExponential(2)}</p>`;
+
+                if (results.converged) {
+                    analysisHTML += `<div class="alert alert-success alert-sm mt-2 mb-0">
+                        {% if LANGUAGE_CODE == "es" %}
+                            ✅ Método exitoso para esta función
+                        {% else %}
+                            ✅ Method successful for this function
+                        {% endif %}
+                    </div>`;
+                } else {
+                    analysisHTML += `<div class="alert alert-warning alert-sm mt-2 mb-0">
+                        {% if LANGUAGE_CODE == "es" %}
+                            💡 Consejo: Verifica que |g'(x)| < 1 en el punto fijo
+                        {% else %}
+                            💡 Tip: Verify that |g'(x)| < 1 at the fixed point
+                        {% endif %}
+                    </div>`;
+                }
+                analysisHTML += '</div></div>';
+
+                analysisHTML += '</div>';
+                convergenceInfo.innerHTML = analysisHTML;
             }
 
         </script>
