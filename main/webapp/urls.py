@@ -25,6 +25,7 @@ from .views.simpson_3_8_compuesto_views import simpson_3_8_compound, calculate_s
 from .views.simpson_tercio_simple_views import simpson_tercio_simple_page, calculate_simpson_tercio_simple
 from .views.romberg_method_views import romberg_method, calculate_romberg_method
 from .views.fixed_point_iteration_views import fixed_point_iteration_page, calculate_fixed_point_iteration
+from .views.gauss_quadrature_views import gauss_quadrature_page, calculate_gauss
 
 
 urlpatterns = [
@@ -80,4 +81,6 @@ urlpatterns = [
 
      path("fixed-point-iteration/", fixed_point_iteration_page, name="fixed_point_iteration"),
      path("calculate-fixed-point-iteration/", calculate_fixed_point_iteration, name="calculate_fixed_point_iteration"),
+     path("gauss-quadrature/", gauss_quadrature_page, name="gauss_quadrature"),
+     path("calculate-gauss-quadrature/", calculate_gauss, name="calculate_gauss_quadrature"),
 ]
