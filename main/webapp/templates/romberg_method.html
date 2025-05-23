@@ -1,0 +1,643 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% translate 'Método de Romberg' %} - {% translate 'Numerical Methods' %}{% endblock %}
+{% block content %}
+    {% load static %}
+
+    <div class="container-sm p-5">
+        <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
+            <div class="col-lg-12">
+                <h2 class="display-4 fw-bold lh-1s">{% translate 'Método de Romberg' %}</h2>
+                <p class="lead py-5">
+                    {% translate 'El método de Romberg es una técnica de integración numérica que mejora la precisión de la regla del trapecio compuesta mediante la extrapolación de Richardson. Calcula sucesivas aproximaciones de la integral y utiliza combinaciones lineales para acelerar la convergencia, obteniendo así resultados muy precisos con relativamente pocos subintervalos.' %}
+                </p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
+                    <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold"
+                            onclick="showCalculator()">{% translate 'Calculadora Gráfica' %}
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="showExplanation()">
+                        {% translate 'Explicación' %}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="py-3"></div>
+
+        <!-- Hidden calculator section -->
+        <div id="calculator" style="display: none;" class="mt-5">
+            <h3 class="mb-5">{% translate 'Calculadora Método de Romberg' %}</h3>
+            <form class="mb-5 p-4 bg-light rounded-3 shadow" id="calculatorForm">
+                <div class="mb-3">
+                    <label for="functionSelect" class="form-label">{% translate 'Selecciona la función' %}:</label>
+                    <select class="form-select" id="functionSelect" required>
+                        <option value="3*x**4 - 4*x**3 - 12*x**2 + 5">3x^4 - 4x^3 - 12x^2 + 5</option>
+                        <option value="cos(x)">cos(x)</option>
+                        <option value="sin(x)">sin(x)</option>
+                        <option value="8 + 3*sin(x)">8 + 3sin(x)</option>
+                        <option value="x*ln(x)">xln(x)</option>
+                        <option value="exp(2*x)*sin(3*x)">e^2x * sin(3x)</option>
+                        <option value="x / (x**2 + 4)">x / (x^2 + 4)</option>
+                        <option value="exp(x)*ln(x)">e^x * ln(x)</option>
+                        <option value="exp(x**2)">e^x^2</option>
+                        <option value="exp(x) / x">e^x / x</option>
+                    </select>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <label for="intervalA" class="form-label">{% translate 'Inicio del intervalo' %}:</label>
+                        <input type="number" class="form-control" id="intervalA" step="any" value="-3.1416" required>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <label for="intervalB" class="form-label">{% translate 'Fin del intervalo' %}:</label>
+                        <input type="number" class="form-control" id="intervalB" step="any" value="6.1416" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <label for="maxLevel" class="form-label">{% translate 'Niveles de Romberg (profundidad)' %}:</label>
+                        <input type="number" class="form-control" id="maxLevel" min="1" max="8" value="4" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-lg btn-primary mt-2" id="calculateButton">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" style="display: none;"
+                          id="loadingSpinner"></span>
+                    <span id="buttonText">{% translate 'Calcular y Graficar' %}</span>
+                </button>
+            </form>
+
+            <div id="graphs-container" class="mt-5 p-4 bg-light rounded-3 shadow" style="display: none;">
+                <div id="graph" class="mb-5 row justify-content-center">
+                    <img id="plotImage" src="" alt="Plot" class="img-fluid w-75 rounded-4">
+                </div>
+
+                <div class="rounded-5" id="plot-container" style="height: 500px;">
+                    <!-- Plotly chart will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Container for the Romberg steps -->
+            <div id="stepsContainer" class="mt-5" style="display: none;">
+                <!-- Tabla triangular de Romberg -->
+                <div class="p-4 bg-light rounded-3 shadow mb-4">
+                    <h4 class="mb-3">{% translate 'Tabla de Construcción del Método de Romberg' %}</h4>
+                    <div class="table-responsive">
+                        <table id="rombergStepsTable" class="table table-bordered table-hover">
+                            <thead class="table-dark">
+                                <tr id="rombergTableHeader">
+                                    <th class="text-center">i\j</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rombergStepsBody">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <strong>{% translate 'Nota' %}:</strong> 
+                            {% translate 'R[i,0] son las aproximaciones por trapecio, R[i,j] (j>0) son las extrapolaciones de Richardson.' %}
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Pasos detallados en acordeón -->
+                <div class="p-4 bg-white rounded-3 shadow">
+                    <h4 class="mb-3">{% translate 'Pasos Detallados del Cálculo' %}</h4>
+                    <div class="accordion" id="stepsAccordion">
+                        <!-- Steps will be dynamically generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Container for the results table -->
+            <div id="resultsTable" class="mt-5" style="display: none;">
+                <h4 class="mb-3">{% translate 'Tabla de Romberg' %}</h4>
+                <div class="table-responsive">
+                    <table id="dataTable" class="table table-bordered rounded-5 table-striped">
+                        <thead>
+                        <tr>
+                            <th>i</th>
+                            <th>j</th>
+                            <th>R[i][j]</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Final result display -->
+                <div id="finalResult" class="mt-4 p-3 bg-success text-white rounded-3" style="display: none;">
+                    <h5 class="mb-2">{% translate 'Resultado Final' %}:</h5>
+                    <p class="mb-0 fs-4" id="finalResultValue"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden extensive explanation section -->
+        <div id="explanation" class="mt-4 rounded-3">
+            <h3 class="pb-3">{% translate "Explicación Método de Romberg" %}</h3>
+            <p>
+                {% translate "<strong>Paso 1:</strong> Calcular las aproximaciones usando la regla del trapecio compuesta para diferentes particiones del intervalo [a, b]." %}<br><br>
+                {% translate "<strong>Paso 2:</strong> Construir la tabla de Romberg usando la extrapolación de Richardson:" %}
+                <br>
+                <span>
+                \[
+                R_{i,0} = T(h_i) = \text{Aproximación por trapecio con } 2^i \text{ subintervalos}
+                \]
+                \[
+                R_{i,j} = R_{i,j-1} + \frac{R_{i,j-1} - R_{i-1,j-1}}{4^j - 1}
+                \]
+                </span>
+                <br>
+                {% translate "Donde \( R_{i,j} \) es la entrada en la fila i y columna j de la tabla de Romberg, y \( T(h_i) \) es la aproximación por trapecio con paso \( h_i \)." %}
+                <br><br>
+                {% translate "<strong>Paso 3:</strong> El valor más preciso de la integral se encuentra en la esquina superior derecha de la tabla de Romberg. Es decir, el elemento \( R_{n,n} \) (donde n es el nivel máximo de refinamiento) representa la mejor estimación obtenida tras aplicar todas las extrapolaciones sucesivas. Este valor incorpora la información de todas las aproximaciones previas y suele converger rápidamente al valor exacto de la integral. Por lo tanto, para obtener el resultado final, basta con tomar el último elemento de la última fila de la tabla." %}
+            </p>
+        </div>
+
+        <script>
+            function showCalculator() {
+                document.getElementById('explanation').style.display = 'none';
+                document.getElementById('calculator').style.display = 'block';
+            }
+
+            function showExplanation() {
+                document.getElementById('calculator').style.display = 'none';
+                document.getElementById('explanation').style.display = 'block';
+            }
+
+            document.getElementById("calculatorForm").addEventListener("submit", function (event) {
+                event.preventDefault();
+                calculateAndGraph();
+            });
+
+            function setLoadingState(isLoading) {
+                const button = document.getElementById("calculateButton");
+                const spinner = document.getElementById("loadingSpinner");
+                const buttonText = document.getElementById("buttonText");
+
+                button.disabled = isLoading;
+                spinner.style.display = isLoading ? "inline-block" : "none";
+                buttonText.textContent = isLoading ? "{% translate 'Calculando...' %}" : "{% translate 'Calcular y Graficar' %}";
+            }
+
+            function calculateAndGraph() {
+                const func = document.getElementById("functionSelect").value;
+                const a = document.getElementById("intervalA").value;
+                const b = document.getElementById("intervalB").value;
+                const maxLevel = document.getElementById("maxLevel").value;
+
+                setLoadingState(true);
+
+                // Build url with query parameters
+                const url = `/calculate-romberg-method/?func=${encodeURIComponent(func)}&a=${a}&b=${b}&maxLevel=${maxLevel}`;
+
+                fetch(url)
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data.error) {
+                            alert("Error: " + data.error);
+                            console.log(data.error)
+                            return;
+                        }
+
+                        // Show the graph with the plot image
+                        const plotImage = document.getElementById("plotImage");
+                        plotImage.src = `data:image/png;base64,${data.image}`;
+                        document.getElementById("graphs-container").style.display = "block";
+                        document.getElementById("graph").style.display = "flex";
+
+                        // Render Plotly chart
+                        const plotData = JSON.parse(data.plot_json);
+                        Plotly.newPlot('plot-container', plotData.data, plotData.layout, {
+                            responsive: true,
+                            displayModeBar: true
+                        });
+
+                        // Generate the steps display
+                        generateStepsDisplay(data.steps);
+
+                        // Generate the Romberg table
+                        generateRombergTable(data.romberg_table);
+
+                        // Show final result if available
+                        showFinalResult(data.romberg_table, data.exact_value);
+                    })
+                    .catch((error) => {
+                        console.error("Error:", error);
+                        alert("{% translate 'Error en el cálculo. Por favor, revisa los parámetros.' %}");
+                    }).finally(() => {
+                    setLoadingState(false);
+                });
+            }
+
+            function generateStepsDisplay(steps) {
+                if (!steps || steps.length === 0) return;
+
+                // Parse steps to extract R[i][j] values and organize them
+                const rombergData = parseStepsToTable(steps);
+                buildRombergStepsTable(rombergData);
+                
+                // Generate detailed steps accordion
+                generateDetailedSteps(steps);
+                
+                document.getElementById("stepsContainer").style.display = "block";
+            }
+
+            function generateDetailedSteps(steps) {
+                const accordion = document.getElementById("stepsAccordion");
+                accordion.innerHTML = "";
+
+                // Group steps by calculation type
+                const trapezoidSteps = steps.filter(step => step.includes("T_") && step.includes(",0"));
+                const extrapolationSteps = steps.filter(step => step.includes("T_") && !step.includes(",0"));
+
+                // Create accordion items
+                if (trapezoidSteps.length > 0) {
+                    const trapezoidItem = createAccordionItem(
+                        "trapezoid", 
+                        "{% translate 'Aproximaciones por Regla del Trapecio' %}", 
+                        trapezoidSteps,
+                        false
+                    );
+                    accordion.appendChild(trapezoidItem);
+                }
+
+                if (extrapolationSteps.length > 0) {
+                    const extrapolationItem = createAccordionItem(
+                        "extrapolation", 
+                        "{% translate 'Extrapolaciones de Richardson' %}", 
+                        extrapolationSteps,
+                        false
+                    );
+                    accordion.appendChild(extrapolationItem);
+                }
+            }
+
+            function createAccordionItem(id, title, steps, isExpanded) {
+                const accordionItem = document.createElement("div");
+                accordionItem.className = "accordion-item";
+                
+                accordionItem.innerHTML = `
+                    <h2 class="accordion-header" id="heading${id}">
+                        <button class="accordion-button ${isExpanded ? '' : 'collapsed'}" type="button" 
+                                data-bs-toggle="collapse" data-bs-target="#collapse${id}" 
+                                aria-expanded="${isExpanded}" aria-controls="collapse${id}">
+                            <i class="fas fa-calculator me-2"></i>
+                            ${title}
+                            <span class="badge bg-primary ms-2">${steps.length} pasos</span>
+                        </button>
+                    </h2>
+                    <div id="collapse${id}" class="accordion-collapse collapse ${isExpanded ? 'show' : ''}" 
+                         aria-labelledby="heading${id}" data-bs-parent="#stepsAccordion">
+                        <div class="accordion-body">
+                            <div class="steps-list">
+                                ${steps.map((step, index) => `
+                                    <div class="step-item p-3 mb-2 bg-light rounded border-start border-primary border-3">
+                                        <div class="d-flex align-items-start">
+                                            <span class="badge bg-primary me-3 mt-1">${index + 1}</span>
+                                            <div class="flex-grow-1">
+                                                <code class="text-dark d-block">${step}</code>
+                                                ${getStepExplanation(step)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                return accordionItem;
+            }
+
+            function getStepExplanation(step) {
+                if (step.includes(",0")) {
+                    const match = step.match(/n=(\d+), h=([\d.]+)/);
+                    if (match) {
+                        return `<small class="text-muted mt-1 d-block">
+                                  <i class="fas fa-info-circle me-1"></i>
+                                  Aproximación por trapecio con ${match[1]} subintervalos y paso h=${match[2]}
+                                </small>`;
+                    }
+                } else {
+                    const match = step.match(/T_(\d+),(\d+)/);
+                    if (match) {
+                        return `<small class="text-muted mt-1 d-block">
+                                  <i class="fas fa-arrow-right me-1"></i>
+                                  Extrapolación de Richardson usando R[${match[1]},${parseInt(match[2])-1}] y R[${parseInt(match[1])-1},${parseInt(match[2])-1}]
+                                </small>`;
+                    }
+                }
+                return '';
+            }
+
+            function parseStepsToTable(steps) {
+                const rombergData = {};
+                const maxLevel = Math.max(...steps.map(step => {
+                    const match = step.match(/T_(\d+),(\d+)/);
+                    return match ? parseInt(match[1]) : 0;
+                })) + 1;
+
+                // Initialize the structure
+                for (let i = 0; i < maxLevel; i++) {
+                    rombergData[i] = {};
+                }
+
+                // Parse each step
+                steps.forEach(step => {
+                    const match = step.match(/T_(\d+),(\d+) = .* = ([\d.-]+)/);
+                    if (match) {
+                        const i = parseInt(match[1]);
+                        const j = parseInt(match[2]);
+                        const value = parseFloat(match[3]);
+                        rombergData[i][j] = {
+                            value: value,
+                            calculation: step
+                        };
+                    }
+                });
+
+                return { data: rombergData, maxLevel: maxLevel };
+            }
+
+            function buildRombergStepsTable(rombergInfo) {
+                const { data, maxLevel } = rombergInfo;
+                const header = document.getElementById("rombergTableHeader");
+                const tbody = document.getElementById("rombergStepsBody");
+                
+                // Clear existing content
+                header.innerHTML = '<th class="text-center bg-secondary text-white">i\\j</th>';
+                tbody.innerHTML = '';
+
+                // Build header with column indices
+                for (let j = 0; j < maxLevel; j++) {
+                    const th = document.createElement('th');
+                    th.className = 'text-center bg-secondary text-white';
+                    th.textContent = j;
+                    header.appendChild(th);
+                }
+
+                // Build rows
+                for (let i = 0; i < maxLevel; i++) {
+                    const row = document.createElement('tr');
+                    
+                    // Row header
+                    const rowHeader = document.createElement('th');
+                    rowHeader.className = 'text-center bg-light fw-bold';
+                    rowHeader.textContent = i;
+                    row.appendChild(rowHeader);
+
+                    // Data cells
+                    for (let j = 0; j < maxLevel; j++) {
+                        const cell = document.createElement('td');
+                        
+                        if (j <= i && data[i] && data[i][j]) {
+                            const cellData = data[i][j];
+                            cell.innerHTML = `
+                                <div class="romberg-cell" data-bs-toggle="tooltip" 
+                                     title="${cellData.calculation}">
+                                    <span class="fw-bold text-primary">${cellData.value.toFixed(8)}</span>
+                                    <small class="d-block text-muted">R[${i},${j}]</small>
+                                </div>
+                            `;
+                            cell.className = 'text-center p-2 romberg-value';
+                            
+                            // Highlight different types of calculations
+                            if (j === 0) {
+                                cell.classList.add('bg-info', 'bg-opacity-10', 'border-info');
+                            } else {
+                                cell.classList.add('bg-success', 'bg-opacity-10', 'border-success');
+                            }
+                            
+                            // Highlight final result
+                            if (i === maxLevel - 1 && j === i) {
+                                cell.classList.add('bg-warning', 'bg-opacity-25', 'border-warning', 'border-2');
+                                cell.innerHTML = `
+                                    <div class="romberg-cell final-result">
+                                        <span class="fw-bold text-dark fs-6">${cellData.value.toFixed(8)}</span>
+                                        <small class="d-block text-muted">R[${i},${j}] (Final)</small>
+                                        <i class="fas fa-star text-warning"></i>
+                                    </div>
+                                `;
+                            }
+                        } else {
+                            cell.className = 'text-center bg-light text-muted';
+                            cell.innerHTML = '<span class="text-muted">—</span>';
+                        }
+                        
+                        row.appendChild(cell);
+                    }
+                    
+                    tbody.appendChild(row);
+                }
+
+                // Initialize tooltips
+                setTimeout(() => {
+                    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                    tooltipTriggerList.map(function (tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl, {
+                            placement: 'top',
+                            html: true
+                        });
+                    });
+                }, 100);
+            }
+
+            function generateRombergTable(rombergTable) {
+                const table = document.getElementById("dataTable");
+                const thead = table.querySelector("thead");
+                const tbody = table.querySelector("tbody");
+
+                thead.innerHTML = `
+                  <tr>
+                    <th>i</th>
+                    <th>j</th>
+                    <th>R[i][j]</th>
+                  </tr>
+                `;
+                tbody.innerHTML = "";
+
+                for (let i = 0; i < rombergTable.length; i++) {
+                    for (let j = 0; j <= i; j++) {
+                        const row = document.createElement("tr");
+                        const isLastElement = (i === rombergTable.length - 1) && (j === i);
+                        
+                        row.innerHTML = `
+                            <td>${i}</td>
+                            <td>${j}</td>
+                            <td class="${isLastElement ? 'fw-bold text-success' : ''}">${rombergTable[i][j].toFixed(8)}</td>
+                        `;
+                        tbody.appendChild(row);
+                    }
+                }
+
+                document.getElementById("resultsTable").style.display = "block";
+            }
+
+            function showFinalResult(rombergTable, exactValue) {
+                if (!rombergTable || rombergTable.length === 0) return;
+
+                const lastRow = rombergTable[rombergTable.length - 1];
+                const finalResult = lastRow[lastRow.length - 1];
+                
+                let resultText = `∫ f(x) dx ≈ ${finalResult.toFixed(10)}`;
+                
+                if (exactValue !== null && exactValue !== undefined) {
+                    const error = Math.abs(finalResult - exactValue);
+                    resultText += `<br><small class="text-light">{% translate 'Valor exacto' %}: ${exactValue.toFixed(10)}</small>`;
+                    resultText += `<br><small class="text-light">{% translate 'Error absoluto' %}: ${error.toExponential(3)}</small>`;
+                }
+
+                document.getElementById("finalResultValue").innerHTML = resultText;
+                document.getElementById("finalResult").style.display = "block";
+            }
+
+            function normalizarFuncion(funcion) {
+                return funcion
+                    .replace(/\^/g, "**")
+                    .replace(/(\d)([a-zA-Z])/g, "$1*$2")
+                    .replace(/([a-zA-Z])(\d)/g, "$1*$2")
+                    .replace(/\bln\b/g, "log")
+                    .replace(/\be\b/g, "exp(1)");
+            }
+        </script>
+
+        <style>
+            .romberg-cell {
+                min-height: 60px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                cursor: help;
+                transition: all 0.3s ease;
+                padding: 8px 4px;
+            }
+            
+            .romberg-cell:hover {
+                transform: scale(1.05);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            }
+            
+            .romberg-value {
+                position: relative;
+                border-width: 1px !important;
+            }
+            
+            .final-result {
+                animation: pulse 2s infinite;
+            }
+            
+            @keyframes pulse {
+                0%, 100% {
+                    transform: scale(1);
+                }
+                50% {
+                    transform: scale(1.02);
+                }
+            }
+            
+            #rombergStepsTable {
+                font-size: 0.9rem;
+                min-width: 600px;
+            }
+            
+            #rombergStepsTable th {
+                min-width: 80px;
+                font-weight: 600;
+            }
+            
+            #rombergStepsTable td {
+                min-width: 120px;
+                vertical-align: middle;
+            }
+            
+            .bg-info.bg-opacity-10 {
+                background-color: rgba(13, 202, 240, 0.1) !important;
+            }
+            
+            .bg-success.bg-opacity-10 {
+                background-color: rgba(25, 135, 84, 0.1) !important;
+            }
+            
+            .bg-warning.bg-opacity-25 {
+                background-color: rgba(182, 50, 21, 0.25) !important;
+            }
+            
+            .tooltip .tooltip-inner {
+                max-width: 300px;
+                font-size: 0.8rem;
+                text-align: left;
+                font-family: 'Courier New', monospace;
+            }
+            
+            .steps-list {
+                max-height: 400px;
+                overflow-y: auto;
+            }
+            
+            .step-item {
+                transition: all 0.2s ease;
+                position: relative;
+            }
+            
+            .step-item:hover {
+                background-color: #e3f2fd !important;
+                transform: translateX(5px);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            .accordion-button:not(.collapsed) {
+                background-color: #e7f3ff;
+                border-color: #b6d7ff;
+            }
+            
+            .accordion-button {
+                font-weight: 500;
+            }
+            
+            .accordion-item {
+                margin-bottom: 10px;
+                border-radius: 8px !important;
+                overflow: hidden;
+            }
+            
+            .table-responsive {
+                max-height: 600px;
+                overflow: auto;
+                border: 1px solid #dee2e6;
+                border-radius: 0.375rem;
+            }
+            
+            #finalResult {
+                animation: fadeIn 0.5s ease-in;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            /* Separación visual entre secciones */
+            #stepsContainer > div:first-child {
+                border-bottom: 2px solid #e9ecef;
+            }
+
+            /* Mejoras en badges */
+            .badge {
+                font-size: 0.75rem;
+            }
+
+            /* Iconos en acordeón */
+            .accordion-button i {
+                color: #0d6efd;
+            }
+        </style>
+
+    </div>
+
+{% endblock %}
