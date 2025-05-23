@@ -225,7 +225,7 @@ def generate_interactive_gauss_graph(func, a, b, n, integral_value):
 
 # Ejemplo de uso:
 if __name__ == "__main__":
-    # Ejemplo de uso con entrada del usuario
+    from sympy import sympify
     print("Ejemplo de integración numérica usando el método de cuadratura de Gauss-Legendre")
     a = float(input("Ingrese el valor de a: "))
     b = float(input("Ingrese el valor de b: "))
@@ -235,21 +235,5 @@ if __name__ == "__main__":
     func_str = "x**2 + 1"
     func = sympify(func_str)
     
-    resultado, _, _ = gauss_quadrature(func, a, b, n)
-    print(f"Resultado de la integral por el método de cuadratura de Gauss-Legendre: {resultado}")
-    
-    # Generar visualizaciones
-    buffer = generate_gauss_graph(func, a, b, n, resultado)
-    
-    # Guardar el gráfico estático
-    with open("gauss_quadrature.png", "wb") as f:
-        f.write(buffer.getvalue())
-    
-    # Generar gráfico interactivo
-    interactive_graph = generate_interactive_gauss_graph(func, a, b, n, resultado)
-    
-    # Guardar el gráfico interactivo
-    with open("gauss_quadrature_interactive.json", "w") as f:
-        f.write(interactive_graph)
-    
-    print("¡Gráficos generados! 😜")
+    resultado, _, _, _, _, _ = gauss_quadrature(func, a, b, n)
+    print(f"Resultado de la integral: {resultado}")
