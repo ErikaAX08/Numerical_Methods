@@ -32,9 +32,59 @@
         <div id="calculator" style="display: none;" class="mt-5">
             <h3 class="mb-5">{% trans 'Bisection Calculator' %}</h3>
             <form class="mb-5 p-4 bg-light rounded-3 shadow" id="calculatorForm">
+                <!-- Ecuaciones predefinidas -->
+                <div class="mb-3">
+                    <label for="presetEquations" class="form-label">
+                        {% if LANGUAGE_CODE == "es" %}
+                            Ecuaciones Predefinidas:
+                        {% else %}
+                            Preset Equations:
+                        {% endif %}
+                    </label>
+                    <select class="form-select" id="presetEquations" onchange="loadPresetEquation()">
+                        <option value="custom">
+                            {% if LANGUAGE_CODE == "es" %}
+                                Ecuación personalizada
+                            {% else %}
+                                Custom equation
+                            {% endif %}
+                        </option>
+                        <option value="x^3 + 4*x^2 - 4" data-interval-a="1" data-interval-b="3">
+                            f(x) = x³ + 4x² - 4
+                        </option>
+                        <option value="x^2 - 2" data-interval-a="1" data-interval-b="2">
+                            f(x) = x² - 2 (√2 ≈ 1.414)
+                        </option>
+                        <option value="x^3 - x - 1" data-interval-a="1" data-interval-b="2">
+                            f(x) = x³ - x - 1
+                        </option>
+                        <option value="cos(x) - x" data-interval-a="0" data-interval-b="1">
+                            f(x) = cos(x) - x
+                        </option>
+                        <option value="exp(x) - 2" data-interval-a="0" data-interval-b="1">
+                            f(x) = eˣ - 2
+                        </option>
+                        <option value="x^3 - 2*x - 5" data-interval-a="2" data-interval-b="3">
+                            f(x) = x³ - 2x - 5
+                        </option>
+                        <option value="x^2 - 3*x + 2" data-interval-a="0.5" data-interval-b="1.5">
+                            f(x) = x² - 3x + 2
+                        </option>
+                        <option value="sin(x) - x/2" data-interval-a="1" data-interval-b="2">
+                            f(x) = sin(x) - x/2
+                        </option>
+                    </select>
+                </div>
+
                 <div class="mb-3">
                     <div class="col-md-12 col-sm-6 mb-3">
-                        <label for="equation" class="form-label">{% trans 'Equation' %}:</label>
+                        <label for="equation" class="form-label">
+                            {% if LANGUAGE_CODE == "es" %}
+                                Ecuación:
+                            {% else %}
+                                Equation:
+                            {% endif %}
+                        </label>
                         <input type="text" class="form-control" id="equation" value="x^3 + 4*x^2 - 4" required>
                     </div>
                 </div>
@@ -127,6 +177,41 @@
         </div>
 
         <script>
+            // Función para cargar ecuación predefinida
+            function loadPresetEquation() {
+                const select = document.getElementById('presetEquations');
+                const selectedOption = select.options[select.selectedIndex];
+                const equationInput = document.getElementById('equation');
+                const intervalAInput = document.getElementById('intervalA');
+                const intervalBInput = document.getElementById('intervalB');
+
+                if (select.value !== 'custom') {
+                    equationInput.value = select.value;
+                    intervalAInput.value = selectedOption.getAttribute('data-interval-a');
+                    intervalBInput.value = selectedOption.getAttribute('data-interval-b');
+                }
+            }
+
+            // Función para detectar cuando el usuario modifica manualmente la ecuación
+            document.getElementById('equation').addEventListener('input', function() {
+                const presetSelect = document.getElementById('presetEquations');
+                const currentEquation = this.value;
+                
+                // Buscar si la ecuación actual coincide con alguna predefinida
+                let foundMatch = false;
+                for (let i = 0; i < presetSelect.options.length; i++) {
+                    if (presetSelect.options[i].value === currentEquation) {
+                        presetSelect.selectedIndex = i;
+                        foundMatch = true;
+                        break;
+                    }
+                }
+                
+                // Si no coincide con ninguna predefinida, seleccionar "custom"
+                if (!foundMatch) {
+                    presetSelect.value = 'custom';
+                }
+            });
 
             function showCalculator() {
                 document.getElementById('explanation').style.display = 'none';

@@ -8,6 +8,7 @@
         <div class="row pb-0 pt-lg-5 align-items-center rounded-3 mb-5 mb-5">
             <div class="col-lg-12">
                 <h2 class="display-4 fw-bold lh-1s">{% translate 'Regula Falsi' %}</h2>
+                {% get_current_language as LANGUAGE_CODE %}
                 <p class="lead py-5">
                     {% if LANGUAGE_CODE == "es" %}
                         El Método de la Posición Falsa (Regula Falsi) es un algoritmo iterativo para encontrar raíces que aproxima la raíz de una función mediante interpolación lineal entre dos puntos que encierran la raíz. Mejora el Método de Bisección al utilizar la pendiente de la línea que conecta los puntos para converger más rápidamente. El Método de la Posición Falsa Modificado introduce ajustes para reducir el riesgo de convergencia lenta, especialmente cuando un límite permanece fijo durante múltiples iteraciones. Ambos métodos son útiles para resolver ecuaciones no lineales donde las soluciones analíticas son difíciles de obtener.
@@ -32,9 +33,78 @@
         <div id="calculator" style="display: none;" class="mt-5">
             <h3 class="mb-5">{% translate 'Regula Falsi Calculator' %}</h3>
             <form class="mb-5 p-4 bg-light rounded-3 shadow" id="calculatorForm">
+                <!-- Ecuaciones predefinidas -->
+                <div class="mb-3">
+                    <label for="presetEquations" class="form-label">
+                        {% if LANGUAGE_CODE == "es" %}
+                            Ecuaciones Predefinidas:
+                        {% else %}
+                            Preset Equations:
+                        {% endif %}
+                    </label>
+                    <select class="form-select" id="presetEquations" onchange="loadPresetEquation()">
+                        <option value="custom">
+                            {% if LANGUAGE_CODE == "es" %}
+                                Ecuación personalizada
+                            {% else %}
+                                Custom equation
+                            {% endif %}
+                        </option>
+                        <option value="x^3 + 4*x^2 - 4" data-interval-a="1" data-interval-b="3" data-p0="1.0" data-p1="2.5">
+                            f(x) = x³ + 4x² - 4
+                        </option>
+                        <option value="x^2 - 2" data-interval-a="1" data-interval-b="2" data-p0="1.0" data-p1="2.0">
+                            f(x) = x² - 2 (√2 ≈ 1.414)
+                        </option>
+                        <option value="x^3 - x - 1" data-interval-a="1" data-interval-b="2" data-p0="1.0" data-p1="1.5">
+                            f(x) = x³ - x - 1
+                        </option>
+                        <option value="cos(x) - x" data-interval-a="0" data-interval-b="1" data-p0="0.0" data-p1="1.0">
+                            f(x) = cos(x) - x
+                        </option>
+                        <option value="exp(x) - 2" data-interval-a="0" data-interval-b="1" data-p0="0.0" data-p1="1.0">
+                            f(x) = eˣ - 2
+                        </option>
+                        <option value="x^3 - 2*x - 5" data-interval-a="2" data-interval-b="3" data-p0="2.0" data-p1="3.0">
+                            f(x) = x³ - 2x - 5
+                        </option>
+                        <option value="x^2 - 3*x + 2" data-interval-a="0.5" data-interval-b="1.5" data-p0="0.5" data-p1="1.5">
+                            f(x) = x² - 3x + 2 (raíces: 1 y 2)
+                        </option>
+                        <option value="sin(x) - x/2" data-interval-a="1" data-interval-b="2" data-p0="1.0" data-p1="2.0">
+                            f(x) = sin(x) - x/2
+                        </option>
+                        <option value="x^3 - 6*x^2 + 11*x - 6" data-interval-a="0.5" data-interval-b="1.5" data-p0="0.5" data-p1="1.5">
+                            f(x) = x³ - 6x² + 11x - 6 (convergencia lenta)
+                        </option>
+                        <option value="x^4 - x - 1" data-interval-a="1" data-interval-b="2" data-p0="1.0" data-p1="2.0">
+                            f(x) = x⁴ - x - 1
+                        </option>
+                        <option value="log(x) - 1" data-interval-a="2" data-interval-b="3" data-p0="2.0" data-p1="3.0">
+                            f(x) = ln(x) - 1 (e ≈ 2.718)
+                        </option>
+                        <option value="x^5 - x - 1" data-interval-a="1" data-interval-b="2" data-p0="1.0" data-p1="2.0">
+                            f(x) = x⁵ - x - 1 (muestra diferencias entre métodos)
+                        </option>
+                    </select>
+                    <div class="form-text">
+                        {% if LANGUAGE_CODE == "es" %}
+                            Selecciona una ecuación para comparar el método regular con el modificado
+                        {% else %}
+                            Select an equation to compare the regular method with the modified one
+                        {% endif %}
+                    </div>
+                </div>
+
                 <div class="mb-3">
                     <div class="col-md-12 col-sm-6 mb-3">
-                        <label for="equation" class="form-label">{% translate 'Equation' %}:</label>
+                        <label for="equation" class="form-label">
+                            {% if LANGUAGE_CODE == "es" %}
+                                Ecuación:
+                            {% else %}
+                                Equation:
+                            {% endif %}
+                        </label>
                         <input type="text" class="form-control" id="equation" value="x^3 + 4*x^2 - 4" required>
                     </div>
                 </div>
@@ -65,10 +135,24 @@
                     <div class="col-sm-6 mb-3">
                         <label for="p0" class="form-label">{% translate 'Initial Point p0' %}:</label>
                         <input type="number" class="form-control" id="p0" step="any" value="1.0" required>
+                        <div class="form-text">
+                            {% if LANGUAGE_CODE == "es" %}
+                                Extremo izquierdo del intervalo inicial
+                            {% else %}
+                                Left endpoint of initial interval
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="col-sm-6 mb-3">
                         <label for="p1" class="form-label">{% translate 'Initial Point p1' %}:</label>
                         <input type="number" class="form-control" id="p1" step="any" value="2.5" required>
+                        <div class="form-text">
+                            {% if LANGUAGE_CODE == "es" %}
+                                Extremo derecho del intervalo inicial
+                            {% else %}
+                                Right endpoint of initial interval
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
 
@@ -91,34 +175,58 @@
             </div>
 
             <div id="results" class="mt-5 p-4 bg-light rounded-3 shadow" style="display: none;">
-                <h4 class="mb-3">{% translate 'Results' %}: {% translate 'Regula falsi' %}</h4>
-                <div id="messageContainer"></div>
-                <table id="resultsTable" class="table table-bordered rounded-5 table-striped mb-5">
-                    <thead>
-                    <tr>
-                        <th>{% translate 'Iteration' %}</th>
-                        <th>{% translate 'p0' %}</th>
-                        <th>{% translate 'p1' %}</th>
-                        <th>{% translate 'p' %}</th>
-                        <th>{% translate 'f(p)' %}</th>
-                    </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-                <h4 class="mb-3">{% translate 'Results' %}: {% translate 'Regula falsi Modified' %}</h4>
-                <div id="messageContainerModified"></div>
-                <table id="resultsTableModified" class="table table-bordered rounded-5 table-striped">
-                    <thead>
-                    <tr>
-                        <th>{% translate 'Iteration' %}</th>
-                        <th>{% translate 'p0' %}</th>
-                        <th>{% translate 'p1' %}</th>
-                        <th>{% translate 'p' %}</th>
-                        <th>{% translate 'f(p)' %}</th>
-                    </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4 class="mb-3">{% translate 'Results' %}: {% translate 'Regula falsi' %}</h4>
+                        <div id="messageContainer"></div>
+                        <div class="table-responsive">
+                            <table id="resultsTable" class="table table-bordered table-striped table-sm mb-4">
+                                <thead class="table-dark">
+                                <tr>
+                                    <th>{% translate 'Iteration' %}</th>
+                                    <th>{% translate 'p0' %}</th>
+                                    <th>{% translate 'p1' %}</th>
+                                    <th>{% translate 'p' %}</th>
+                                    <th>{% translate 'f(p)' %}</th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4 class="mb-3">{% translate 'Results' %}: {% translate 'Regula falsi Modified' %}</h4>
+                        <div id="messageContainerModified"></div>
+                        <div class="table-responsive">
+                            <table id="resultsTableModified" class="table table-bordered table-striped table-sm">
+                                <thead class="table-dark">
+                                <tr>
+                                    <th>{% translate 'Iteration' %}</th>
+                                    <th>{% translate 'p0' %}</th>
+                                    <th>{% translate 'p1' %}</th>
+                                    <th>{% translate 'p' %}</th>
+                                    <th>{% translate 'f(p)' %}</th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Comparison section -->
+                <div class="mt-4 p-3 bg-info bg-opacity-10 rounded" style="display: none;">
+                    <h5 class="text-info">
+                        {% if LANGUAGE_CODE == "es" %}
+                            📊 Comparación de Métodos
+                        {% else %}
+                            📊 Methods Comparison
+                        {% endif %}
+                    </h5>
+                    <div id="comparisonContainer" style="display: none;">
+                        <!-- Comparison will be populated here -->
+                    </div>
+                </div>
             </div>
         </div>
         <!-- Hidden extensive explanation section -->
@@ -198,6 +306,45 @@
         </div>
 
         <script>
+            // Función para cargar ecuación predefinida
+            function loadPresetEquation() {
+                const select = document.getElementById('presetEquations');
+                const selectedOption = select.options[select.selectedIndex];
+                const equationInput = document.getElementById('equation');
+                const intervalAInput = document.getElementById('intervalA');
+                const intervalBInput = document.getElementById('intervalB');
+                const p0Input = document.getElementById('p0');
+                const p1Input = document.getElementById('p1');
+
+                if (select.value !== 'custom') {
+                    equationInput.value = select.value;
+                    intervalAInput.value = selectedOption.getAttribute('data-interval-a');
+                    intervalBInput.value = selectedOption.getAttribute('data-interval-b');
+                    p0Input.value = selectedOption.getAttribute('data-p0');
+                    p1Input.value = selectedOption.getAttribute('data-p1');
+                }
+            }
+
+            // Función para detectar cuando el usuario modifica manualmente la ecuación
+            document.getElementById('equation').addEventListener('input', function() {
+                const presetSelect = document.getElementById('presetEquations');
+                const currentEquation = this.value;
+                
+                // Buscar si la ecuación actual coincide con alguna predefinida
+                let foundMatch = false;
+                for (let i = 0; i < presetSelect.options.length; i++) {
+                    if (presetSelect.options[i].value === currentEquation) {
+                        presetSelect.selectedIndex = i;
+                        foundMatch = true;
+                        break;
+                    }
+                }
+                
+                // Si no coincide con ninguna predefinida, seleccionar "custom"
+                if (!foundMatch) {
+                    presetSelect.value = 'custom';
+                }
+            });
 
             function showCalculator() {
                 document.getElementById('explanation').style.display = 'none';
@@ -232,6 +379,9 @@
                 // Clear messages
                 document.getElementById("messageContainer").innerHTML = "";
                 document.getElementById("messageContainerModified").innerHTML = "";
+
+                // Clear comparison
+                document.getElementById("comparisonContainer").innerHTML = "";
 
                 // Clear plots
                 Plotly.purge('plot-container');
@@ -328,6 +478,9 @@
                     data.results_regula_falsi_modified.results,
                     "{% translate 'Regula falsi Modified' %}"
                 );
+
+                // Display comparison
+                displayComparison(data.results_regula_falsi.results, data.results_regula_falsi_modified.results);
             }
 
             function populateResultsTable(tableId, messageId, results, title) {
@@ -341,12 +494,24 @@
                 if (results.converged) {
                     messageContainer.innerHTML = `
                         <div class="alert alert-success">
-                            <strong>${title} - {% translate 'Root found' %}:</strong> ${results.root.toFixed(6)}
+                            <strong>${title}:</strong><br>
+                            {% if LANGUAGE_CODE == "es" %}
+                                ✅ Raíz encontrada: ${results.root.toFixed(8)}<br>
+                                📊 Iteraciones: ${results.iterations.length}
+                            {% else %}
+                                ✅ Root found: ${results.root.toFixed(8)}<br>
+                                📊 Iterations: ${results.iterations.length}
+                            {% endif %}
                         </div>`;
                 } else {
                     messageContainer.innerHTML = `
                         <div class="alert alert-warning">
-                            ${title} - {% translate 'Method did not converge within the maximum number of iterations' %}.
+                            <strong>${title}:</strong><br>
+                            {% if LANGUAGE_CODE == "es" %}
+                                ⚠️ No convergió en ${results.iterations.length} iteraciones
+                            {% else %}
+                                ⚠️ Did not converge in ${results.iterations.length} iterations
+                            {% endif %}
                         </div>`;
                 }
 
@@ -361,6 +526,83 @@
                     `;
                     tbody.appendChild(row);
                 });
+            }
+
+            function displayComparison(regularResults, modifiedResults) {
+                const comparisonContainer = document.getElementById('comparisonContainer');
+                
+                const regularIterations = regularResults.iterations.length;
+                const modifiedIterations = modifiedResults.iterations.length;
+                const regularConverged = regularResults.converged;
+                const modifiedConverged = modifiedResults.converged;
+
+                let comparisonHTML = '<div class="row">';
+                
+                // Comparison of iterations
+                comparisonHTML += '<div class="col-md-6">';
+                comparisonHTML += `<div class="card border-primary h-100">
+                    <div class="card-body">
+                        <h6 class="card-title text-primary">{% if LANGUAGE_CODE == "es" %}🔄 Eficiencia{% else %}🔄 Efficiency{% endif %}</h6>
+                        <p class="mb-1"><strong>{% translate 'Regula falsi' %}:</strong> ${regularIterations} {% if LANGUAGE_CODE == "es" %}iteraciones{% else %}iterations{% endif %}</p>
+                        <p class="mb-1"><strong>{% translate 'Regula falsi Modified' %}:</strong> ${modifiedIterations} {% if LANGUAGE_CODE == "es" %}iteraciones{% else %}iterations{% endif %}</p>`;
+                
+                if (regularConverged && modifiedConverged) {
+                    const improvement = ((regularIterations - modifiedIterations) / regularIterations * 100).toFixed(1);
+                    if (modifiedIterations < regularIterations) {
+                        comparisonHTML += `<div class="alert alert-success alert-sm mt-2 mb-0">
+                            {% if LANGUAGE_CODE == "es" %}
+                                ⚡ Modificado es ${Math.abs(improvement)}% más rápido
+                            {% else %}
+                                ⚡ Modified is ${Math.abs(improvement)}% faster
+                            {% endif %}
+                        </div>`;
+                    } else if (modifiedIterations > regularIterations) {
+                        comparisonHTML += `<div class="alert alert-info alert-sm mt-2 mb-0">
+                            {% if LANGUAGE_CODE == "es" %}
+                                📊 Regular fue ${improvement}% más rápido para esta función
+                            {% else %}
+                                📊 Regular was ${improvement}% faster for this function
+                            {% endif %}
+                        </div>`;
+                    } else {
+                        comparisonHTML += `<div class="alert alert-secondary alert-sm mt-2 mb-0">
+                            {% if LANGUAGE_CODE == "es" %}
+                                ⚖️ Ambos métodos tuvieron el mismo rendimiento
+                            {% else %}
+                                ⚖️ Both methods had the same performance
+                            {% endif %}
+                        </div>`;
+                    }
+                }
+                comparisonHTML += '</div></div>';
+                
+                // Convergence status
+                comparisonHTML += '<div class="col-md-6">';
+                comparisonHTML += `<div class="card border-info h-100">
+                    <div class="card-body">
+                        <h6 class="card-title text-info">{% if LANGUAGE_CODE == "es" %}🎯 Convergencia{% else %}🎯 Convergence{% endif %}</h6>
+                        <p class="mb-1"><strong>{% translate 'Regula falsi' %}:</strong> ${regularConverged ? 
+                            '{% if LANGUAGE_CODE == "es" %}✅ Convergió{% else %}✅ Converged{% endif %}' : 
+                            '{% if LANGUAGE_CODE == "es" %}❌ No convergió{% else %}❌ Did not converge{% endif %}'}</p>
+                        <p class="mb-1"><strong>{% translate 'Regula falsi Modified' %}:</strong> ${modifiedConverged ? 
+                            '{% if LANGUAGE_CODE == "es" %}✅ Convergió{% else %}✅ Converged{% endif %}' : 
+                            '{% if LANGUAGE_CODE == "es" %}❌ No convergió{% else %}❌ Did not converge{% endif %}'}</p>`;
+
+                if (regularConverged && modifiedConverged) {
+                    const rootDifference = Math.abs(regularResults.root - modifiedResults.root);
+                    comparisonHTML += `<div class="alert alert-info alert-sm mt-2 mb-0">
+                        {% if LANGUAGE_CODE == "es" %}
+                            📏 Diferencia en raíces: ${rootDifference.toExponential(2)}
+                        {% else %}
+                            📏 Root difference: ${rootDifference.toExponential(2)}
+                        {% endif %}
+                    </div>`;
+                }
+                comparisonHTML += '</div></div>';
+                
+                comparisonHTML += '</div>';
+                
+                comparisonContainer.innerHTML = comparisonHTML;
             }
 
         </script>
