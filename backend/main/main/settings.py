@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "webapp",  # Agregar la aplicación webapp al proyecto
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

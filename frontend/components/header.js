@@ -1,28 +1,26 @@
-import { Calculator, BookOpen, Github } from "lucide-react"
+import { Calculator } from "lucide-react"
 
 export function Header() {
     return (
-        <header className="bg-white shadow-sm">
-            <div className="container mx-auto px-4 py-4">
+        <header className="bg-white">
+            <div className="max-w-6xl mx-auto px-6 py-6">
                 <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-blue-600 rounded-lg">
-                            <Calculator className="h-6 w-6 text-white" />
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/30 shadow-lg hover:scale-110 transition-transform duration-300">
+                            <Calculator className="h-6 w-6 text-black" />
                         </div>
                         <div>
-                            <h1 className="text-xl font-bold text-slate-800">NumMethods</h1>
-                            <p className="text-sm text-slate-500">Métodos Numéricos</p>
+                            <h1 className="text-2xl font-bold text-black drop-shadow-sm">NumMethods</h1>
+                            <p className="text-black text-sm">Métodos Numéricos Interactivos</p>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        <button className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-blue-600 transition-colors">
-                            <BookOpen className="h-4 w-4" />
-                            <span className="hidden sm:inline">Documentación</span>
+                    <div className="flex items-center gap-6">
+                        <button className="px-4 py-2 bg-white/20 backdrop-blur-sm text-black rounded-xl border border-white/30 hover:bg-white/30 hover:scale-105 transition-all duration-300 font-medium shadow-lg">
+                            Docs
                         </button>
-                        <button className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-blue-600 transition-colors">
-                            <Github className="h-4 w-4" />
-                            <span className="hidden sm:inline">GitHub</span>
+                        <button className="px-4 py-2 bg-white/20 backdrop-blur-sm text-black rounded-xl border border-white/30 hover:bg-white/30 hover:scale-105 transition-all duration-300 font-medium shadow-lg">
+                            GitHub
                         </button>
                     </div>
                 </div>

@@ -1,37 +1,29 @@
-"use client";
+"use client"
 
-import { CategoryNav } from "@/components/category-nav";
-import { Header } from "@/components/header";
-import { Introduction } from "@/components/introduction";
-import { MethodCard } from "@/components/method-card";
-import { MethodGrid } from "@/components/methods-grid";
-import { useState } from "react";
+import { useState } from "react"
+import { MethodsGrid } from "@/components/methods-grid"
+import { CategoryNav } from "@/components/category-nav"
+import { Header } from "@/components/header"
+import { Introduction } from "@/components/introduction"
 
-export default function Home() {
-
-  // 
-  const [activeCategory, setActiveCategory] = useState(null);
+export default function HomePage() {
+  const [activeCategory, setActiveCategory] = useState(null)
 
   return (
-    <>
-      <div className="min-h-screen bg-white-60">
-        <Header />
-        <main className="container mx-auto px-4 py-8">
-          <div className="mb-8 text-center">
-            <h1 className="text-4xl font-bold text-slate-800 mb-4">Métodos Numéricos</h1>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              Explora una colección completa de métodos numéricos organizados por categorías para resolver problemas
-              matemáticos y de ingeniería.
-            </p>
-          </div>
+    <div className="min-h-screen bg-white">
+      <Header />
+      <main className="max-w-6xl mx-auto px-6 py-16">
+        <div className="mb-16 text-center">
+          <h1 className="text-5xl font-light text-gray-900 mb-6 tracking-tight">Métodos Numéricos</h1>
+          <p className="text-xl text-gray-500 max-w-3xl mx-auto font-light leading-relaxed">
+            Colección de métodos numéricos para resolver problemas matemáticos y de ingeniería
+          </p>
+        </div>
 
-          <CategoryNav 
-            activeCategory={activeCategory}
-            onCategoryChange={setActiveCategory}
-          />
-          {activeCategory ? <MethodGrid activeCategory={activeCategory} /> : <Introduction />}
-        </main>
-      </div>
-    </>
-  );
+        <CategoryNav activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
+
+        {activeCategory ? <MethodsGrid activeCategory={activeCategory} /> : <Introduction />}
+      </main>
+    </div>
+  )
 }

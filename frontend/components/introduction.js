@@ -7,8 +7,8 @@ export function Introduction() {
             color: "from-blue-500 to-cyan-500",
         },
         {
-            name: "TypeScript",
-            description: "Tipado estático para JavaScript",
+            name: "JavaScript",
+            description: "Lenguaje de programación dinámico",
             category: "Language",
             color: "from-indigo-500 to-purple-500",
         },
@@ -40,47 +40,43 @@ export function Introduction() {
 
     const team = [
         {
-            name: "Erika Amastal Xochimitl",
-            role: "Fulltack Developer",
-            // description: "Especialista en React y diseño de interfaces",
-            skills: ["React", "TypeScript", "UI/UX"],
+            name: "Erika Amastal",
+            role: "Frontend Developer",
+            description: "Especialista en React y diseño de interfaces",
+            skills: ["React", "JavaScript", "UI/UX"],
             color: "from-pink-500 to-rose-500",
         },
         {
-            name: "Guillermo Campos Salas",
+            name: "Guillermo Campos",
             role: "Backend Developer",
-            // description: "Arquitectura de software y APIs",
+            description: "Arquitectura de software y APIs",
             skills: ["Node.js", "Database", "API Design"],
             color: "from-blue-500 to-indigo-500",
         },
         {
-            name: "Iván Luna Martínez",
+            name: "Iván Luna",
             role: "Applied Mathematics",
-            // description: "Experta en métodos numéricos y algoritmos",
+            description: "Experta en métodos numéricos y algoritmos",
             skills: ["Numerical Analysis", "Algorithms", "Mathematics"],
             color: "from-emerald-500 to-teal-500",
         },
     ]
 
     return (
-        <div className="space-y-32 mt-16 bg-white-60">
+        <div className="space-y-32 mt-16">
             <section className="text-center max-w-4xl mx-auto">
-                <div className="text-slate-800 mb-6">
+                <div className="bg-white">
                     <h2 className="text-4xl font-bold mb-4">Explora el Mundo de los Métodos Numéricos</h2>
                 </div>
                 <p className="text-xl text-gray-700 leading-relaxed mb-8 font-medium">
                     Esta aplicación interactiva te permite explorar métodos numéricos utilizados en matemáticas aplicadas,
                     ingeniería y ciencias computacionales.
                 </p>
-                <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-100 to-blue-100 rounded-full border border-purple-200">
-                    <span className="w-2 h-2 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full animate-pulse"></span>
-                    <p className="text-gray-600 font-medium">Selecciona una categoría para comenzar a explorar</p>
-                </div>
             </section>
 
             <section>
                 <div className="text-center mb-16">
-                    <h2 className="text-4xl font-bold text-slate-800 mb-4">
+                    <h2 className="text-4xl font-bold bg-white mb-4">
                         Stack Tecnológico
                     </h2>
                     <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -121,7 +117,7 @@ export function Introduction() {
 
             <section>
                 <div className="text-center mb-16">
-                    <h2 className="text-4xl font-bold text-slate-800 mb-4">
+                    <h2 className="text-4xl font-bold bg-white mb-4">
                         Equipo de Desarrollo
                     </h2>
                     <p className="text-xl text-gray-600 max-w-3xl mx-auto">

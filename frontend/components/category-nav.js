@@ -1,6 +1,7 @@
-import { cn } from "@/lib/utils";
+"use client"
 
-// Array objetos categorías
+import { cn } from "@/lib/utils"
+
 const categories = [
     { id: "roots", name: "Raíces de Ecuaciones", count: 6, color: "from-red-500 to-pink-500" },
     { id: "linear", name: "Sistemas Lineales", count: 5, color: "from-blue-500 to-indigo-500" },
@@ -11,8 +12,8 @@ const categories = [
 
 export function CategoryNav({ activeCategory, onCategoryChange }) {
     return (
-        <div className="mb-8">
-            <div className="flex flex-wrap gap-2 justify-center">
+        <div className="mb-16">
+            <div className="flex flex-wrap gap-4 justify-center">
                 <button
                     onClick={() => onCategoryChange(null)}
                     className={cn(
@@ -22,7 +23,7 @@ export function CategoryNav({ activeCategory, onCategoryChange }) {
                             : "bg-white text-gray-700 border-gray-200 hover:border-purple-300 hover:shadow-purple-500/20",
                     )}
                 >
-                    Inicio
+                    🏠 Inicio
                 </button>
 
                 {categories.map((category) => (
@@ -49,5 +50,5 @@ export function CategoryNav({ activeCategory, onCategoryChange }) {
                 ))}
             </div>
         </div>
-    );
+    )
 }
